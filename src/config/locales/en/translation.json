@@ -1,0 +1,785 @@
+{
+  "authorization": {
+    "jwt": {
+      "invalidFormat": "Invalid Authorization header format!",
+      "invalidToken": "Invalid token!",
+      "acceesDenied": "Access denied!"
+    },
+    "RBAS": {
+      "error": "You do not have permission to access this resource!",
+      "server": "Server error: Invalid roles configuration!",
+      "unexpected": "An unexpected error occurred!"
+    }
+  },
+
+  "authValidationMessages": {
+    "username": {
+      "empty": "Username must not be empty.",
+      "length": "Username must have at least 4 characters long."
+    },
+    "email": {
+      "empty": "Email must not be empty.",
+      "notEmail": "Invalid email address."
+    },
+    "phoneNumber": {
+      "empty": "Please provide Admin Phone No.",
+      "length": "Admin Phone number must be 10 digits.",
+      "containCharacters": "Phone No. must contain only digits."
+    },
+    "password": {
+      "empty": "Password must not be empty.",
+      "length": "Password must have at least 6 characters long."
+    },
+    "role": {
+      "notFromEnum": "Invalid Role Value."
+    },
+    "response": {
+      "register": {
+        "isExist": "Admin already exist with given email",
+        "success": "registered successfully!",
+        "server": "Server error"
+      },
+      "login": {
+        "notFound": "Admin not found!",
+        "invalidCredentials": "Invalid credentials!",
+        "success": "Login successful!",
+        "server": "Server error"
+      }
+    }
+  },
+
+  "employeeValidationMessages": {
+    "id": {
+      "empty": "Employee ID is required.",
+      "invalidMongooseFormat": "Invalid Employee ID format!"
+    },
+    "name": {
+      "empty": "Employee Name must not be empty.",
+      "length": "Name must have at least 4 characters long."
+    },
+    "contactNo": {
+      "empty": "Please provide Employee Contact No.",
+      "length": "Employee Contact number must be 10 digits.",
+      "containCharacters": "Contact No. must contain only digits."
+    },
+    "email": {
+      "empty": "Employee Email must not be empty.",
+      "notEmail": "Invalid Employee email address."
+    },
+    "designation": {
+      "empty": "Employee Designation must not be empty.",
+      "length": "Designation must be at least 2 characters long."
+    },
+    "response": {
+      "createEmployee": {
+        "exist": "Employee alreday exist with given email",
+        "success": "Employee created successfully",
+        "server": "Server error in creating new employee"
+      },
+      "getAllEmployees": {
+        "success": "Employees retrieved successfully",
+        "server": "Server error in fetching all employees"
+      },
+      "getEmployeeById": {
+        "notFound": "Employee not found!",
+        "success": "Employee retrieved successfully",
+        "server": "Server error in fetching employee"
+      },
+      "updateEmployeeById": {
+        "exist": "Employee alreday exist with given email",
+        "notFound": "Employee not found!",
+        "success": "Employee updated successfully",
+        "server": "Server error in updating employee"
+      },
+      "deleteEmployeeById": {
+        "notFound": "Employee not found!",
+        "success": "Employee delete successfully",
+        "server": "Server error in deleting employee"
+      },
+      "notExist": "Employee not exist with id: "
+    }
+  },
+
+  "teamValidationMessages": {
+    "id": {
+      "empty": "Team ID is required.",
+      "invalidMongooseFormat": "Invalid Team ID format!"
+    },
+    "name": {
+      "empty": "Team Name must not be empty.",
+      "length": "Team Name must have at least 4 characters long."
+    },
+    "addRemoveTeamMemberValidation": {
+      "id": {
+        "empty": "Team ID is required.",
+        "invalidMongooseFormat": "Invalid Team ID format!"
+      },
+      "employeeId": {
+        "mustBeArray": "Please provide atleast one employee id to add in team in an array",
+        "invalidMongooseFormat": "Invalid Employee Id format",
+        "empty": "Employee Id is empty"
+      }
+    },
+    "response": {
+      "createTeam": {
+        "exist": "Team alreday exist with given name",
+        "success": "Team created successfully",
+        "server": "Server error in creating new team"
+      },
+      "getAllTeams": {
+        "success": "Teams retrieved successfully!",
+        "server": "Server error in fetching all teams"
+      },
+      "getTeamById": {
+        "notFound": "Team not found!",
+        "success": "Team retrieved successfully",
+        "server": "Server error in fetching team"
+      },
+      "updateTeamById": {
+        "notFound": "Team not found!",
+        "success": "Team updated successfully",
+        "server": "Server error in updating team"
+      },
+      "deleteTeamById": {
+        "notFound": "Team not found!",
+        "success": "Team delete successfully",
+        "server": "Server error in deleting team"
+      },
+      "addMemberToTeam": {
+        "notFound": "Team not exist!",
+        "notFoundEmployee": "Employee not exist",
+        "alreadyinTeam": "Employee is already a member of the team!",
+        "success": "Employee added to team successfully",
+        "server": "Server error in adding employee to team"
+      },
+      "removeMemberFromTeam": {
+        "notFound": "Team not exist!",
+        "notFoundEmployee": "Employee not exist",
+        "alreadyNotinTeam": "Employee is not a member of the team!",
+        "success": "Employee removed from team successfully",
+        "server": "Server error in removing employee to team"
+      },
+      "teamNotExist":"Team Not exist with id: "
+    }
+  },
+
+  "roleValidationMessages": {
+    "name": {
+      "empty": "Role name must not be empty.",
+      "length": "Role name must have at least 2 characters long."
+    },
+    "id": {
+      "empty": "Role Id is required.",
+      "invalidMongooseFormat": "Invalid Role ID format!"
+    },
+    "response": {
+      "createRole": {
+        "exist": "Role alreday exist with given name",
+        "success": "Role created successfully",
+        "server": "Server error in creating new role"
+      },
+      "getAllRoles": {
+        "success": "Roles fetched successfully",
+        "server": "Server error in fetching all roles"
+      },
+      "getRoleById": {
+        "notFound": "Role not found!",
+        "success": "Role retrieved successfully",
+        "server": "Server error in fetching role"
+      },
+      "updateRoleById": {
+        "notFound": "Role not found!",
+        "success": "Role updated successfully",
+        "server": "Server error in updating role"
+      },
+      "deleteRoleById": {
+        "notFound": "Role not found!",
+        "success": "Role delete successfully",
+        "server": "Server error in deleting role"
+      }
+    }
+  },
+
+  "projectValidationMessages": {
+    "createProjectByNameValidation": {
+      "name": {
+        "empty": "Project name is required.",
+        "length": "Project name must have at least 4 characters."
+      },
+      "description": {
+        "empty": "Project description is required.",
+        "length": "Project description must have at least 25 characters."
+      }
+    },
+    "createProjectValidation": {
+      "name": {
+        "empty": "Project name is required.",
+        "length": "Project name must have at least 4 characters."
+      },
+      "description": {
+        "empty": "Project description is required.",
+        "length": "Project description must have at least 25 characters."
+      },
+      "parentProjectId": {
+        "empty": "Parent Project is required.",
+        "invalidId": "Invalid Parent Project Id Format."
+      },
+      "country": {
+        "empty": "Country Id is required.",
+        "invalidId": "Invalid Country Id Format."
+      },
+      "region": {
+        "empty": "Region Id is required.",
+        "invalidId": "Invalid Region Id Format."
+      },
+      "worksite": {
+        "empty": "Worksite Id is required.",
+        "invalidId": "Invalid Worksite Id Format."
+      }
+    },
+    "updateProjectValidation": {
+      "id": {
+        "empty": "Project Id is required.",
+        "invalidId": "Invalid Project Id Format."
+      },
+      "name": {
+        "empty": "Project name is required.",
+        "length": "Project name must have at least 4 characters."
+      },
+      "description": {
+        "empty": "Project description is required.",
+        "length": "Project description must have at least 25 characters."
+      },
+      "country": {
+        "empty": "Country Id is required.",
+        "invalidId": "Invalid Country Id Format."
+      },
+      "region": {
+        "empty": "Region Id is required.",
+        "invalidId": "Invalid Region Id Format."
+      },
+      "worksite": {
+        "empty": "Worksite Id is required.",
+        "invalidId": "Invalid Worksite Id Format."
+      },
+      "parentProjectId": {
+        "empty": "Parent Project is required.",
+        "invalidId": "Invalid Parent Project Id Format."
+      },
+      "roles": {
+        "array": "At least one role is required.",
+        "custom": "Each role must have valid role, assignTo, and roleDescription."
+      }
+    },
+    "getProjectById": {
+      "id": {
+        "empty": "Project Id is required.",
+        "invalidId": "Invalid Project Id Format."
+      }
+    },
+    "addRolesToProject": {
+      "roles": {
+        "array": "At least one role is required.",
+        "custom": "Each role must have valid role, assignTo, and roleDescription.",
+        "invalidRoleId": "Invalid Role Id format!",
+        "invalidEmployeeId": "Invalid Employee Id format!"
+      }
+    },
+    "validateSpecificRole": {
+      "id": {
+        "empty": "Project Id is required.",
+        "invalidId": "Invalid Project Id Format."
+      },
+      "roleId": {
+        "empty": "Role Id is required.",
+        "invalidId": "Invalid Role Id Format."
+      },
+      "newRoleDetails": {
+        "team": {
+          "invalidId": "Team must be a valid MongoDB ObjectId."
+        },
+        "assignTo": {
+          "invalidId": "Assign To must be a valid MongoDB ObjectId."
+        },
+        "description": {
+          "string": "Role description must be a string.",
+          "length": "Role description must have atleast 25 characters"
+        }
+      }
+    },
+    "response": {
+      "createProjectByName": {
+        "exist": "Project alreday exist with given name",
+        "success": "Project created successfully",
+        "server": "Server error in creating new project"
+      },
+      "createProject": {
+        "roleNotExist": "Role does not exist with ID ",
+        "invalidLocation": " not exist, Invalid Location ",
+        "employeeNotExist": "Employee does not exist with ID ",
+        "parentProject": "Parent project does not exist with ID ",
+        "update": "Project updated successfully!",
+        "success": "Project created successfully!",
+        "server": "Server error in creating new project!"
+      },
+      "getAllProjects": {
+        "success": "Projects fetched successfully",
+        "server": "Server error in retrieving the projects"
+      },
+      "updateProject": {
+        "roleNotExist": "Role does not exist with ID ",
+        "employeeNotExist": "Employee does not exist with ID ",
+        "parentProject": "Parent project does not exist with ID ",
+        "notFound": "Project not found!",
+        "success": "Project updated successfully!",
+        "server": "Server error in updating project!",
+        "locationNotExist": "Location not exist with Id: "
+      },
+      "getProjectById": {
+        "notFound": "Project not found!",
+        "success": "Project fetched successfully",
+        "server": "Server error in retrieving the project"
+      },
+      "deleteProjectById": {
+        "notFound": "Project not found!",
+        "success": "Project deleted successfully",
+        "server": "Server error in deleting the project"
+      },
+      "addRolesInProject":{
+        "success":"Roles added successfully",
+        "server":"Server error in adding roles to project"
+      },
+      "updateSpecificRole": {
+        "notFound": "Project not found!",
+        "roleNotAvailabel": "Role not availabel in Project ",
+        "teamNotFound": "Team does not exist with ID ",
+        "employeeNotFound": "Employee does not exist with ID ",
+        "success": "Project's Roles updated successfully!",
+        "server": "Server error in updating project roles!"
+      },
+      "getProjectsByLocation":{
+        "locationNotExist":"Location not exist!",
+        "notFound":"Project not found for location: ",
+        "success":"Project from location fetched successfully!",
+        "server":"Server error in fetching project from location"
+      }
+    }
+  },
+
+  "announcementValidationMessages": {
+    "validateAnnouncement": {
+      "title": {
+        "empty": "Announcement Title is required",
+        "string": "Announcement Title must be a string"
+      },
+      "description": {
+        "empty": "Announcement Description is required"
+      },
+      "country": {
+        "empty": "Announcement Country Id is required",
+        "invalidId": "Invalid Country Id Format"
+      },
+      "region": {
+        "empty": "Announcement Region Id is required",
+        "invalidId": "Invalid Region Id Format"
+      },
+      "worksite": {
+        "empty": "Announcement Worksite Id is required",
+        "invalidId": "Invalid Worksite Id Format"
+      },
+      "team": {
+        "empty": "Announcement Team Id is required",
+        "invalidId": "Invalid Team Id Format"
+      }
+    },
+    "updateAnnouncementByIdValidation": {
+      "id": {
+        "empty": "Announcement Id is required",
+        "invalidId": "Invalid Announcement ID format"
+      },
+      "title": {
+        "empty": "Announcement Title is required",
+        "string": "Announcement Title must be a string"
+      },
+      "description": {
+        "empty": "Announcement Description is required"
+      },
+      "team": {
+        "empty": "Announcement Team Id is required",
+        "invalidId": "Invalid Team Id Format"
+      },
+      "location": {
+        "empty": "Announcement Location Id is required",
+        "invalidId": "Invalid Location Id Format"
+      }
+    },
+    "getAnnouncementByIdValidation": {
+      "id": {
+        "empty": "Announcement Id is required",
+        "invalidId": "Invalid Announcement ID format"
+      }
+    },
+    "response": {
+      "createAnnouncement": {
+        "titleExist": "Announcement Already exist with title",
+        "teamNotExist": "Team not exist with Id: ",
+        "invalidLocation": "not exist. Invalid Location",
+        "success": "Announcement created successfully",
+        "server": "Error in creating announcement"
+      },
+      "updateAnnouncement": {
+        "titleExist": "Announcement Already exist with title",
+        "teamNotExist": "Team not exist with Id: ",
+        "locationNotExist": "Location not exist with Id: ",
+        "notFound": "Announcement not found",
+        "success": "Announcement updated successfully",
+        "server": "Error in updating announcement"
+      },
+      "getAnnouncements": {
+        "success": "Announcement retrieved successfully!",
+        "server": "Server error in fetching announcements"
+      },
+      "getAnnouncementById": {
+        "notFound": "Announcement not found",
+        "success": "Announcement retrieved successfully!",
+        "server": "Error in fetching announcement"
+      },
+      "deleteAnnouncementById": {
+        "notFound": "Announcement not found",
+        "success": "Announcement deleted successfully!",
+        "server": "Error in deleting announcement"
+      }
+    }
+  },
+
+  "locationValidationMessages": {
+    "validateCreateLocation": {
+      "country": {
+        "empty": "Location country name is required.",
+        "string": "Location country name must be a string."
+      },
+      "region": {
+        "empty": "Location region name is required.",
+        "string": "Location region name must be a string."
+      },
+      "worksite": {
+        "empty": "Location worksite name is required.",
+        "string": "Location worksite name must be a string."
+      }
+    },
+    "validateUpdateLocation": {
+      "id": {
+        "empty": "Location Id is required.",
+        "invalidId": "Invalid Location Id format."
+      },
+      "country": {
+        "empty": "Location country name is required.",
+        "string": "Location country name must be a string."
+      },
+      "region": {
+        "empty": "Location region name is required.",
+        "string": "Location region name must be a string."
+      },
+      "worksite": {
+        "empty": "Location worksite name is required.",
+        "string": "Location worksite name must be a string."
+      }
+    },
+    "validateLocationId": {
+      "id": {
+        "empty": "Location Id is required.",
+        "invalidId": "Invalid Location Id format."
+      }
+    },
+    "response": {
+      "createLocation": {
+        "locationExist": "Location already exist with given details",
+        "success": "Location created successfully",
+        "server": "Error in creating location"
+      },
+      "updateLocation": {
+        "notFound": "Location not found",
+        "locationExist": "Location already exist with given details",
+        "success": "Location updated successfully",
+        "server": "Error in updating location"
+      },
+      "getLocations": {
+        "success": "Locations retrieved successfully",
+        "server": "Error in fetching locations"
+      },
+      "getLocationById": {
+        "notFound": "Location not found",
+        "success": "Location retrieved successfully",
+        "server": "Error in fetching location"
+      },
+      "deleteLocationById": {
+        "notFound": "Location not found",
+        "success": "Location deleted successfully",
+        "server": "Error in deleting location"
+      },
+      "hardDeleteLocation": {
+        "notFound": "Location not found",
+        "success": "Location deleted successfully",
+        "server": "Error in deleting location permanently"
+      }
+    }
+  },
+
+  "countryValidationMessages": {
+    "validateCountry": {
+      "name": {
+        "empty": "Country name is required",
+        "string": "Country name must be a string"
+      },
+      "id": {
+        "empty": "Country ID is required",
+        "invalidMongooseFormat": "Invalid Country ID format"
+      }
+    },
+    "response": {
+      "addCountry": {
+        "success": "Country added successfully",
+        "server": "Failed to add Country"
+      },
+      "getAllCountries": {
+        "success": "Countrys fetched successfully",
+        "server": "server error in fetching Countries"
+      },
+      "getCountryById": {
+        "success": "Country fetched successfully",
+        "server": "Server error in fetching Country"
+      },
+      "updateCountryById": {
+        "success": "Country updated successfully",
+        "server": "Server error in updating Country"
+      },
+      "deleteCountryById": {
+        "success": "Country deleted successfully",
+        "server": "Server error in deleting Country"
+      },
+      "CountryExist": "Country already exists",
+      "CountryExistInCountry": "Country with the same name already exists in the specified country",
+      "CountryNotFound": "Country not found",
+      "CountryNotExist": "Country does not exist"
+    }
+  },
+
+  "regionValidationMessages": {
+    "validateRegion": {
+      "name": {
+        "empty": "Region name is required",
+        "string": "Region name must be a string"
+      },
+      "id": {
+        "empty": "Region ID is required",
+        "invalidMongooseFormat": "Invalid Region ID format"
+      }
+    },
+    "response": {
+      "addRegion": {
+        "success": "Region added successfully",
+        "server": "Failed to add Region"
+      },
+      "getAllRegions": {
+        "success": "Regions fetched successfully",
+        "server": "server error in fetching Regions"
+      },
+      "getRegionsByCountry": {
+        "notFound": "No Regions found for the specified region",
+        "success": "Regions by country fetched successfully",
+        "server": "Server error in fetching Regions of region"
+      },
+      "updateRegionById": {
+        "success": "Region updated successfully",
+        "server": "Server error in updating Region"
+      },
+      "deleteRegionById": {
+        "success": "Region deleted successfully",
+        "server": "Server error in deleting Region"
+      },
+      "getRegionById": {
+        "success": "Region fetched successfully",
+        "server": "Server error in fetching Region by id"
+      },
+      "regionExist": "Region already exists",
+      "regionExistInCountry": "Region with the same name already exists in the specified country",
+      "regionNotFound": "Region not found",
+      "regionNotExist": "Region does not exist"
+    }
+  },
+
+  "worksiteValidationMessages": {
+    "validateWorksite": {
+      "name": {
+        "empty": "Worksite name is required",
+        "string": "Worksite name must be a string"
+      },
+      "id": {
+        "empty": "Worksite ID is required",
+        "invalidMongooseFormat": "Invalid Worksite ID format"
+      }
+    },
+    "response": {
+      "addWorksite": {
+        "success": "Worksite added successfully",
+        "server": "Failed to add worksite"
+      },
+      "getAllWorksites": {
+        "success": "Worksites fetched successfully",
+        "server": "server error in fetching worksites"
+      },
+      "getWorksitesByRegion": {
+        "notFound": "No worksites found for the specified region",
+        "success": "Worksites by region fetched successfully",
+        "server": "Server error in fetching worksites of region"
+      },
+      "updateWorksiteById": {
+        "success": "Worksite updated successfully",
+        "server": "Server error in updating worksite"
+      },
+      "deleteWorksiteById": {
+        "success": "Worksite deleted successfully",
+        "server": "Server error in deleting worksite"
+      },
+      "workSiteExist": "Worksite already exists",
+      "workSiteExistInRegion": "Worksite with the same name already exists in the specified region",
+      "worksiteNotFound": "Worksite not found"
+    }
+  },
+
+  "incidentValidationMessages": {
+    "incidentValidationRules": {
+      "level": {
+        "empty": "Incident Level is required",
+        "string": "Incident Level must be a string",
+        "enum": "Level must be one of Level 1, Level 2, Level 3"
+      },
+      "type": {
+        "empty": "Incident type is required",
+        "string": "Incident type must be a string"
+      },
+      "description": {
+        "empty": "Incident description is required",
+        "string": "Incident description must be a string"
+      },
+      "location": {
+        "empty": "Incident location is required",
+        "string": "Incident location must be a string"
+      },
+      "status": {
+        "empty": "Incident status is required",
+        "string": "Incident status must be a string",
+        "enum": "Status must be one of 'Assigned', 'Delayed', 'In Progress','Completed','Cancelled'"
+      },
+      "projectId": {
+        "empty": "Incident Project Id is required",
+        "string": "Incident Project id must be a valid MongodDb Id"
+      },
+      "assignTo": {
+        "empty": "Incident AssignTo Id is required",
+        "string": "Incident AssignTo id must be a valid MongodDb Id"
+      },
+      "countOfInjuredPeople": {
+        "empty": "Incident Count Of Injured People is required",
+        "int": "Count of injured people must be a non-negative integer"
+      },
+      "countOfTotalPeople": {
+        "empty": "Incident Count Of Total People is required",
+        "int": "Count of total people must be a non-negative integer"
+      },
+      "damageAssets": {
+        "empty": "Incident Damage Assets Value is required",
+        "string": "Incident  Damage Assets must be a string"
+      },
+      "finance": {
+        "empty": "Incident finance value is required",
+        "int": "Incident finance value must be a positive number"
+      },
+      "utilityAffected": {
+        "empty": "Incident Utility Affected Array is required",
+        "array": "Utility affected must be an array of strings"
+      },
+      "informToTeam": {
+        "empty": "Incident Inform To Team value is required",
+        "boolean": "Incident Inform To Team must be a boolean value"
+      },
+      "termsAndConditions": {
+        "empty": "Incident Terms and Conditions value is required",
+        "boolean": "IncidentTerms and Conditions must be a boolean value"
+      }
+    },
+    "incidentsByIdValidationRules": {
+      "id": {
+        "empty": "Incident ID is required",
+        "isMongoDbId": "Incident ID must be valid MongodDB ID."
+      }
+    },
+
+    "response": {
+      "createIncident": {
+        "success": "Incident created successfully",
+        "server": "Failed to create incident"
+      },
+      "getIncidentByProjectId": {
+        "notFound": "No incidents found for this project or invalid project id",
+        "success": "Incidents fetched successfully",
+        "server": "Error in fetching incidents by project"
+      },
+      "getAllIncidents": {
+        "success": "Incidents fetched successfully",
+        "server": "Failed to fetch incidents"
+      },
+      "getIncidentById": {
+        "success": "Incident fetched successfully",
+        "server": "Failed to fetch incident"
+      },
+      "updateIncidentById": {
+        "success": "Incident updated successfully",
+        "server": "Failed to update incident"
+      },
+      "deleteIncidentById": {
+        "success": "Incident deleted successfully",
+        "server": "Failed to delete incident"
+      },
+      "updateIncidentStatus": {
+        "success": "Incident status updated successfully!",
+        "server": "Server error in updating Incident status"
+      },
+      "stopIncidentTimer": {
+        "success": "Incident Timer stopped successfully!",
+        "server": "Server error in stopping incident timer",
+        "alreadyStopped": "Timer is Already Stopped"
+      },
+      "notFound": "Incident not found",
+      "notExist": "Incident not exist with id: "
+    }
+  },
+
+  "incidentHistoryValidationMessages": {
+    "incidentHistoryValidation": {
+      "incident": {
+        "empty": "Incident ID is required",
+        "isMongoDbId": "Invalid Incident ID Format"
+      },
+      "employee": {
+        "empty": "Employee ID is required",
+        "isMongoDbId": "Invalid Employee ID Format"
+      },
+      "title": {
+        "empty": "Title is required",
+        "string": "Title must be string"
+      }
+    },
+    "response": {
+      "addIncidentHistory": {
+        "success": "Incident history added successfully",
+        "server": "Server error in adding incident history"
+      },
+      "getIncidentHistoryByIncidentId": {
+        "notFound": "No history found for incident id: ",
+        "success": "Incident history retrieved successfully",
+        "server": "Server error in retrieving incident history"
+      }
+    }
+  }
+}
