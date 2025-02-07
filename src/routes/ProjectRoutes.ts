@@ -6,9 +6,8 @@ import {
   deleteProject,
   getAllProjects,
   createProjectByName,
-  updateSpecificRole,
-  addRolesInProject,
   getProjectsByLocation,
+  getAllEmployeesInProjectOrganization,
 } from "../controllers/ProjectControllers";
 
 import {
@@ -16,8 +15,6 @@ import {
   updateProjectValidation,
   getProjectByIdValidation,
   createProjectByNameValidation,
-  validateSpecificRole,
-  addRolesToProjectValidation,
   projectByLocationValidation,
 } from "../validations/projectValidators";
 
@@ -25,7 +22,6 @@ import { checkValidationResult } from "../middlewares/checkValidationsMiddleware
 import { authenticate } from "../middlewares/authMiddleware";
 import { authorizeRoles } from "../middlewares/roleMiddleware";
 import { GlobalAdminRoles } from "../config/global-enum";
-import { validateLocationId } from "../validations/locationValidator";
 
 const router = express.Router();
 
@@ -77,31 +73,22 @@ router
     deleteProject
   );
 
-router.put(
-  "/add-roles/:id",
-  authenticate,
-  authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin),
-  addRolesToProjectValidation,
-  checkValidationResult,
-  addRolesInProject
-);
-
-router.put(
-  "/update-roles/:id",
-  authenticate,
-  authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin),
-  validateSpecificRole,
-  checkValidationResult,
-  updateSpecificRole
-);
-
 router.get(
-  "/project-by-location/",
+  "/project-by-location",
   authenticate,
   authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin),
   projectByLocationValidation,
   checkValidationResult,
   getProjectsByLocation
+);
+
+router.get(
+  "/employees-in-project-organization/:id",
+  authenticate,
+  authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin),
+  getProjectByIdValidation,
+  checkValidationResult,
+  getAllEmployeesInProjectOrganization
 );
 
 export default router;

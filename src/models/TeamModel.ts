@@ -4,6 +4,7 @@ export interface ITeam extends Document{
     name:string;
     members:mongoose.Types.ObjectId[],
     isDeleted:boolean;
+    createdBy:mongoose.Types.ObjectId
 }
 
 const TeamSchema = new Schema<ITeam>({
@@ -21,6 +22,11 @@ const TeamSchema = new Schema<ITeam>({
     isDeleted:{
         type:Boolean,
         default:false,
+    },
+    createdBy:{
+        type:Schema.Types.ObjectId,
+        ref:'Employee',
+        required:true
     }
 },{
     timestamps:true

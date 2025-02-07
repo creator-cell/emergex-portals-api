@@ -1,5 +1,7 @@
 import { body, param } from "express-validator";
 
+const base64Regex = /^data:image\/(png|jpeg|jpg|gif|webp);base64,[A-Za-z0-9+/=]+$/;
+
 export const incidentValidationRules = [
   body("level")
     .notEmpty()
@@ -175,6 +177,41 @@ export const incidentValidationRules = [
     .withMessage((_, { req }) =>
       req.i18n.t(
         "incidentValidationMessages.incidentValidationRules.termsAndConditions.boolean"
+      )
+    ),
+    body("images")
+      .notEmpty()
+      .withMessage((_, { req }) =>
+        req.i18n.t(
+          "incidentValidationMessages.incidentValidationRules.signature.empty"
+        )
+      )
+      .isArray()
+    .withMessage((_, { req }) =>
+      req.i18n.t(
+        "incidentValidationMessages.incidentValidationRules.images.array"
+      )
+    )
+    .custom((images) => {
+      if (!Array.isArray(images)) return false;
+      return images.every((img) => base64Regex.test(img));
+    })
+    .withMessage((_, { req }) =>
+      req.i18n.t(
+        "incidentValidationMessages.incidentValidationRules.images.base64"
+      )
+    ),
+  body("signature")
+    .notEmpty()
+    .withMessage((_, { req }) =>
+      req.i18n.t(
+        "incidentValidationMessages.incidentValidationRules.signature.empty"
+      )
+    )
+    .matches(base64Regex)
+    .withMessage((_, { req }) =>
+      req.i18n.t(
+        "incidentValidationMessages.incidentValidationRules.signature.base64"
       )
     ),
 ];

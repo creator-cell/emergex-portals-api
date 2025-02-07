@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createIncident, deleteIncidentById, getIncidentById, getIncidentsByProject, stopIncidentTimer, updateIncidentStatus } from "../controllers/IncidentControllers";
+import { createIncident, deleteIncidentById, getIncidentById, getIncidentsByProject, getIncidentStatistics, stopIncidentTimer, updateIncidentStatus } from "../controllers/IncidentControllers";
 import { uploadFiles } from "../middlewares/uploadMiddleware";
 import { handleErrors } from "../middlewares/multerErrorMiddleware";
 import { checkValidationResult } from "../middlewares/checkValidationsMiddleware";
@@ -15,7 +15,7 @@ router
   .post(
     authenticate,
     authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin),
-    uploadFiles,
+    // uploadFiles,
     incidentValidationRules,
     checkValidationResult,
     createIncident
@@ -34,6 +34,8 @@ router.put("/update-status/:id",authenticate,authorizeRoles(GlobalAdminRoles.Sup
 
 router.put("/stop-timer/:id",authenticate,authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin),incidentsByIdValidationRules,checkValidationResult,stopIncidentTimer)
 
-router.use(handleErrors);
+router.get("/statistics", authenticate,authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin),getIncidentStatistics);
+
+// router.use(handleErrors);
 
 export default router;

@@ -5,6 +5,45 @@ import { config } from "../config";
 import { AccountProviderType, GlobalAdminRoles } from "../config/global-enum";
 import AccountModel, { IAccount } from "../models/AccountModel";
 import mongoose from "mongoose";
+import SessionModel from "../models/SessionModel";
+
+const parseUserAgent = (userAgent: string): { browser: string; os: string } => {
+  let browser = "unknown";
+  let os = "unknown";
+
+  // Detect browser
+  if (userAgent.includes("Firefox")) {
+    browser = "Firefox";
+  } else if (userAgent.includes("Chrome")) {
+    browser = "Chrome";
+  } else if (userAgent.includes("Safari")) {
+    browser = "Safari";
+  } else if (userAgent.includes("Edge")) {
+    browser = "Edge";
+  } else if (userAgent.includes("Opera")) {
+    browser = "Opera";
+  }
+
+  if (userAgent.includes("Windows")) {
+    os = "Windows";
+  } else if (userAgent.includes("Mac OS")) {
+    os = "Mac OS";
+  } else if (userAgent.includes("Linux")) {
+    os = "Linux";
+  } else if (userAgent.includes("Android")) {
+    os = "Android";
+  } else if (userAgent.includes("iOS")) {
+    os = "iOS";
+  }
+
+  return { browser, os };
+};
+
+const getDeviceType = (req: Request): string => {
+  const userAgent = req.headers["user-agent"] || "";
+  const isMobile = /Mobile|Android|iPhone|iPad|iPod|Windows Phone/i.test(userAgent);
+  return isMobile ? "mobile" : "desktop";
+};
 
 export const register = async (
   req: Request,
@@ -101,8 +140,31 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
       });
     }
 
+    await SessionModel.updateMany({ userId: user._id },{
+      $set:{
+        isActive:false
+      }
+    });
+
+    const ip = req.ip || req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown";
+    const userAgent = req.headers["user-agent"] || "unknown";
+
+    // Parse browser and OS from the user agent string
+    const { browser, os } = parseUserAgent(userAgent);
+
+    // Create a new session
+    const session = await SessionModel.create({
+      userId: user._id,
+      ip: ip,
+      browser: browser,
+      os: os,
+      device: getDeviceType(req), // Determine device type (mobile, desktop, etc.)
+      expiryAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day expiry
+      role: user.role,
+    });
+
     const token = jwt.sign(
-      { id: user._id, role: user.role },
+      { id: user._id, role: user.role, os: session.os, device: session.device },
       config.jwtSecret,
       { expiresIn: "1d" }
     );

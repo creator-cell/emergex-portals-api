@@ -6,6 +6,8 @@ import EmployeeModel from "../models/EmployeeModel";
 import ProjectModel from "../models/ProjectModel";
 import { getPaginationOptions, paginate } from "../helper/pagination";
 import { generateUniqueIncidentId } from "../helper/IncidentFunctions";
+import { UploadBase64File } from "../helper/S3Bucket";
+import mongoose from "mongoose";
 
 export const createIncident = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
@@ -26,49 +28,71 @@ export const createIncident = async (req: Request, res: Response) => {
       informToTeam,
       termsAndConditions,
       projectId,
+      images,
+      signature,
     } = req.body;
+
+    // console.log("body: ",req.body)
+
     let id = req.body.id;
 
-    const isIdExist = await IncidentModel.findOne({id});
-    if(isIdExist){
+    const isIdExist = await IncidentModel.findOne({ id });
+    if (isIdExist || !id) {
       id = await generateUniqueIncidentId();
     }
 
     const isEmployeeExist = await EmployeeModel.findById(assignedTo);
     if (!isEmployeeExist) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          error: req.i18n.t(
-            "projectValidationMessages.response.createProject.employeeNotExist"
-          ),
-        });
+      return res.status(400).json({
+        success: false,
+        error: req.i18n.t(
+          "projectValidationMessages.response.createProject.employeeNotExist"
+        ),
+      });
     }
 
     const isProjectexist = await ProjectModel.findById(projectId);
     if (!isProjectexist) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          error: req.i18n.t(
-            "projectValidationMessages.response.getProjectById.notFound"
-          ),
-        });
+      return res.status(400).json({
+        success: false,
+        error: req.i18n.t(
+          "projectValidationMessages.response.getProjectById.notFound"
+        ),
+      });
     }
 
-    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+    let imagePaths: string[] = [];
+    if (images && Array.isArray(images)) {
+      const uploadPromises = images.map(async (base64String, index) => {
+        const fileName = `incident_${id}_image_${index}_${Date.now()}.jpg`;
+        const uploadResponse = await UploadBase64File(base64String, fileName);
+        return uploadResponse.Success ? uploadResponse.ImageURl : null;
+      });
 
-    const audioPath = files.audio
-      ? `/uploads/audio/${files.audio[0].filename}`
-      : undefined;
-    const imagePaths = files.image
-      ? files.image.map((file) => `/uploads/images/${file.filename}`)
-      : undefined;
-    const signaturePath = files.signature
-      ? `/uploads/signatures/${files.signature[0].filename}`
-      : undefined;
+      const uploadedImages = await Promise.all(uploadPromises);
+      imagePaths = uploadedImages.filter((url): url is string => url !== null);
+    }
+
+    let signaturePath = null;
+    if (signature) {
+      const fileName = `incident_${id}_signature_image_${Date.now()}.jpg`;
+      const uploadResponse = await UploadBase64File(signature, fileName);
+      signaturePath=uploadResponse.Success ? uploadResponse.ImageURl : null;
+    }
+
+    if (imagePaths.length === 0) {
+      return res.status(400).json({
+        succees: false,
+        error: req.i18n.t("incidentValidationMessages.response.createIncident.imageUploadError"),
+      });
+    }
+
+    if (!signaturePath) {
+      return res.status(400).json({
+        succees: false,
+        error: req.i18n.t("incidentValidationMessages.response.createIncident.signatureUploadError"),
+      });
+    }
 
     const newIncident = new IncidentModel({
       id,
@@ -76,7 +100,6 @@ export const createIncident = async (req: Request, res: Response) => {
       level,
       type,
       description,
-      audio: audioPath,
       status,
       assignedTo,
       countOfInjuredPeople,
@@ -86,7 +109,7 @@ export const createIncident = async (req: Request, res: Response) => {
       finance,
       utilityAffected,
       image: imagePaths,
-      signature: signaturePath,
+      signature:signaturePath,
       informToTeam,
       termsAndConditions,
       createdBy: currentUser.id,
@@ -101,24 +124,22 @@ export const createIncident = async (req: Request, res: Response) => {
       data: savedIncident,
     });
   } catch (error: any) {
-    if (req.files) {
-      Object.values(req.files)
-        .flat()
-        .forEach((file) => {
-          fs.unlink(file.path, (err) => {
-            if (err) console.error("Error deleting file:", err);
-          });
-        });
-    }
+    // if (req.files) {
+    //   Object.values(req.files)
+    //     .flat()
+    //     .forEach((file) => {
+    //       fs.unlink(file.path, (err) => {
+    //         if (err) console.error("Error deleting file:", err);
+    //       });
+    //     });
+    // }
     console.log("error in createIncident", error);
-    return res
-      .status(500)
-      .json({
-        success: false,
-        error: req.i18n.t(
-          "incidentValidationMessages.response.createIncident.server"
-        ),
-      });
+    return res.status(500).json({
+      success: false,
+      error: req.i18n.t(
+        "incidentValidationMessages.response.createIncident.server"
+      ),
+    });
   }
 };
 
@@ -133,14 +154,12 @@ export const getAllIncidents = async (req: Request, res: Response) => {
       data: incidents,
     });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        error: req.i18n.t(
-          "incidentValidationMessages.response.getAllIncidents.server"
-        ),
-      });
+    return res.status(500).json({
+      success: false,
+      error: req.i18n.t(
+        "incidentValidationMessages.response.getAllIncidents.server"
+      ),
+    });
   }
 };
 
@@ -182,14 +201,12 @@ export const getIncidentsByProject = async (req: Request, res: Response) => {
       ...result,
     });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        error: req.i18n.t(
-          "incidentValidationMessages.response.getIncidentByProjectId.server"
-        ),
-      });
+    return res.status(500).json({
+      success: false,
+      error: req.i18n.t(
+        "incidentValidationMessages.response.getIncidentByProjectId.server"
+      ),
+    });
   }
 };
 
@@ -269,7 +286,9 @@ export const updateIncidentStatus = async (req: Request, res: Response) => {
     if (!incident) {
       return res.status(404).json({
         success: false,
-        error: `${req.i18n.t("incidentValidationMessages.response.notExist")} ${id}`,
+        error: `${req.i18n.t(
+          "incidentValidationMessages.response.notExist"
+        )} ${id}`,
       });
     }
 
@@ -278,47 +297,132 @@ export const updateIncidentStatus = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       success: true,
-      message: req.i18n.t("incidentValidationMessages.response.updateIncidentStatus.success"),
+      message: req.i18n.t(
+        "incidentValidationMessages.response.updateIncidentStatus.success"
+      ),
     });
   } catch (error) {
     return res.status(200).json({
       success: false,
-      message: req.i18n.t("incidentValidationMessages.response.updateIncidentStatus.server"),
+      message: req.i18n.t(
+        "incidentValidationMessages.response.updateIncidentStatus.server"
+      ),
     });
   }
 };
 
-export const stopIncidentTimer = async(req: Request, res: Response)=>{
+export const stopIncidentTimer = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const incident = await IncidentModel.findById(id);
     if (!incident) {
       return res.status(404).json({
         success: false,
-        error: `${req.i18n.t("incidentValidationMessages.response.notExist")} ${id}`,
+        error: `${req.i18n.t(
+          "incidentValidationMessages.response.notExist"
+        )} ${id}`,
       });
     }
 
-    if(incident.isStopped){
+    if (incident.isStopped) {
       return res.status(400).json({
         success: false,
-        error: req.i18n.t("incidentValidationMessages.response.stopIncidentTimer.alreadyStopped"),
+        error: req.i18n.t(
+          "incidentValidationMessages.response.stopIncidentTimer.alreadyStopped"
+        ),
       });
     }
 
-    incident.isStopped=true;
+    incident.isStopped = true;
     incident.stoppedTime = new Date();
     await incident.save();
 
     return res.status(200).json({
       success: true,
-      message: req.i18n.t("incidentValidationMessages.response.stopIncidentTimer.success"),
+      message: req.i18n.t(
+        "incidentValidationMessages.response.stopIncidentTimer.success"
+      ),
     });
-
   } catch (error) {
     return res.status(404).json({
       success: false,
-      error: req.i18n.t("incidentValidationMessages.response.stopIncidentTimer.server")
+      error: req.i18n.t(
+        "incidentValidationMessages.response.stopIncidentTimer.server"
+      ),
     });
   }
-}
+};
+
+export const getIncidentStatistics = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+  try {
+    const {project}=req.query;
+    const matchStage: any = {};
+
+    if(project){
+      matchStage.project = new mongoose.Types.ObjectId(project as string);
+    }
+
+    if (!project && currentUser) {
+      matchStage.createdBy = new mongoose.Types.ObjectId(currentUser.id);
+    }
+
+    const pipeline = [
+      {
+        $match: matchStage,
+      },
+      {
+        $group: {
+          _id: { $month: "$createdAt" },
+          totalIncidents: { $sum: 1 },
+        },
+      },
+      {
+        $sort: { _id: 1 as 1 },
+      },
+      {
+        $project: {
+          month: {
+            $arrayElemAt: [
+              [
+                "January",
+                "February",
+                "March",
+                "April",
+                "May",
+                "June",
+                "July",
+                "August",
+                "September",
+                "October",
+                "November",
+                "December",
+              ],
+              { $subtract: ["$_id", 1] },
+            ],
+          },
+          totalIncidents: 1,
+          _id: 0,
+        },
+      },
+    ];
+
+    const incidentsByMonth = await IncidentModel.aggregate(pipeline);
+
+    const totalIncidents = await IncidentModel.countDocuments(matchStage);
+
+    res.status(200).json({
+      success: true,
+      message: req.i18n.t("incidentValidationMessages.response.getIncidentStatistics.success"),
+      totalIncidents,
+      incidentsByMonth,
+    });
+  } catch (error) {
+    console.error("Error fetching incident statistics:", error);
+    res.status(500).json({
+      success: false,
+      error: req.i18n.t("incidentValidationMessages.response.getIncidentStatistics.server"),
+    });
+  }
+};

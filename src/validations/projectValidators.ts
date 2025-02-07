@@ -1,4 +1,4 @@
-import { body, param } from "express-validator";
+import { body, param, query } from "express-validator";
 
 export const createProjectByNameValidation = [
   body("name")
@@ -194,108 +194,26 @@ export const getProjectByIdValidation = [
     ),
 ];
 
-export const validateSpecificRole = [
-  param("id")
-    .notEmpty()
-    .withMessage((_, { req }) =>
-      req.i18n.t("projectValidationMessages.validateSpecificRole.id.empty")
-    )
-    .isMongoId()
-    .withMessage((_, { req }) =>
-      req.i18n.t("projectValidationMessages.validateSpecificRole.id.invalidId")
-    ),
-  body("roleId")
-    .notEmpty()
-    .withMessage((_, { req }) =>
-      req.i18n.t("projectValidationMessages.validateSpecificRole.roleId.empty")
-    )
-    .isMongoId()
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "projectValidationMessages.validateSpecificRole.roleId.invalidId"
-      )
-    ),
-  body("newRoleDetails.team")
-    .optional()
-    .isMongoId()
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "projectValidationMessages.validateSpecificRole.newRoleDetails.team.invalidId"
-      )
-    ),
-  body("newRoleDetails.assignTo")
-    .optional()
-    .isMongoId()
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "projectValidationMessages.validateSpecificRole.newRoleDetails.assignTo.invalidId"
-      )
-    ),
-  body("newRoleDetails.roleDescription")
-    .optional()
-    .isString()
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "projectValidationMessages.validateSpecificRole.newRoleDetails.description.string"
-      )
-    )
-    .isLength({ min: 25 })
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "projectValidationMessages.validateSpecificRole.newRoleDetails.description.length"
-      )
-    )
-    .trim()
-    .escape(),
-];
-
-export const addRolesToProjectValidation = [
-  param("id")
+export const projectByLocationValidation = [
+  query("country")
   .notEmpty()
   .withMessage((_, { req }) =>
-    req.i18n.t("projectValidationMessages.getProjectById.id.empty")
+    req.i18n.t("countryValidationMessages.validateCountry.id.empty")
   )
   .isMongoId()
   .withMessage((_, { req }) =>
-    req.i18n.t("projectValidationMessages.getProjectById.id.invalidId")
+    req.i18n.t(
+      "countryValidationMessages.validateCountry.id.invalidMongooseFormat"
+    )
   ),
-  body("roles")
-    .isArray({ min: 1 })
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "projectValidationMessages.addRolesToProject.roles.array"
-      )
-    )
-    .bail()
-    .custom((roles) =>
-      roles.every(
-        (role: any) =>
-          typeof role.team === "string" &&
-          typeof role.assignTo === "string" &&
-          typeof role.roleDescription === "string"
-      )
-    )
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "projectValidationMessages.addRolesToProject.roles.custom"
-      )
-    ),
-];
-
-export const projectByLocationValidation = [
-  body("country")
+  query("region")
   .notEmpty()
-  .withMessage("countryValidationMessages.validateCountry.id.empty")
-  .isMongoId()
-  .withMessage("countryValidationMessages.validateCountry.id.invalidMongooseFormat"),
-  body("region")
+    .withMessage((_,{req})=>req.i18n.t("regionValidationMessages.validateRegion.id.empty"))
+    .isMongoId()
+    .withMessage((_,{req})=>req.i18n.t("regionValidationMessages.validateRegion.id.invalidMongooseFormat")),
+  query("worksite")
   .notEmpty()
-  .withMessage("regionValidationMessages.validateRegion.id.empty")
+  .withMessage((_,{req})=>req.i18n.t("worksiteValidationMessages.validateWorksite.id.empty"))
   .isMongoId()
-  .withMessage("regionValidationMessages.validateRegion.id.invalidMongooseFormat"),
-  body("worksite")
-  .notEmpty()
-  .withMessage("worksiteValidationMessages.validateWorksite.id.empty")
-  .isMongoId()
-  .withMessage("worksiteValidationMessages.validateWorksite.id.invalidMongooseFormat")
+  .withMessage((_,{req})=>req.i18n.t("worksiteValidationMessages.validateWorksite.id.invalidMongooseFormat")),
 ]

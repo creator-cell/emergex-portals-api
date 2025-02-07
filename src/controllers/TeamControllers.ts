@@ -3,12 +3,18 @@ import TeamModel from "../models/TeamModel";
 import EmployeeModel from "../models/EmployeeModel";
 import mongoose from "mongoose";
 import { getPaginationOptions, paginate } from "../helper/pagination";
+import { ICustomRequest } from "../types/express";
 
 // Create a new Team
 export const createTeam = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
   try {
     const { name } = req.body;
-    const isExist = await TeamModel.findOne({ name });
+    const isExist = await TeamModel.findOne({
+      name,
+      createdBy: currentUser.id,
+    });
 
     if (isExist) {
       return res.status(403).json({
@@ -17,7 +23,7 @@ export const createTeam = async (req: Request, res: Response) => {
       });
     }
 
-    const newTeam = new TeamModel({ name });
+    const newTeam = new TeamModel({ name, createdBy: currentUser.id });
     const savedTeam = await newTeam.save();
 
     return res.status(201).json({
@@ -35,8 +41,9 @@ export const createTeam = async (req: Request, res: Response) => {
 
 // Get all Teams
 export const getAllTeams = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
   try {
-    // const teams = await TeamModel.find().populate("members");
     const populateOptions = [
       {
         path: "members",
@@ -48,9 +55,10 @@ export const getAllTeams = async (req: Request, res: Response) => {
     const options = getPaginationOptions(req, {
       populate: populateOptions,
       sort: { createdAt: -1 },
-      filter:{
-        isDeleted:false
-      }
+      filter: {
+        isDeleted: false,
+        // createdBy: currentUser.id,
+      },
     });
     const result = await paginate(TeamModel, options);
     return res.status(200).json({
@@ -91,7 +99,7 @@ export const addNewMemberToTeam = async (req: Request, res: Response) => {
           throw new Error(
             `${req.i18n.t(
               "teamValidationMessages.response.addMemberToTeam.notFoundEmployee"
-            )} ${item}`
+            )}`
           );
         }
         const isAlreadyExist = team.members.some((member) =>
@@ -101,10 +109,10 @@ export const addNewMemberToTeam = async (req: Request, res: Response) => {
           throw new Error(
             `${req.i18n.t(
               "teamValidationMessages.response.addMemberToTeam.alreadyinTeam"
-            )} ${item}`
+            )}`
           );
         }
-        return  new mongoose.Types.ObjectId(item);
+        return new mongoose.Types.ObjectId(item);
       })
     );
 
@@ -120,7 +128,7 @@ export const addNewMemberToTeam = async (req: Request, res: Response) => {
   } catch (error: any) {
     return res.status(500).json({
       success: false,
-      error:error.message,
+      error: error.message,
     });
   }
 };
@@ -244,5 +252,88 @@ export const updateTeamDetail = async (req: Request, res: Response) => {
         "teamValidationMessages.response.updateTeamById.server"
       ),
     });
+  }
+};
+
+// Get team names
+export const getTeamNames = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+  try {
+    const teams = await TeamModel.find({
+      // createdBy: currentUser.id,
+      isDeleted: false,
+    }).select("name");
+
+    if (!teams.length) {
+      return res
+        .status(404)
+        .json({
+          success: false,
+          message: req.i18n.t(
+            "teamValidationMessages.response.getTeamNames.notFound"
+          ),
+        });
+    }
+
+    return res
+      .status(200)
+      .json({
+        success: true,
+        data: teams,
+        message: req.i18n.t(
+          "teamValidationMessages.response.getTeamNames.success"
+        ),
+      });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({
+        success: false,
+        error: req.i18n.t(
+          "teamValidationMessages.response.getTeamNames.server"
+        ),
+      });
+  }
+};
+
+// get team employees data
+export const getTeamEmployees = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const team = await TeamModel.findById(id).populate(
+      "members",
+      "name contactNo designation email"
+    );
+
+    if (!team) {
+      return res
+        .status(404)
+        .json({
+          success: false,
+          message: req.i18n.t(
+            "teamValidationMessages.response.getTeamEmployees.notFound"
+          ),
+        });
+    }
+
+    return res
+      .status(200)
+      .json({
+        success: true,
+        employees: team.members,
+        message: req.i18n.t(
+          "teamValidationMessages.response.getTeamEmployees.success"
+        ),
+      });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({
+        success: false,
+        error: req.i18n.t(
+          "teamValidationMessages.response.getTeamEmployees.server"
+        ),
+      });
   }
 };

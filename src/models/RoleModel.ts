@@ -1,17 +1,49 @@
-import mongoose, { Document, Model, Schema } from 'mongoose';
+import mongoose, { Model, Schema } from "mongoose";
 
-interface IRole extends Document {
-  name: string;
+export interface IRoles extends Document{
+  team: mongoose.Types.ObjectId;
+  employee: mongoose.Types.ObjectId;
+  description: string;
+  priority:number;
+  project:mongoose.Types.ObjectId;
+  from:mongoose.Types.ObjectId;
+  to:mongoose.Types.ObjectId;
 }
 
-const roleSchema = new Schema<IRole>({
-  name: {
-    type: String,
-    min: [4, "minimum role name length is 4"],
-    trim: true,
-    required: true,
+export const RoleSchema = new Schema<IRoles>(
+  {
+    project: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Project",
+    },
+    team: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Team",
+    },
+    employee: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Employee",
+    },
+    description: {
+      type: String,
+    },
+    priority:{
+      type:Number
+    },
+    from: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Employee",
+    },
+    to: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Employee",
+    },
+  },
+  {
+    timestamps: true,
   }
-});
+);
 
-const RoleModel: Model<IRole> = mongoose.model<IRole>('Role', roleSchema);
+const RoleModel:Model<IRoles>=mongoose.model<IRoles>("Roles",RoleSchema);
 export default RoleModel;
+

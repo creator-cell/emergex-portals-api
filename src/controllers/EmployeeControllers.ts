@@ -1,10 +1,14 @@
 import { Request, Response } from "express";
 import EmployeeModel, { IEmployee } from "../models/EmployeeModel";
 import { getPaginationOptions, paginate } from "../helper/pagination";
+import { ICustomRequest } from "../types/express";
+import mongoose from "mongoose";
 
 // Create a new employee
 export const createEmployee = async (req: Request, res: Response) => {
   const { name, email, designation, contactNo } = req.body;
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
   try {
     const checkExist = await EmployeeModel.findOne({ email });
 
@@ -22,6 +26,7 @@ export const createEmployee = async (req: Request, res: Response) => {
       email,
       designation,
       contactNo,
+      createdBy:currentUser.id
     });
     const savedEmployee = await employee.save();
 
@@ -44,9 +49,16 @@ export const createEmployee = async (req: Request, res: Response) => {
 
 // Get all employees
 export const getEmployees = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
     const options = getPaginationOptions(req, {
       sort: { createdAt: -1 },
+      filter: {
+        isDeleted:false,
+        // createdBy: new mongoose.Types.ObjectId(currentUser.id),
+      },
     });
     const result = await paginate(EmployeeModel, options);
 

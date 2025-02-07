@@ -19,7 +19,6 @@ import countryRoutes from './routes/CountryRoutes'
 import regionRoutes from './routes/RegionRoutes'
 import worksiteRoutes from './routes/WorksiteRoutes'
 import incidentRoutes from './routes/IncidentRoutes'
-import incidentHistoryRoutes from './routes/IncidentHistoryRoutes'
 import path from 'path';
 // import locationRoutes from './routes/LocationRoutes'
 
@@ -32,7 +31,8 @@ app.use(cors({
         origin: '*',
         credentials: true,
     }));
-app.use(express.json())
+app.use(express.json({ limit: '10mb' }))
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(cookieParser());
 app.use(middleware.handle(i18next));
 app.use(setLanguageMiddleware);
@@ -60,7 +60,6 @@ app.use('/api/countries', countryRoutes);
 app.use('/api/regions', regionRoutes);
 app.use('/api/worksites', worksiteRoutes);
 app.use('/api/incidents', incidentRoutes);
-app.use('/api/incidents-history', incidentHistoryRoutes);
 // app.use('/api/locations', locationRoutes);
 
 app.listen(port,()=>{

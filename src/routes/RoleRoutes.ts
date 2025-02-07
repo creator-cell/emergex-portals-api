@@ -1,31 +1,23 @@
 import express from "express";
 import { checkValidationResult } from "../middlewares/checkValidationsMiddleware";
-import {
-  createRoleValidation,
-  roleByIdValidations,
-  updateRoleValidation,
+import {addRolesToProjectValidation, validateRolePriority, validateSpecificRole
 } from "../validations/roleValidators";
-import {
-  createRole,
-  getRoles,
-  getRoleById,
-  updateRole,
-  deleteRole,
-} from "../controllers/RoleControllers";
+
 import { authorizeRoles } from "../middlewares/roleMiddleware";
 import { GlobalAdminRoles } from "../config/global-enum";
 import { authenticate } from "../middlewares/authMiddleware";
+import { addRolesInProject, getProjectRolesByPriority, updateRolePriority, updateSpecificRole } from "../controllers/RoleControllers";
 
 const router = express.Router();
 
-router
-  .route("/")
-  .post(authenticate,authorizeRoles(GlobalAdminRoles.SuperAdmin,GlobalAdminRoles.ClientAdmin),createRoleValidation, checkValidationResult, createRole)
-  .get(authenticate,authorizeRoles(GlobalAdminRoles.SuperAdmin,GlobalAdminRoles.ClientAdmin),getRoles);
+router.route('/project-roles/:id').put(addRolesToProjectValidation,checkValidationResult,addRolesInProject);
 
-router.route("/role-by-id/:id")
-.get(authenticate,authorizeRoles(GlobalAdminRoles.SuperAdmin),roleByIdValidations,checkValidationResult, getRoleById)
-.put(authenticate,authorizeRoles(GlobalAdminRoles.SuperAdmin),authenticate,authorizeRoles(GlobalAdminRoles.SuperAdmin),updateRoleValidation, checkValidationResult, updateRole)
-.delete(authenticate,authorizeRoles(GlobalAdminRoles.SuperAdmin),roleByIdValidations,checkValidationResult,deleteRole);
+router.put('/update-project-role/:id',validateSpecificRole,checkValidationResult,updateSpecificRole);
+
+router.route('/organization-chart/:id')
+.put(validateRolePriority,checkValidationResult,updateRolePriority)
+.get(getProjectRolesByPriority);
+
+router.use(authenticate,authorizeRoles(GlobalAdminRoles.SuperAdmin,GlobalAdminRoles.ClientAdmin));
 
 export default router;

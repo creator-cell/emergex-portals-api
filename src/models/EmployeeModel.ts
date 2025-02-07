@@ -7,6 +7,8 @@ export interface IEmployee extends Document {
   contactNo: string;
   designation: string;
   email: string;
+  createdBy: mongoose.Types.ObjectId;
+  isDeleted:boolean;
 }
 
 export const EmployeeSchema = new Schema<IEmployee>(
@@ -39,6 +41,14 @@ export const EmployeeSchema = new Schema<IEmployee>(
         message: "Invalid email format.",
       },
     },
+    isDeleted:{
+      type:Boolean,
+      default:false
+    },
+    createdBy:{
+      type:Schema.Types.ObjectId,
+      ref:'User'
+    }
   },
   {
     timestamps: true,

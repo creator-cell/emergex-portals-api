@@ -1,1 +1,0 @@
-# emergex-portals-api

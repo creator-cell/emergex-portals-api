@@ -1,6 +1,5 @@
-import multer from 'multer';
-import { multerConfig } from '../config/MulterConfig';
-
+import multer from "multer";
+import { multerConfig } from "../config/MulterConfig";
 
 const upload = multer(multerConfig);
 

@@ -19,7 +19,7 @@ export interface IIncident extends Document {
   informToTeam: boolean;
   termsAndConditions: boolean;
   createdBy: mongoose.Types.ObjectId;
-  stoppedTime:Date;
+  stoppedTime: Date;
   isDeleted?: boolean;
   isStopped?: boolean;
 }
@@ -106,7 +106,7 @@ const IncidentSchema: Schema = new Schema(
       default: false,
     },
     stoppedTime: {
-        type: Date,
+      type: Date,
     },
     isDeleted: {
       type: Boolean,

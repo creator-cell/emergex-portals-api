@@ -20,7 +20,7 @@ router.route('/')
 .post( authenticate,authorizeRoles(GlobalAdminRoles.SuperAdmin),validateWorksite,checkValidationResult,addWorksite)
 .get( authenticate,authorizeRoles(GlobalAdminRoles.SuperAdmin,GlobalAdminRoles.ClientAdmin),getAllWorksites);
 
-router.get('/worksite-by-region-id/:id',  authenticate,authorizeRoles(GlobalAdminRoles.SuperAdmin),getWorksitesByRegionValidation,checkValidationResult,getWorksitesByRegion);
+router.get('/worksite-by-region-id/:id',  authenticate,authorizeRoles(GlobalAdminRoles.SuperAdmin,GlobalAdminRoles.ClientAdmin),getWorksitesByRegionValidation,checkValidationResult,getWorksitesByRegion);
 
 router.route('/worksite-by-id/:id')
 .get( authenticate,authorizeRoles(GlobalAdminRoles.SuperAdmin),worksitesByIdValidation,checkValidationResult,getWorksiteById)

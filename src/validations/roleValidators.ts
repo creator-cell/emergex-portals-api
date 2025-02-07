@@ -1,23 +1,107 @@
-import { body, param } from 'express-validator';
+import { body, param } from "express-validator";
 
-export const createRoleValidation = [
-  body('name')
-    .trim()
+export const addRolesToProjectValidation = [
+  param("id")
     .notEmpty()
-    .withMessage((_, { req }) => req.i18n.t("roleValidationMessages.name.empty"))
-    .isLength({ min: 4 })
-    .withMessage((_, { req }) => req.i18n.t("roleValidationMessages.name.length"))
+    .withMessage((_, { req }) =>
+      req.i18n.t("projectValidationMessages.getProjectById.id.empty")
+    )
+    .isMongoId()
+    .withMessage((_, { req }) =>
+      req.i18n.t("projectValidationMessages.getProjectById.id.invalidId")
+    ),
+  body("roles")
+    .isArray({ min: 1 })
+    .withMessage((_, { req }) =>
+      req.i18n.t("roleValidationMessages.addRolesToProject.roles.array")
+    )
+    .bail()
+    .custom((roles) =>
+      roles.every(
+        (role: any) =>
+          typeof role.team === "string" &&
+          typeof role.assignTo === "string" &&
+          typeof role.roleDescription === "string"
+      )
+    )
+    .withMessage((_, { req }) =>
+      req.i18n.t("roleValidationMessages.addRolesToProject.roles.custom")
+    ),
 ];
 
-export const roleByIdValidations = [
-  param("id").notEmpty().withMessage((_, { req }) => req.i18n.t("roleValidationMessages.id.empty")).isMongoId().withMessage((_, { req }) => req.i18n.t("roleValidationMessages.id.invalidMongooseFormat")),
-]
-
-export const updateRoleValidation = [
-  param('id').notEmpty().withMessage((_, { req }) => req.i18n.t("roleValidationMessages.id.empty")).isMongoId().withMessage((_, { req }) => req.i18n.t("roleValidationMessages.id.invalidMongooseFormat")),
-  body('name')
-    .trim()
+export const validateSpecificRole = [
+  param("id")
+    .notEmpty()
+    .withMessage((_, { req }) =>
+      req.i18n.t("roleValidationMessages.validateSpecificRole.id.empty")
+    )
+    .isMongoId()
+    .withMessage((_, { req }) =>
+      req.i18n.t("roleValidationMessages.validateSpecificRole.id.invalidId")
+    ),
+  body("roleId")
+    .notEmpty()
+    .withMessage((_, { req }) =>
+      req.i18n.t("roleValidationMessages.validateSpecificRole.roleId.empty")
+    )
+    .isMongoId()
+    .withMessage((_, { req }) =>
+      req.i18n.t("roleValidationMessages.validateSpecificRole.roleId.invalidId")
+    ),
+  body("newRoleDetails.team")
     .optional()
-    .isLength({ min: 4 })
-    .withMessage((_, { req }) => req.i18n.t("roleValidationMessages.name.empty"))
+    .isMongoId()
+    .withMessage((_, { req }) =>
+      req.i18n.t(
+        "roleValidationMessages.validateSpecificRole.newRoleDetails.team.invalidId"
+      )
+    ),
+  body("newRoleDetails.assignTo")
+    .optional()
+    .isMongoId()
+    .withMessage((_, { req }) =>
+      req.i18n.t(
+        "roleValidationMessages.validateSpecificRole.newRoleDetails.assignTo.invalidId"
+      )
+    ),
+  body("newRoleDetails.roleDescription")
+    .optional()
+    .isString()
+    .withMessage((_, { req }) =>
+      req.i18n.t(
+        "roleValidationMessages.validateSpecificRole.newRoleDetails.description.string"
+      )
+    )
+    .isLength({ min: 6 })
+    .withMessage((_, { req }) =>
+      req.i18n.t(
+        "roleValidationMessages.validateSpecificRole.newRoleDetails.description.length"
+      )
+    )
+    .trim()
+    .escape(),
+];
+
+export const validateRolePriority = [
+  param("id")
+    .notEmpty()
+    .withMessage("Employee Id is requried")
+    .isMongoId()
+    .withMessage("Invalid project ID"),
+  body("team").optional().isMongoId().withMessage("Invalid team ID"),
+  body("employee")
+    .notEmpty()
+    .withMessage("Employee Id is requried")
+    .isMongoId()
+    .withMessage("Employee ID is required"),
+  body("from").optional().isMongoId().withMessage("Invalid from employee ID"),
+  body("to").optional().isMongoId().withMessage("Invalid to employee ID"),
+];
+
+export const getProjectRolesByPriority = [
+  param("id")
+    .notEmpty()
+    .withMessage("project Id is requried")
+    .isMongoId()
+    .withMessage("Invalid project ID"),
 ];

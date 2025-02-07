@@ -73,7 +73,7 @@ router
 router.get(
   "/region-by-country-id/:id",
   authenticate,
-  authorizeRoles(GlobalAdminRoles.SuperAdmin),
+  authorizeRoles(GlobalAdminRoles.SuperAdmin,GlobalAdminRoles.ClientAdmin),
   CountryByIdValidation,
   checkValidationResult,
   getRegionsByCountry
