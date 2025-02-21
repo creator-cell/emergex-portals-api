@@ -287,8 +287,19 @@ export const updateRolePriority = async (req: Request, res: Response) => {
           ),
         });
       }
-      role.priority = toRole.priority - 1;
-      role.to=to;
+      role.priority = toRole.priority;
+      role.from = toRole.from;
+      role.to = to;
+      toRole.from = role.employee;
+      await RoleModel.updateMany(
+        { 
+          project: id, 
+          priority: { $gte: toRole.priority }
+        },
+        { $inc: { priority: 1 } }
+      );
+      
+      await toRole.save();
     } 
     else if (from && to) {
       const fromRole = await RoleModel.findOne({ project: id, employee: from });
@@ -315,9 +326,19 @@ export const updateRolePriority = async (req: Request, res: Response) => {
         });
       }
 
-      role.priority = newFromPriority;
-      role.from=from;
-      role.to=to;
+      role.priority = fromRole.priority + 1;
+      role.from = from;
+      role.to = to;
+      toRole.from = role.employee;
+      await RoleModel.updateMany(
+        { 
+          project: id, 
+          priority: { $gte: toRole.priority }
+        },
+        { $inc: { priority: 1 } }
+      );
+      
+      await toRole.save();
     } else {
       return res.status(400).json({
         success: false,
@@ -347,11 +368,7 @@ export const updateRolePriority = async (req: Request, res: Response) => {
   }
 };
 
-
-export const getProjectRolesByPriority = async (
-  req: Request,
-  res: Response
-) => {
+export const getProjectRolesByPriority = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
@@ -367,99 +384,12 @@ export const getProjectRolesByPriority = async (
       });
     }
 
-    const rolesGroupedByPriority = await RoleModel.aggregate([
-      {
-        $match: {
-          project: projectId,
-          priority: { $exists: true },
-        },
-      },
-      {
-        $lookup: {
-          from: "employees",
-          localField: "employee",
-          foreignField: "_id",
-          as: "employeeData",
-        },
-      },
-      {
-        $unwind: {
-          path: "$employeeData",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $lookup: {
-          from: "teams",
-          localField: "team",
-          foreignField: "_id",
-          as: "teamData",
-        },
-      },
-      {
-        $unwind: {
-          path: "$teamData",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $lookup: {
-          from: "employees",
-          localField: "from",
-          foreignField: "_id",
-          as: "fromEmployeeData",
-        },
-      },
-      {
-        $unwind: {
-          path: "$fromEmployeeData",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $lookup: {
-          from: "employees",
-          localField: "to",
-          foreignField: "_id",
-          as: "toEmployeeData",
-        },
-      },
-      {
-        $unwind: {
-          path: "$toEmployeeData",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $group: {
-          _id: "$priority",
-          employees: {
-            $push: {
-              $mergeObjects: [
-                "$employeeData",
-                { teamName: "$teamData.name" },
-              ],
-            },
-          },
-          fromEmployee: { $first: "$fromEmployeeData" },
-          toEmployee: { $first: "$toEmployeeData" },
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          priority: "$_id",
-          employees: 1,
-          fromEmployee: 1,
-          toEmployee: 1,
-        },
-      },
-      {
-        $sort: { priority: 1 },
-      },
-    ]);
+    // Fetch all roles for the given project with populated employee details
+    const roles = await RoleModel.find({ project: projectId })
+      .populate("employee", "name email designation")
+      .populate("from", "name email")
 
-    if (!rolesGroupedByPriority.length) {
+    if (!roles.length) {
       return res.status(404).json({
         success: false,
         error: req.i18n.t(
@@ -468,12 +398,32 @@ export const getProjectRolesByPriority = async (
       });
     }
 
+    // Organizing roles first by priority, then by 'from'
+    const rolesByPriority: Record<number, Record<string, any>> = {};
+
+    roles.forEach((role) => {
+      const { priority, from } = role;
+      if (!rolesByPriority[priority]) {
+        rolesByPriority[priority] = {};
+      }
+      const fromKey = from?._id.toString() || "Unassigned";
+
+      if (!rolesByPriority[priority][fromKey]) {
+        rolesByPriority[priority][fromKey] = {
+          fromEmployee: role.from || null,
+          roles: [],
+        };
+      }
+
+      rolesByPriority[priority][fromKey].roles.push(role);
+    });
+
     return res.status(200).json({
       success: true,
       message: req.i18n.t(
         "roleValidationMessages.response.getProjectRolesByPriority.success"
       ),
-      data: rolesGroupedByPriority,
+      data: rolesByPriority,
     });
   } catch (error) {
     console.error("Error fetching project roles by priority:", error);
@@ -485,3 +435,4 @@ export const getProjectRolesByPriority = async (
     });
   }
 };
+

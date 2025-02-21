@@ -414,6 +414,7 @@ export const getProjectById = async (req: Request, res: Response) => {
               _id: "$employeeData._id",
               name: "$employeeData.name",
               email: "$employeeData.email",
+              designation: "$employeeData.designation",
               description: "$description",
             },
           },
