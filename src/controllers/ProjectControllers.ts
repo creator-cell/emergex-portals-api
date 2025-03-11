@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import ProjectModel from "../models/ProjectModel";
-import EmployeeModel from "../models/EmployeeModel";
 import mongoose from "mongoose";
 import { getPaginationOptions, paginate } from "../helper/pagination";
 import LocationModel from "../models/LocationModel";
@@ -9,8 +8,6 @@ import RegionModel from "../models/RegionModel";
 import WorksiteModel from "../models/WorksiteModel";
 import { generateUniqueId } from "../helper/ProjectFunctions";
 import { ICustomRequest } from "../types/express";
-import TeamModel from "../models/TeamModel";
-import { ITeam } from "../models/TeamModel";
 import RoleModel from "../models/RoleModel";
 
 // Create a project only by getting name
