@@ -19,7 +19,8 @@ import countryRoutes from './routes/CountryRoutes'
 import regionRoutes from './routes/RegionRoutes'
 import worksiteRoutes from './routes/WorksiteRoutes'
 import incidentRoutes from './routes/IncidentRoutes'
-import path from 'path';
+import incidentHistoryRoutes from './routes/IncidentHistoryRoutes'
+import path from 'path';    
 // import locationRoutes from './routes/LocationRoutes'
 
 
@@ -60,6 +61,7 @@ app.use('/api/countries', countryRoutes);
 app.use('/api/regions', regionRoutes);
 app.use('/api/worksites', worksiteRoutes);
 app.use('/api/incidents', incidentRoutes);
+app.use('/api/incidents-history', incidentHistoryRoutes);
 // app.use('/api/locations', locationRoutes);
 
 app.listen(port,()=>{

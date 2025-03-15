@@ -216,6 +216,129 @@ export const incidentValidationRules = [
     ),
 ];
 
+export const updateIncidentValidationRules = [
+  body("level")
+    .optional()
+    .isString()
+    .withMessage((_, { req }) =>
+      req.i18n.t(
+        "incidentValidationMessages.incidentValidationRules.level.string"
+      )
+    )
+    .isIn(["Level 1", "Level 2", "Level 3", "Level 4"])
+    .withMessage((_, { req }) =>
+      req.i18n.t(
+        "incidentValidationMessages.incidentValidationRules.level.enum"
+      )
+    ),
+  body("type").optional(),
+  body("description").optional(),
+  body("status")
+    .optional()
+    .isIn(["Assigned", "Delayed", "In Progress", "Completed", "Cancelled"])
+    .withMessage((_, { req }) =>
+      req.i18n.t(
+        "incidentValidationMessages.incidentValidationRules.status.enum"
+      )
+    ),
+  body("projectId")
+    .optional()
+    .isMongoId()
+    .withMessage((_, { req }) =>
+      req.i18n.t(
+        "incidentValidationMessages.incidentValidationRules.projectId.isMongoDbId"
+      )
+    ),
+  body("assignedTo")
+    .optional()
+    .isMongoId()
+    .withMessage((_, { req }) =>
+      req.i18n.t(
+        "incidentValidationMessages.incidentValidationRules.assignedTo.isMongoDbId"
+      )
+    ),
+  body("countOfInjuredPeople")
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage((_, { req }) =>
+      req.i18n.t(
+        "incidentValidationMessages.incidentValidationRules.countOfInjuredPeople.int"
+      )
+    ),
+  body("countOfTotalPeople")
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage((_, { req }) =>
+      req.i18n.t(
+        "incidentValidationMessages.incidentValidationRules.countOfTotalPeople.int"
+      )
+    ),
+  body("location")
+    .optional()
+    .isString()
+    .withMessage((_, { req }) =>
+      req.i18n.t(
+        "incidentValidationMessages.incidentValidationRules.location.string"
+      )
+    ),
+  body("damageAssets")
+    .optional()
+    .isString()
+    .withMessage((_, { req }) =>
+      req.i18n.t(
+        "incidentValidationMessages.incidentValidationRules.damageAssets.string"
+      )
+    ),
+  body("finance")
+    .optional()
+    .isFloat({ min: 0 })
+    .withMessage((_, { req }) =>
+      req.i18n.t(
+        "incidentValidationMessages.incidentValidationRules.finance.int"
+      )
+    ),
+  body("utilityAffected")
+    .optional()
+    .isArray()
+    .withMessage((_, { req }) =>
+      req.i18n.t(
+        "incidentValidationMessages.incidentValidationRules.utilityAffected.array"
+      )
+    ),
+  body("informToTeam")
+    .optional()
+    .isBoolean()
+    .withMessage((_, { req }) =>
+      req.i18n.t(
+        "incidentValidationMessages.incidentValidationRules.informToTeam.boolean"
+      )
+    ),
+  body("termsAndConditions")
+    .optional()
+    .isBoolean()
+    .withMessage((_, { req }) =>
+      req.i18n.t(
+        "incidentValidationMessages.incidentValidationRules.termsAndConditions.boolean"
+      )
+    ),
+  body("images")
+    .optional()
+    .isArray()
+    .withMessage((_, { req }) =>
+      req.i18n.t(
+        "incidentValidationMessages.incidentValidationRules.images.array"
+      )
+    ),
+  body("signature")
+    .optional()
+    .matches(base64Regex)
+    .withMessage((_, { req }) =>
+      req.i18n.t(
+        "incidentValidationMessages.incidentValidationRules.signature.base64"
+      )
+    ),
+];
+
 export const incidentsByIdValidationRules = [
   param("id")
     .notEmpty()

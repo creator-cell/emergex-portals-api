@@ -14,7 +14,7 @@ export interface IIncident extends Document {
   damageAssets: string;
   finance: number;
   utilityAffected: string[];
-  image: [string];
+  image: string[];
   signature: string;
   informToTeam: boolean;
   termsAndConditions: boolean;
@@ -71,7 +71,7 @@ const IncidentSchema: Schema = new Schema(
       required: true,
     },
     damageAssets: {
-      type: String,
+      type: [String],
       required: true,
     },
     finance: {

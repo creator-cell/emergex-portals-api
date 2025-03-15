@@ -804,5 +804,14 @@
         "server": "Server error in retrieving incident history"
       }
     }
+  },
+
+  "incidentStatusHistoryValidationMessages":{
+    "getIncidentStatusHistory":{
+      "id":{
+        "empty":"Incident Id is required",
+        "isMongoDbId":"Incident ID must be valid MongodDB ID."
+      }
+    }
   }
 }

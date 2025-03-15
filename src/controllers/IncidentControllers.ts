@@ -8,6 +8,8 @@ import { getPaginationOptions, paginate } from "../helper/pagination";
 import { generateUniqueIncidentId } from "../helper/IncidentFunctions";
 import { UploadBase64File } from "../helper/S3Bucket";
 import mongoose from "mongoose";
+import IncidentHistoryModel from "../models/IncidentHistoryModel";
+import IncidentStatusHistoryModel from "../models/IncidentStatusHistoryModel";
 
 export const createIncident = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
@@ -31,8 +33,6 @@ export const createIncident = async (req: Request, res: Response) => {
       images,
       signature,
     } = req.body;
-
-    // console.log("body: ",req.body)
 
     let id = req.body.id;
 
@@ -77,20 +77,24 @@ export const createIncident = async (req: Request, res: Response) => {
     if (signature) {
       const fileName = `incident_${id}_signature_image_${Date.now()}.jpg`;
       const uploadResponse = await UploadBase64File(signature, fileName);
-      signaturePath=uploadResponse.Success ? uploadResponse.ImageURl : null;
+      signaturePath = uploadResponse.Success ? uploadResponse.ImageURl : null;
     }
 
     if (imagePaths.length === 0) {
       return res.status(400).json({
         succees: false,
-        error: req.i18n.t("incidentValidationMessages.response.createIncident.imageUploadError"),
+        error: req.i18n.t(
+          "incidentValidationMessages.response.createIncident.imageUploadError"
+        ),
       });
     }
 
     if (!signaturePath) {
       return res.status(400).json({
         succees: false,
-        error: req.i18n.t("incidentValidationMessages.response.createIncident.signatureUploadError"),
+        error: req.i18n.t(
+          "incidentValidationMessages.response.createIncident.signatureUploadError"
+        ),
       });
     }
 
@@ -109,7 +113,7 @@ export const createIncident = async (req: Request, res: Response) => {
       finance,
       utilityAffected,
       image: imagePaths,
-      signature:signaturePath,
+      signature: signaturePath,
       informToTeam,
       termsAndConditions,
       createdBy: currentUser.id,
@@ -124,20 +128,290 @@ export const createIncident = async (req: Request, res: Response) => {
       data: savedIncident,
     });
   } catch (error: any) {
-    // if (req.files) {
-    //   Object.values(req.files)
-    //     .flat()
-    //     .forEach((file) => {
-    //       fs.unlink(file.path, (err) => {
-    //         if (err) console.error("Error deleting file:", err);
-    //       });
-    //     });
-    // }
+    if (req.files) {
+      Object.values(req.files)
+        .flat()
+        .forEach((file) => {
+          fs.unlink(file.path, (err) => {
+            if (err) console.error("Error deleting file:", err);
+          });
+        });
+    }
     console.log("error in createIncident", error);
     return res.status(500).json({
       success: false,
       error: req.i18n.t(
         "incidentValidationMessages.response.createIncident.server"
+      ),
+    });
+  }
+};
+
+export const updateIncidentById = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+  const incidentId = req.params.id;
+
+  try {
+    // Fetch the existing incident
+    const existingIncident = await IncidentModel.findById(incidentId);
+    if (!existingIncident) {
+      return res.status(404).json({
+        success: false,
+        error: req.i18n.t(
+          "incidentValidationMessages.response.getIncidentById.notFound"
+        ),
+      });
+    }
+
+    const {
+      level,
+      type,
+      description,
+      status,
+      assignedTo,
+      countOfInjuredPeople,
+      countOfTotalPeople,
+      location,
+      damageAssets,
+      finance,
+      utilityAffected,
+      informToTeam,
+      termsAndConditions,
+      projectId,
+      images,
+      signature,
+    } = req.body;
+
+    // Track changes
+    const changes: { field: string; oldValue: any; newValue: any }[] = [];
+
+    // Compare and update fields
+    if (level && existingIncident.level !== level) {
+      changes.push({
+        field: "level",
+        oldValue: existingIncident.level,
+        newValue: level,
+      });
+      existingIncident.level = level;
+    }
+
+    if (type && existingIncident.type !== type) {
+      changes.push({
+        field: "type",
+        oldValue: existingIncident.type,
+        newValue: type,
+      });
+      existingIncident.type = type;
+    }
+
+    if (description && existingIncident.description !== description) {
+      changes.push({
+        field: "description",
+        oldValue: existingIncident.description,
+        newValue: description,
+      });
+      existingIncident.description = description;
+    }
+
+    if (status && existingIncident.status !== status) {
+      changes.push({
+        field: "status",
+        oldValue: existingIncident.status,
+        newValue: status,
+      });
+      existingIncident.status = status;
+    }
+
+    if (assignedTo && existingIncident.assignedTo.toString() !== assignedTo) {
+      changes.push({
+        field: "assignedTo",
+        oldValue: existingIncident.assignedTo,
+        newValue: assignedTo,
+      });
+      existingIncident.assignedTo = assignedTo;
+    }
+
+    if (
+      countOfInjuredPeople &&
+      existingIncident.countOfInjuredPeople !== countOfInjuredPeople
+    ) {
+      changes.push({
+        field: "countOfInjuredPeople",
+        oldValue: existingIncident.countOfInjuredPeople,
+        newValue: countOfInjuredPeople,
+      });
+      existingIncident.countOfInjuredPeople = countOfInjuredPeople;
+    }
+
+    if (
+      countOfTotalPeople &&
+      existingIncident.countOfTotalPeople !== countOfTotalPeople
+    ) {
+      changes.push({
+        field: "countOfTotalPeople",
+        oldValue: existingIncident.countOfTotalPeople,
+        newValue: countOfTotalPeople,
+      });
+      existingIncident.countOfTotalPeople = countOfTotalPeople;
+    }
+
+    if (location && existingIncident.location !== location) {
+      changes.push({
+        field: "location",
+        oldValue: existingIncident.location,
+        newValue: location,
+      });
+      existingIncident.location = location;
+    }
+
+    if (damageAssets && existingIncident.damageAssets !== damageAssets) {
+      changes.push({
+        field: "damageAssets",
+        oldValue: existingIncident.damageAssets,
+        newValue: damageAssets,
+      });
+      existingIncident.damageAssets = damageAssets;
+    }
+
+    if (finance && existingIncident.finance !== finance) {
+      changes.push({
+        field: "finance",
+        oldValue: existingIncident.finance,
+        newValue: finance,
+      });
+      existingIncident.finance = finance;
+    }
+
+    if (
+      utilityAffected &&
+      existingIncident.utilityAffected !== utilityAffected
+    ) {
+      changes.push({
+        field: "utilityAffected",
+        oldValue: existingIncident.utilityAffected,
+        newValue: utilityAffected,
+      });
+      existingIncident.utilityAffected = utilityAffected;
+    }
+
+    if (informToTeam && existingIncident.informToTeam !== informToTeam) {
+      changes.push({
+        field: "informToTeam",
+        oldValue: existingIncident.informToTeam,
+        newValue: informToTeam,
+      });
+      existingIncident.informToTeam = informToTeam;
+    }
+
+    if (
+      termsAndConditions &&
+      existingIncident.termsAndConditions !== termsAndConditions
+    ) {
+      changes.push({
+        field: "termsAndConditions",
+        oldValue: existingIncident.termsAndConditions,
+        newValue: termsAndConditions,
+      });
+      existingIncident.termsAndConditions = termsAndConditions;
+    }
+
+    // if (projectId && existingIncident.project.toString() !== projectId) {
+    //   changes.push({
+    //     field: "projectId",
+    //     oldValue: existingIncident.project,
+    //     newValue: projectId,
+    //   });
+    //   existingIncident.project = projectId;
+    // }
+
+    // Handle image updates (if needed)
+    console.log(
+      "images: ",
+      images,
+      Array.isArray(images),
+      !images.every((item: string) => item.startsWith("https"))
+    );
+    if (
+      images &&
+      Array.isArray(images) &&
+      !images.every((item: string) => item.startsWith("https"))
+    ) {
+      let imagePaths: string[] = images.filter((item: string) =>
+        item.startsWith("https")
+      );
+      let imageToUpload: string[] = images.filter(
+        (item: string) => !item.startsWith("https")
+      );
+      const uploadPromises = imageToUpload.map(async (base64String, index) => {
+        const fileName = `incident_${incidentId}_image_${index}_${Date.now()}.jpg`;
+        const uploadResponse = await UploadBase64File(base64String, fileName);
+        return uploadResponse.Success ? uploadResponse.ImageURl : null;
+      });
+
+      const uploadedImages = await Promise.all(uploadPromises);
+      const imagesUri = uploadedImages.filter(
+        (url): url is string => url !== null
+      );
+      imagePaths = [...imagePaths, ...imagesUri];
+      existingIncident.image = [...imagePaths];
+      changes.push({
+        field: "images",
+        newValue: `${
+          existingIncident.image.length > imagePaths.length
+            ? "Some images are deleted"
+            : existingIncident.image.length < imagePaths.length
+            ? "Some images added "
+            : "Some images replaced"
+        }`,
+        oldValue: "old images",
+      });
+    }
+
+    // Handle signature updates (if needed)
+    let signaturePath = null;
+    if (signature && !signature.startsWith("https://")) {
+      const fileName = `incident_${incidentId}_signature_image_${Date.now()}.jpg`;
+      const uploadResponse = await UploadBase64File(signature, fileName);
+      signaturePath = uploadResponse.Success ? uploadResponse.ImageURl : null;
+      if (signaturePath) {
+        existingIncident.signature = signaturePath;
+        changes.push({
+          field: "signature",
+          oldValue: "old signature",
+          newValue: "new signature",
+        });
+      }
+    }
+
+    // Save the updated incident
+    const updatedIncident = await existingIncident.save();
+
+    // Log changes to IncidentHistoryModel
+    if (changes.length > 0) {
+      const historyEntries = changes.map((change) => ({
+        title: `Updated: ${change.field} changed from ${change.oldValue} to ${change.newValue}`,
+        role: currentUser.id,
+        incident: incidentId,
+      }));
+
+      await IncidentHistoryModel.insertMany(historyEntries);
+    }
+
+    // Return success response
+    return res.status(200).json({
+      success: true,
+      message: req.i18n.t(
+        "incidentValidationMessages.response.updateIncident.success"
+      ),
+      data: updatedIncident,
+    });
+  } catch (error) {
+    console.error("Error in updateIncidentById:", error);
+    return res.status(500).json({
+      success: false,
+      error: req.i18n.t(
+        "incidentValidationMessages.response.updateIncident.server"
       ),
     });
   }
@@ -281,6 +555,9 @@ export const getIncidentById = async (req: Request, res: Response) => {
 export const updateIncidentStatus = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { status } = req.body;
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+  console.log("current: ", currentUser);
   try {
     const incident = await IncidentModel.findById(id);
     if (!incident) {
@@ -292,8 +569,17 @@ export const updateIncidentStatus = async (req: Request, res: Response) => {
       });
     }
 
+    const old = incident.status;
+
     incident.status = status;
     await incident.save();
+
+    await IncidentStatusHistoryModel.create({
+      incident: id,
+      role: currentUser.id,
+      old,
+      status,
+    });
 
     return res.status(200).json({
       success: true,
@@ -357,10 +643,10 @@ export const getIncidentStatistics = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
   try {
-    const {project}=req.query;
+    const { project } = req.query;
     const matchStage: any = {};
 
-    if(project){
+    if (project) {
       matchStage.project = new mongoose.Types.ObjectId(project as string);
     }
 
@@ -414,7 +700,9 @@ export const getIncidentStatistics = async (req: Request, res: Response) => {
 
     res.status(200).json({
       success: true,
-      message: req.i18n.t("incidentValidationMessages.response.getIncidentStatistics.success"),
+      message: req.i18n.t(
+        "incidentValidationMessages.response.getIncidentStatistics.success"
+      ),
       totalIncidents,
       incidentsByMonth,
     });
@@ -422,7 +710,9 @@ export const getIncidentStatistics = async (req: Request, res: Response) => {
     console.error("Error fetching incident statistics:", error);
     res.status(500).json({
       success: false,
-      error: req.i18n.t("incidentValidationMessages.response.getIncidentStatistics.server"),
+      error: req.i18n.t(
+        "incidentValidationMessages.response.getIncidentStatistics.server"
+      ),
     });
   }
 };
