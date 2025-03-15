@@ -15,7 +15,6 @@ router
   .post(
     authenticate,
     authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin),
-    // uploadFiles,
     incidentValidationRules,
     checkValidationResult,
     createIncident

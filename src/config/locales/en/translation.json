@@ -697,7 +697,7 @@
       },
       "damageAssets": {
         "empty": "Incident Damage Assets Value is required",
-        "string": "Incident  Damage Assets must be a string"
+        "array": "Incident  Damage Assets must be an array of strings"
       },
       "finance": {
         "empty": "Incident finance value is required",

@@ -265,11 +265,15 @@ export const updateIncidentById = async (req: Request, res: Response) => {
       existingIncident.location = location;
     }
 
-    if (damageAssets && existingIncident.damageAssets !== damageAssets) {
+    if (
+      damageAssets &&
+      Array.isArray(damageAssets) &&
+      !damageAssets.every((item: string, index: number) => item === existingIncident.damageAssets[index])
+    ) {
       changes.push({
-        field: "damageAssets",
-        oldValue: existingIncident.damageAssets,
-        newValue: damageAssets,
+      field: "damageAssets",
+      oldValue: "old damage assets value",
+      newValue: "new damage assets value",
       });
       existingIncident.damageAssets = damageAssets;
     }
@@ -326,12 +330,6 @@ export const updateIncidentById = async (req: Request, res: Response) => {
     // }
 
     // Handle image updates (if needed)
-    console.log(
-      "images: ",
-      images,
-      Array.isArray(images),
-      !images.every((item: string) => item.startsWith("https"))
-    );
     if (
       images &&
       Array.isArray(images) &&

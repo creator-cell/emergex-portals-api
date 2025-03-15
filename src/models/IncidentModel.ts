@@ -11,7 +11,7 @@ export interface IIncident extends Document {
   countOfInjuredPeople: number;
   countOfTotalPeople: number;
   location: string;
-  damageAssets: string;
+  damageAssets: string[];
   finance: number;
   utilityAffected: string[];
   image: string[];

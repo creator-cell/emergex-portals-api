@@ -121,10 +121,10 @@ export const incidentValidationRules = [
         "incidentValidationMessages.incidentValidationRules.damageAssets.empty"
       )
     )
-    .isString()
+    .isArray()
     .withMessage((_, { req }) =>
       req.i18n.t(
-        "incidentValidationMessages.incidentValidationRules.damageAssets.string"
+        "incidentValidationMessages.incidentValidationRules.damageAssets.array"
       )
     ),
   body("finance")
@@ -283,10 +283,10 @@ export const updateIncidentValidationRules = [
     ),
   body("damageAssets")
     .optional()
-    .isString()
+    .isArray()
     .withMessage((_, { req }) =>
       req.i18n.t(
-        "incidentValidationMessages.incidentValidationRules.damageAssets.string"
+        "incidentValidationMessages.incidentValidationRules.damageAssets.array"
       )
     ),
   body("finance")
