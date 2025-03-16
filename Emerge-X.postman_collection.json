@@ -23303,704 +23303,6 @@
 			]
 		},
 		{
-			"name": "incident history",
-			"item": [
-				{
-					"name": "create incident history",
-					"item": [
-						{
-							"name": "create incident",
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Authorization",
-										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsImlhdCI6MTczODEzNTI3NSwiZXhwIjoxNzM4MjIxNjc1fQ.jAB6XPotJJ7VA3diHYFu9sv4CwcDEYrEnykWr7CUzYA",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"title\":\"First aid treatment\",\n    \"incident\":\"6799beee43621c061ffd5abf\",\n    \"employee\":\"678b58535631e6b15786953c\"\n\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "http://localhost:8080/api/incidents-history/",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8080",
-									"path": [
-										"api",
-										"incidents-history",
-										""
-									]
-								}
-							},
-							"response": [
-								{
-									"name": "success",
-									"originalRequest": {
-										"method": "POST",
-										"header": [
-											{
-												"key": "Authorization",
-												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsImlhdCI6MTczODEzNTI3NSwiZXhwIjoxNzM4MjIxNjc1fQ.jAB6XPotJJ7VA3diHYFu9sv4CwcDEYrEnykWr7CUzYA",
-												"type": "text"
-											}
-										],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n    \"title\":\"First aid treatment\",\n    \"incident\":\"6799beee43621c061ffd5abf\",\n    \"employee\":\"678b58535631e6b15786953c\"\n\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "http://localhost:8080/api/incidents-history/",
-											"protocol": "http",
-											"host": [
-												"localhost"
-											],
-											"port": "8080",
-											"path": [
-												"api",
-												"incidents-history",
-												""
-											]
-										}
-									},
-									"status": "Created",
-									"code": 201,
-									"_postman_previewlanguage": "json",
-									"header": [
-										{
-											"key": "X-Powered-By",
-											"value": "Express"
-										},
-										{
-											"key": "Access-Control-Allow-Origin",
-											"value": "*"
-										},
-										{
-											"key": "Access-Control-Allow-Credentials",
-											"value": "true"
-										},
-										{
-											"key": "Content-Language",
-											"value": "en"
-										},
-										{
-											"key": "Set-Cookie",
-											"value": "i18next=en; Path=/; Expires=Thu, 29 Jan 2026 07:26:44 GMT; SameSite=Strict"
-										},
-										{
-											"key": "Content-Type",
-											"value": "application/json; charset=utf-8"
-										},
-										{
-											"key": "Content-Length",
-											"value": "351"
-										},
-										{
-											"key": "ETag",
-											"value": "W/\"15f-5ShDGNYtkEpgf6NZ6khOwl6JTog\""
-										},
-										{
-											"key": "Date",
-											"value": "Wed, 29 Jan 2025 07:26:44 GMT"
-										},
-										{
-											"key": "Connection",
-											"value": "keep-alive"
-										},
-										{
-											"key": "Keep-Alive",
-											"value": "timeout=5"
-										}
-									],
-									"cookie": [],
-									"body": "{\n    \"success\": true,\n    \"message\": \"Incident history added successfully\",\n    \"newIncidentHistory\": {\n        \"incident\": \"6799beee43621c061ffd5abf\",\n        \"employee\": \"678b58535631e6b15786953c\",\n        \"title\": \"First aid treatment\",\n        \"date\": \"29-Jan-2025\",\n        \"time\": \"12:56 PM\",\n        \"_id\": \"6799d834a4d2d4d79fe3b17e\",\n        \"createdAt\": \"2025-01-29T07:26:44.242Z\",\n        \"updatedAt\": \"2025-01-29T07:26:44.242Z\",\n        \"__v\": 0\n    }\n}"
-								},
-								{
-									"name": "Bad Request Incident Not Found",
-									"originalRequest": {
-										"method": "POST",
-										"header": [
-											{
-												"key": "Authorization",
-												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsImlhdCI6MTczODEzNTI3NSwiZXhwIjoxNzM4MjIxNjc1fQ.jAB6XPotJJ7VA3diHYFu9sv4CwcDEYrEnykWr7CUzYA",
-												"type": "text"
-											}
-										],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n    \"title\":\"First aid treatment\",\n    \"incident\":\"6799beee43621c071ffd5abf\",\n    \"employee\":\"678b58535631e6b15786953c\"\n\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "http://localhost:8080/api/incidents-history/",
-											"protocol": "http",
-											"host": [
-												"localhost"
-											],
-											"port": "8080",
-											"path": [
-												"api",
-												"incidents-history",
-												""
-											]
-										}
-									},
-									"status": "Not Found",
-									"code": 404,
-									"_postman_previewlanguage": "json",
-									"header": [
-										{
-											"key": "X-Powered-By",
-											"value": "Express"
-										},
-										{
-											"key": "Access-Control-Allow-Origin",
-											"value": "*"
-										},
-										{
-											"key": "Access-Control-Allow-Credentials",
-											"value": "true"
-										},
-										{
-											"key": "Content-Language",
-											"value": "en"
-										},
-										{
-											"key": "Set-Cookie",
-											"value": "i18next=en; Path=/; Expires=Thu, 29 Jan 2026 07:31:04 GMT; SameSite=Strict"
-										},
-										{
-											"key": "Content-Type",
-											"value": "application/json; charset=utf-8"
-										},
-										{
-											"key": "Content-Length",
-											"value": "80"
-										},
-										{
-											"key": "ETag",
-											"value": "W/\"50-LFYhBqrQYiVgiQTpVfAsi9MXzrQ\""
-										},
-										{
-											"key": "Date",
-											"value": "Wed, 29 Jan 2025 07:31:04 GMT"
-										},
-										{
-											"key": "Connection",
-											"value": "keep-alive"
-										},
-										{
-											"key": "Keep-Alive",
-											"value": "timeout=5"
-										}
-									],
-									"cookie": [],
-									"body": "{\n    \"success\": false,\n    \"error\": \"Incident not exist with id: 6799beee43621c071ffd5abf\"\n}"
-								},
-								{
-									"name": "Bad Request Employee Not Found",
-									"originalRequest": {
-										"method": "POST",
-										"header": [
-											{
-												"key": "Authorization",
-												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsImlhdCI6MTczODEzNTI3NSwiZXhwIjoxNzM4MjIxNjc1fQ.jAB6XPotJJ7VA3diHYFu9sv4CwcDEYrEnykWr7CUzYA",
-												"type": "text"
-											}
-										],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n    \"title\":\"First aid treatment\",\n    \"incident\":\"6799beee43621c061ffd5abf\",\n    \"employee\":\"678b58535631e6b25786953c\"\n\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "http://localhost:8080/api/incidents-history/",
-											"protocol": "http",
-											"host": [
-												"localhost"
-											],
-											"port": "8080",
-											"path": [
-												"api",
-												"incidents-history",
-												""
-											]
-										}
-									},
-									"status": "Not Found",
-									"code": 404,
-									"_postman_previewlanguage": "json",
-									"header": [
-										{
-											"key": "X-Powered-By",
-											"value": "Express"
-										},
-										{
-											"key": "Access-Control-Allow-Origin",
-											"value": "*"
-										},
-										{
-											"key": "Access-Control-Allow-Credentials",
-											"value": "true"
-										},
-										{
-											"key": "Content-Language",
-											"value": "en"
-										},
-										{
-											"key": "Set-Cookie",
-											"value": "i18next=en; Path=/; Expires=Thu, 29 Jan 2026 07:31:41 GMT; SameSite=Strict"
-										},
-										{
-											"key": "Content-Type",
-											"value": "application/json; charset=utf-8"
-										},
-										{
-											"key": "Content-Length",
-											"value": "80"
-										},
-										{
-											"key": "ETag",
-											"value": "W/\"50-K83+s8GihZiEzpW+uvZB7NT/Isk\""
-										},
-										{
-											"key": "Date",
-											"value": "Wed, 29 Jan 2025 07:31:41 GMT"
-										},
-										{
-											"key": "Connection",
-											"value": "keep-alive"
-										},
-										{
-											"key": "Keep-Alive",
-											"value": "timeout=5"
-										}
-									],
-									"cookie": [],
-									"body": "{\n    \"success\": false,\n    \"error\": \"Employee not exist with id: 678b58535631e6b25786953c\"\n}"
-								},
-								{
-									"name": "Unauthorized",
-									"originalRequest": {
-										"method": "POST",
-										"header": [
-											{
-												"key": "Authorization",
-												"value": "Bearer .eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsImlhdCI6MTczODEzNTI3NSwiZXhwIjoxNzM4MjIxNjc1fQ.jAB6XPotJJ7VA3diHYFu9sv4CwcDEYrEnykWr7CUzYA",
-												"type": "text"
-											}
-										],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n    \"title\":\"First aid treatment\",\n    \"incident\":\"6799beee43621c061ffd5abf\",\n    \"employee\":\"678b58535631e6b25786953c\"\n\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "http://localhost:8080/api/incidents-history/",
-											"protocol": "http",
-											"host": [
-												"localhost"
-											],
-											"port": "8080",
-											"path": [
-												"api",
-												"incidents-history",
-												""
-											]
-										}
-									},
-									"status": "Unauthorized",
-									"code": 401,
-									"_postman_previewlanguage": "json",
-									"header": [
-										{
-											"key": "X-Powered-By",
-											"value": "Express"
-										},
-										{
-											"key": "Access-Control-Allow-Origin",
-											"value": "*"
-										},
-										{
-											"key": "Access-Control-Allow-Credentials",
-											"value": "true"
-										},
-										{
-											"key": "Content-Language",
-											"value": "en"
-										},
-										{
-											"key": "Set-Cookie",
-											"value": "i18next=en; Path=/; Expires=Thu, 29 Jan 2026 07:32:18 GMT; SameSite=Strict"
-										},
-										{
-											"key": "Content-Type",
-											"value": "application/json; charset=utf-8"
-										},
-										{
-											"key": "Content-Length",
-											"value": "42"
-										},
-										{
-											"key": "ETag",
-											"value": "W/\"2a-RfAMK1IuUhpKYLWUU4NqDP6L9Yw\""
-										},
-										{
-											"key": "Date",
-											"value": "Wed, 29 Jan 2025 07:32:18 GMT"
-										},
-										{
-											"key": "Connection",
-											"value": "keep-alive"
-										},
-										{
-											"key": "Keep-Alive",
-											"value": "timeout=5"
-										}
-									],
-									"cookie": [],
-									"body": "{\n    \"success\": false,\n    \"error\": \"Invalid token!\"\n}"
-								}
-							]
-						}
-					]
-				},
-				{
-					"name": "get history by incident id",
-					"item": [
-						{
-							"name": "get history by incident id",
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
-							"request": {
-								"method": "GET",
-								"header": [
-									{
-										"key": "Authorization",
-										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsImlhdCI6MTczODEzNTI3NSwiZXhwIjoxNzM4MjIxNjc1fQ.jAB6XPotJJ7VA3diHYFu9sv4CwcDEYrEnykWr7CUzYA",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "http://localhost:8080/api/incidents-history/history-by-incident-id/6799beee43621c061ffd5abf",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8080",
-									"path": [
-										"api",
-										"incidents-history",
-										"history-by-incident-id",
-										"6799beee43621c061ffd5abf"
-									]
-								}
-							},
-							"response": [
-								{
-									"name": "Validation",
-									"originalRequest": {
-										"method": "GET",
-										"header": [
-											{
-												"key": "Authorization",
-												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsImlhdCI6MTczODEzNTI3NSwiZXhwIjoxNzM4MjIxNjc1fQ.jAB6XPotJJ7VA3diHYFu9sv4CwcDEYrEnykWr7CUzYA",
-												"type": "text"
-											}
-										],
-										"body": {
-											"mode": "raw",
-											"raw": "",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "http://localhost:8080/api/incidents-history/history-by-incident-id/768736873",
-											"protocol": "http",
-											"host": [
-												"localhost"
-											],
-											"port": "8080",
-											"path": [
-												"api",
-												"incidents-history",
-												"history-by-incident-id",
-												"768736873"
-											]
-										}
-									},
-									"status": "Bad Request",
-									"code": 400,
-									"_postman_previewlanguage": "json",
-									"header": [
-										{
-											"key": "X-Powered-By",
-											"value": "Express"
-										},
-										{
-											"key": "Access-Control-Allow-Origin",
-											"value": "*"
-										},
-										{
-											"key": "Access-Control-Allow-Credentials",
-											"value": "true"
-										},
-										{
-											"key": "Content-Language",
-											"value": "en"
-										},
-										{
-											"key": "Set-Cookie",
-											"value": "i18next=en; Path=/; Expires=Thu, 29 Jan 2026 07:33:46 GMT; SameSite=Strict"
-										},
-										{
-											"key": "Content-Type",
-											"value": "application/json; charset=utf-8"
-										},
-										{
-											"key": "Content-Length",
-											"value": "62"
-										},
-										{
-											"key": "ETag",
-											"value": "W/\"3e-SB7kAPJdkCwpbB+nZKoxLex9CBw\""
-										},
-										{
-											"key": "Date",
-											"value": "Wed, 29 Jan 2025 07:33:46 GMT"
-										},
-										{
-											"key": "Connection",
-											"value": "keep-alive"
-										},
-										{
-											"key": "Keep-Alive",
-											"value": "timeout=5"
-										}
-									],
-									"cookie": [],
-									"body": "{\n    \"success\": false,\n    \"errors\": [\n        {\n            \"message\": \"Invalid Incident ID\"\n        }\n    ]\n}"
-								},
-								{
-									"name": "success",
-									"originalRequest": {
-										"method": "GET",
-										"header": [
-											{
-												"key": "Authorization",
-												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsImlhdCI6MTczODEzNTI3NSwiZXhwIjoxNzM4MjIxNjc1fQ.jAB6XPotJJ7VA3diHYFu9sv4CwcDEYrEnykWr7CUzYA",
-												"type": "text"
-											}
-										],
-										"body": {
-											"mode": "raw",
-											"raw": "",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "http://localhost:8080/api/incidents-history/history-by-incident-id/6799beee43621c061ffd5abf",
-											"protocol": "http",
-											"host": [
-												"localhost"
-											],
-											"port": "8080",
-											"path": [
-												"api",
-												"incidents-history",
-												"history-by-incident-id",
-												"6799beee43621c061ffd5abf"
-											]
-										}
-									},
-									"status": "Created",
-									"code": 201,
-									"_postman_previewlanguage": "json",
-									"header": [
-										{
-											"key": "X-Powered-By",
-											"value": "Express"
-										},
-										{
-											"key": "Access-Control-Allow-Origin",
-											"value": "*"
-										},
-										{
-											"key": "Access-Control-Allow-Credentials",
-											"value": "true"
-										},
-										{
-											"key": "Content-Language",
-											"value": "en"
-										},
-										{
-											"key": "Set-Cookie",
-											"value": "i18next=en; Path=/; Expires=Thu, 29 Jan 2026 07:34:18 GMT; SameSite=Strict"
-										},
-										{
-											"key": "Content-Type",
-											"value": "application/json; charset=utf-8"
-										},
-										{
-											"key": "Content-Length",
-											"value": "1221"
-										},
-										{
-											"key": "ETag",
-											"value": "W/\"4c5-P4ESr9p9BMvoqMwoMQbaOl00lMI\""
-										},
-										{
-											"key": "Date",
-											"value": "Wed, 29 Jan 2025 07:34:18 GMT"
-										},
-										{
-											"key": "Connection",
-											"value": "keep-alive"
-										},
-										{
-											"key": "Keep-Alive",
-											"value": "timeout=5"
-										}
-									],
-									"cookie": [],
-									"body": "{\n    \"success\": true,\n    \"message\": \"Incident history retrieved successfully\",\n    \"data\": [\n        {\n            \"_id\": \"6799d834a4d2d4d79fe3b17e\",\n            \"incident\": {\n                \"_id\": \"6799beee43621c061ffd5abf\",\n                \"level\": \"Level 2\",\n                \"type\": \"gas_leak\",\n                \"description\": \"tka akls lskjsl jsfla\",\n                \"status\": \"Assigned\",\n                \"project\": \"67973a199df9658cc0e63a3f\",\n                \"assignedTo\": \"6790b33c914b2132de5c22f8\",\n                \"countOfInjuredPeople\": 12,\n                \"countOfTotalPeople\": 212,\n                \"location\": \"Mumbai, Maharashtra\",\n                \"damageAssets\": \"assets 2\",\n                \"finance\": 22,\n                \"utilityAffected\": [\n                    \"Electricity\"\n                ],\n                \"image\": [\n                    \"/uploads/images/image-1738129134105-be98af4f-7b4d-4aeb-bcbe-37b0beb54d51.png\"\n                ],\n                \"signature\": \"/uploads/signatures/signature-1738129134117-bffc55d8-af1b-4f0b-850b-ab123778dbf0.webp\",\n                \"informToTeam\": true,\n                \"termsAndConditions\": true,\n                \"createdBy\": \"6787908cb6296a9e10d2e042\",\n                \"isDeleted\": false,\n                \"createdAt\": \"2025-01-29T05:38:54.202Z\",\n                \"updatedAt\": \"2025-01-29T05:38:54.202Z\",\n                \"__v\": 0\n            },\n            \"employee\": {\n                \"_id\": \"678b58535631e6b15786953c\",\n                \"name\": \"karan\",\n                \"designation\": \"Developer\"\n            },\n            \"title\": \"First aid treatment\",\n            \"date\": \"29-Jan-2025\",\n            \"time\": \"12:56 PM\",\n            \"createdAt\": \"2025-01-29T07:26:44.242Z\",\n            \"updatedAt\": \"2025-01-29T07:26:44.242Z\",\n            \"__v\": 0\n        }\n    ],\n    \"pagination\": {\n        \"totalItems\": 1,\n        \"currentPage\": 1,\n        \"pageSize\": 10,\n        \"totalPages\": 1,\n        \"hasNextPage\": false,\n        \"hasPrevPage\": false\n    }\n}"
-								},
-								{
-									"name": "Bad Request",
-									"originalRequest": {
-										"method": "GET",
-										"header": [
-											{
-												"key": "Authorization",
-												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsImlhdCI6MTczODEzNTI3NSwiZXhwIjoxNzM4MjIxNjc1fQ.jAB6XPotJJ7VA3diHYFu9sv4CwcDEYrEnykWr7CUzYA",
-												"type": "text"
-											}
-										],
-										"body": {
-											"mode": "raw",
-											"raw": "",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "http://localhost:8080/api/incidents-history/history-by-incident-id/6799beee43621c061ffd6abf",
-											"protocol": "http",
-											"host": [
-												"localhost"
-											],
-											"port": "8080",
-											"path": [
-												"api",
-												"incidents-history",
-												"history-by-incident-id",
-												"6799beee43621c061ffd6abf"
-											]
-										}
-									},
-									"status": "Not Found",
-									"code": 404,
-									"_postman_previewlanguage": "json",
-									"header": [
-										{
-											"key": "X-Powered-By",
-											"value": "Express"
-										},
-										{
-											"key": "Access-Control-Allow-Origin",
-											"value": "*"
-										},
-										{
-											"key": "Access-Control-Allow-Credentials",
-											"value": "true"
-										},
-										{
-											"key": "Content-Language",
-											"value": "en"
-										},
-										{
-											"key": "Set-Cookie",
-											"value": "i18next=en; Path=/; Expires=Thu, 29 Jan 2026 07:34:59 GMT; SameSite=Strict"
-										},
-										{
-											"key": "Content-Type",
-											"value": "application/json; charset=utf-8"
-										},
-										{
-											"key": "Content-Length",
-											"value": "88"
-										},
-										{
-											"key": "ETag",
-											"value": "W/\"58-qMBiVnzYY3bVvemY3zV7V40LvqI\""
-										},
-										{
-											"key": "Date",
-											"value": "Wed, 29 Jan 2025 07:34:59 GMT"
-										},
-										{
-											"key": "Connection",
-											"value": "keep-alive"
-										},
-										{
-											"key": "Keep-Alive",
-											"value": "timeout=5"
-										}
-									],
-									"cookie": [],
-									"body": "{\n    \"success\": false,\n    \"message\": \"No history found for incident id: 6799beee43621c061ffd6abf\"\n}"
-								}
-							]
-						}
-					]
-				}
-			]
-		},
-		{
 			"name": "Incident status history",
 			"item": [
 				{
@@ -24044,7 +23346,228 @@
 									]
 								}
 							},
-							"response": []
+							"response": [
+								{
+									"name": "success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZDJjMzM4YTEwYzY2N2U0MTE0NzVjNiIsInJvbGUiOiJjbGllbnQtYWRtaW4iLCJvcyI6InVua25vd24iLCJkZXZpY2UiOiJkZXNrdG9wIiwiaWF0IjoxNzQyMDI0NTI1LCJleHAiOjE3NDIxMTA5MjV9.gysHbV0fkvJG_ydczFKCkqVSRk6uupiHfnWUgHmOVaU",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:8080/api/incidents-history/status/67d51b0ffb49ae711ded97f2",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"incidents-history",
+												"status",
+												"67d51b0ffb49ae711ded97f2"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Access-Control-Allow-Credentials",
+											"value": "true"
+										},
+										{
+											"key": "Content-Language",
+											"value": "en"
+										},
+										{
+											"key": "Set-Cookie",
+											"value": "i18next=en; Path=/; Expires=Sun, 15 Mar 2026 12:09:49 GMT; SameSite=Strict"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "455"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"1c7-AY3MNBE178IDMtQPQierSfMBmYM\""
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Mar 2025 12:09:49 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"success\": true,\n    \"data\": [\n        {\n            \"_id\": \"67d53162fd55700344f92baa\",\n            \"status\": \"Delayed\",\n            \"old\": \"Completed\",\n            \"role\": {\n                \"_id\": \"678b36c30d3b5e2eeb122c21\",\n                \"username\": \"Arun\"\n            },\n            \"incident\": \"67d51b0ffb49ae711ded97f2\",\n            \"createdAt\": \"2025-03-15T07:50:58.871Z\",\n            \"updatedAt\": \"2025-03-15T07:50:58.871Z\",\n            \"__v\": 0\n        }\n    ],\n    \"pagination\": {\n        \"totalItems\": 1,\n        \"currentPage\": 1,\n        \"pageSize\": 10,\n        \"totalPages\": 1,\n        \"hasNextPage\": false,\n        \"hasPrevPage\": false\n    },\n    \"message\": \"Incident status history retrieved successfully\"\n}"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "get incident update history by incident id",
+					"item": [
+						{
+							"name": "get incident update history by incident id",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZDJjMzM4YTEwYzY2N2U0MTE0NzVjNiIsInJvbGUiOiJjbGllbnQtYWRtaW4iLCJvcyI6InVua25vd24iLCJkZXZpY2UiOiJkZXNrdG9wIiwiaWF0IjoxNzQyMDI0NTI1LCJleHAiOjE3NDIxMTA5MjV9.gysHbV0fkvJG_ydczFKCkqVSRk6uupiHfnWUgHmOVaU",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/incidents-history/update/67d51b0ffb49ae711ded97f2",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"incidents-history",
+										"update",
+										"67d51b0ffb49ae711ded97f2"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ZDJjMzM4YTEwYzY2N2U0MTE0NzVjNiIsInJvbGUiOiJjbGllbnQtYWRtaW4iLCJvcyI6InVua25vd24iLCJkZXZpY2UiOiJkZXNrdG9wIiwiaWF0IjoxNzQyMDI0NTI1LCJleHAiOjE3NDIxMTA5MjV9.gysHbV0fkvJG_ydczFKCkqVSRk6uupiHfnWUgHmOVaU",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:8080/api/incidents-history/update/67d51b0ffb49ae711ded97f2",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"incidents-history",
+												"update",
+												"67d51b0ffb49ae711ded97f2"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Access-Control-Allow-Credentials",
+											"value": "true"
+										},
+										{
+											"key": "Content-Language",
+											"value": "en"
+										},
+										{
+											"key": "Set-Cookie",
+											"value": "i18next=en; Path=/; Expires=Sun, 15 Mar 2026 12:09:17 GMT; SameSite=Strict"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "462"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"1ce-xYfMVpdv7JwsJQ42q8zzTZeAYCY\""
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Mar 2025 12:09:17 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"success\": true,\n    \"data\": [\n        {\n            \"_id\": \"67d55611d0a4693be5dfd3ea\",\n            \"title\": \"Updated: type changed from Water to fire\",\n            \"role\": {\n                \"_id\": \"678b36c30d3b5e2eeb122c21\",\n                \"username\": \"Arun\"\n            },\n            \"incident\": \"67d51b0ffb49ae711ded97f2\",\n            \"__v\": 0,\n            \"createdAt\": \"2025-03-15T10:27:29.534Z\",\n            \"updatedAt\": \"2025-03-15T10:27:29.534Z\"\n        }\n    ],\n    \"pagination\": {\n        \"totalItems\": 1,\n        \"currentPage\": 1,\n        \"pageSize\": 10,\n        \"totalPages\": 1,\n        \"hasNextPage\": false,\n        \"hasPrevPage\": false\n    },\n    \"message\": \"Incident history retrieved successfully\"\n}"
+								}
+							]
 						}
 					]
 				}

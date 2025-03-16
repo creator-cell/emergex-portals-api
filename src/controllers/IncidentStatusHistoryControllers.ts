@@ -15,6 +15,11 @@ export const getIncidentStatusHistory = async (req: Request, res: Response) => {
           model: "User",
           select:"username designation"
         },
+        {
+          path:"team",
+          model:"Team",
+          select:"name"
+        }
       ],
       sort: { createdAt: -1 },
       filter: {
@@ -49,6 +54,11 @@ export const getIncidentUpdateHistory = async (req: Request, res: Response) => {
           model: "User",
           select:"username designation"
         },
+        {
+          path:"team",
+          model:"Team",
+          select:"name"
+        }
       ],
       sort: { createdAt: -1 },
       filter: {
