@@ -555,7 +555,6 @@ export const updateIncidentStatus = async (req: Request, res: Response) => {
   const { status } = req.body;
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
-  console.log("current: ", currentUser);
   try {
     const incident = await IncidentModel.findById(id);
     if (!incident) {

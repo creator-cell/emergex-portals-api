@@ -331,7 +331,9 @@ export const updateIncidentValidationRules = [
     ),
   body("signature")
     .optional()
-    .matches(base64Regex)
+    .custom((signature) => {
+      return base64Regex.test(signature) || /^https?:\/\/.+/.test(signature);
+    })
     .withMessage((_, { req }) =>
       req.i18n.t(
         "incidentValidationMessages.incidentValidationRules.signature.base64"
