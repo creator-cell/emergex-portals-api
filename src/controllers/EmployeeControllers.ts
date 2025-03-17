@@ -4,28 +4,22 @@ import { getPaginationOptions, paginate } from "../helper/pagination";
 import { ICustomRequest } from "../types/express";
 import UserModel from "../models/UserModel";
 import mongoose from "mongoose";
+import AccountModel, { IAccount } from "../models/AccountModel";
+import { AccountProviderType, GlobalAdminRoles } from "../config/global-enum";
+import { generatePassword, generateUniqueUsername } from "../helper/UserFunctions";
 
 // Create a new employee
 export const createEmployee = async (req: Request, res: Response) => {
   const { name, email, designation, contactNo } = req.body;
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
-  const {id}=req.params;
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
-    const checkUserExist = await UserModel.findById(id);
-
-    if (!checkUserExist) {
-      return res.status(200).json({
-        success: false,
-        error: req.i18n.t(
-          "employeeValidationMessages.response.createEmployee.userNotFound"
-        ),
-      });
-    }
-
-    const checkExist = await EmployeeModel.findOne({ email });
+    const checkExist = await EmployeeModel.findOne({ email }).session(session);
 
     if (checkExist) {
+      await session.abortTransaction();
       return res.status(400).json({
         success: false,
         error: req.i18n.t(
@@ -35,14 +29,57 @@ export const createEmployee = async (req: Request, res: Response) => {
     }
 
     const employee = new EmployeeModel({
-      user:id,
       name,
       email,
       designation,
       contactNo,
-      createdBy:currentUser.id
+      createdBy: currentUser.id,
     });
-    const savedEmployee = await employee.save();
+    const savedEmployee = await employee.save({ session });
+
+    const isExist = await UserModel.findOne({ email }).session(session);
+    if (isExist) {
+      await session.abortTransaction();
+      return res.status(400).json({
+        success: false,
+        error: req.i18n.t("authValidationMessages.response.register.isExist"),
+      });
+    }
+
+    const username = await generateUniqueUsername(name);
+    // const password = generatePassword();
+    const password= name+"123"
+
+    const user = new UserModel({
+      username,
+      email,
+      password,
+      phoneNumber:contactNo,
+      role: GlobalAdminRoles.ClientAdmin,
+      accounts: [],
+    });
+    await user.save({ session });
+
+    const account: IAccount = await AccountModel.create(
+      [
+        {
+          username,
+          email,
+          provider: AccountProviderType.Local,
+          providerId: user._id,
+        },
+      ],
+      { session }
+    ).then((accounts) => accounts[0]);
+
+    if (!user.accounts) {
+      user.accounts = [account._id as mongoose.Types.ObjectId];
+    } else {
+      user.accounts.push(account._id as mongoose.Types.ObjectId);
+    }
+    await user.save({ session });
+    await session.commitTransaction();
+    session.endSession();
 
     return res.status(201).json({
       success: true,
@@ -52,6 +89,9 @@ export const createEmployee = async (req: Request, res: Response) => {
       data: savedEmployee,
     });
   } catch (error: any) {
+    await session.abortTransaction();
+    session.endSession();
+    console.log("error: ",error)
     return res.status(500).json({
       success: false,
       error: req.i18n.t(
@@ -69,7 +109,7 @@ export const getEmployees = async (req: Request, res: Response) => {
     const options = getPaginationOptions(req, {
       sort: { createdAt: -1 },
       filter: {
-        isDeleted:false,
+        isDeleted: false,
         createdBy: new mongoose.Types.ObjectId(currentUser.id),
       },
     });
@@ -82,7 +122,6 @@ export const getEmployees = async (req: Request, res: Response) => {
         "employeeValidationMessages.response.getAllEmployees.success"
       ),
     });
-
   } catch (error: any) {
     return res.status(500).json({
       success: false,
@@ -126,7 +165,7 @@ export const getEmployeeById = async (req: Request, res: Response) => {
 // Update a employee
 export const updateEmployee = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { name, email, designation, contactNo,userId } = req.body;
+  const { name, email, designation, contactNo, userId } = req.body;
   try {
     if (email) {
       const isExist = (await EmployeeModel.findOne({
@@ -143,7 +182,7 @@ export const updateEmployee = async (req: Request, res: Response) => {
       }
     }
 
-    if(userId){
+    if (userId) {
       const checkUserExist = await UserModel.findById(id);
       if (!checkUserExist) {
         return res.status(200).json({
@@ -157,7 +196,7 @@ export const updateEmployee = async (req: Request, res: Response) => {
 
     const updatedEmployee = await EmployeeModel.findByIdAndUpdate(
       id,
-      { name, email, designation, contactNo,user:userId },
+      { name, email, designation, contactNo, user: userId },
       { new: true, runValidators: true }
     );
 
@@ -192,11 +231,15 @@ export const updateEmployee = async (req: Request, res: Response) => {
 export const deleteEmployee = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
-    const deletedEmployee = await EmployeeModel.findByIdAndUpdate(id,{
-      isDeleted:true
-    },{
-      runValidators:true
-    });
+    const deletedEmployee = await EmployeeModel.findByIdAndUpdate(
+      id,
+      {
+        isDeleted: true,
+      },
+      {
+        runValidators: true,
+      }
+    );
     if (!deletedEmployee) {
       return res.status(200).json({
         success: false,

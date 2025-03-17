@@ -1,5 +1,4 @@
-import { body, checkExact, param } from "express-validator";
-import { employeeValidationMessages } from "../config/globalValidationsMessages";
+import { body, param } from "express-validator";
 
 export const validateCreateEmployee = [
   body("name")
@@ -20,11 +19,6 @@ export const validateCreateEmployee = [
     .withMessage((_, { req }) => req.i18n.t("employeeValidationMessages.contactNo.length"))
     .matches(/^\d{10}$/)
     .withMessage((_, { req }) => req.i18n.t("employeeValidationMessages.contactNo.containCharacters")),
-    param("id")
-    .notEmpty()
-    .withMessage((_,{req})=>req.i18n.t("employeeValidationMessages.userId.empty"))
-    .isMongoId()
-    .withMessage((_,{req})=>req.i18n.t("employeeValidationMessages.userId.invalidMongooseFormat")),
 ];
 
 
