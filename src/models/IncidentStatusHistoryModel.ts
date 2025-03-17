@@ -11,8 +11,8 @@ const IncidentStatusHistorySchema = new Schema<IIncidentStatusHistory>(
   {
     status: { type: String, required: true },
     old: { type: String, required: true },
-    role: { type: Schema.Types.ObjectId, ref: "role", required: true },
-    incident: { type: Schema.Types.ObjectId, ref: "incident", required: true },
+    role: { type: Schema.Types.ObjectId, ref: "Roles", required: true },
+    incident: { type: Schema.Types.ObjectId, ref: "Incident", required: true },
   },
   { timestamps: true }
 );

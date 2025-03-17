@@ -8,7 +8,7 @@ export interface IEmployee extends Document {
   designation: string;
   email: string;
   createdBy: mongoose.Types.ObjectId;
-  project: mongoose.Types.ObjectId;
+  user: mongoose.Types.ObjectId;
   isDeleted:boolean;
 }
 
@@ -50,9 +50,9 @@ export const EmployeeSchema = new Schema<IEmployee>(
       type:Schema.Types.ObjectId,
       ref:'User'
     },
-    project:{
+    user:{
       type:Schema.Types.ObjectId,
-      ref:'Project'
+      ref:'User'
     }
   },
   {

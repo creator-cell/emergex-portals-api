@@ -17,7 +17,7 @@ export const addRegion = async (req: Request, res: Response) => {
 
     const isCountryExist = await CountryModel.findById(countryId);
     if (!isCountryExist) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: req.i18n.t("CountryValidationMessages.response.CountryNotExist"),
       });
@@ -83,7 +83,7 @@ export const getRegionsByCountry = async (req: Request, res: Response) => {
     const regions = await paginate(RegionModel, options);
 
     if(regions.data.length === 0){
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message:req.i18n.t("regionValidationMessages.response.getRegionsByCountry.notFound"),
       });
@@ -126,7 +126,7 @@ export const updateRegionById = async (req: Request, res: Response) => {
     );
 
     if (!region) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: req.i18n.t("regionValidationMessages.response.regionNotFound"),
       });
@@ -152,7 +152,7 @@ export const getRegionById = async (req: Request, res: Response) => {
     const region = await RegionModel.findById(id);
 
     if (!region) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: req.i18n.t("regionValidationMessages.response.regionNotFound"),
       });
@@ -183,7 +183,7 @@ export const deleteRegionById = async (req: Request, res: Response) => {
     );
 
     if (!region) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message:  req.i18n.t("regionValidationMessages.response.regionNotFound"),
       });

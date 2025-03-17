@@ -70,7 +70,7 @@ export const getLocationById = async (req: Request, res: Response) => {
     const { id } = req.params;
     const location = await LocationModel.findById(id);
     if (!location) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: req.i18n.t(
           "locationValidationMessages.response.getLocationById.notFound"
@@ -120,7 +120,7 @@ export const updateLocation = async (req: Request, res: Response) => {
       { new: true, runValidators: true }
     );
     if (!location) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: req.i18n.t(
           "locationValidationMessages.response.updateLocation.notFound"
@@ -156,7 +156,7 @@ export const deleteLocation = async (req: Request, res: Response) => {
     );
 
     if (!location) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: req.i18n.t(
           "locationValidationMessages.response.deleteLocationById.notFound"
@@ -187,7 +187,7 @@ export const hardDeleteLocation = async (req: Request, res: Response) => {
     const location = await LocationModel.findByIdAndDelete(id);
 
     if (!location) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: req.i18n.t(
           "locationValidationMessages.response.hardDeleteLocation.notFound"
@@ -236,7 +236,7 @@ export const getRegionsByCountry = async (req: Request, res: Response) => {
     const regions = await LocationModel.distinct('region', { country, isDeleted: false });
 
     if (regions.length === 0) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: 'No regions found for the given country',
       });
@@ -267,7 +267,7 @@ export const getWorksitesByRegionAndCountry = async (req: Request, res: Response
     );
 
     if (worksites.length === 0) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: 'No worksites found for the given country and region',
       });

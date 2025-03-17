@@ -6,6 +6,7 @@ import i18next, { setLanguageMiddleware } from "./config/i18n";
 import middleware from "i18next-http-middleware";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import { createServer } from 'http';
 connectDB()
 
 import authRoutes from './routes/AuthRoutes'
@@ -21,11 +22,13 @@ import worksiteRoutes from './routes/WorksiteRoutes'
 import incidentRoutes from './routes/IncidentRoutes'
 import incidentHistoryRoutes from './routes/IncidentHistoryRoutes'
 import path from 'path';    
+import configureSocket from './socket';
 // import locationRoutes from './routes/LocationRoutes'
 
 
 
 const app = express()
+const server = createServer(app);
 const port = config.port;
 
 app.use(cors({
@@ -62,8 +65,11 @@ app.use('/api/regions', regionRoutes);
 app.use('/api/worksites', worksiteRoutes);
 app.use('/api/incidents', incidentRoutes);
 app.use('/api/incidents-history', incidentHistoryRoutes);
-// app.use('/api/locations', locationRoutes);
 
-app.listen(port,()=>{
+configureSocket(server);
+
+server.listen(port,()=>{
     console.log('Server is running @ '+port)
 })
+
+export default app;

@@ -53,6 +53,10 @@
       "empty": "Employee ID is required.",
       "invalidMongooseFormat": "Invalid Employee ID format!"
     },
+    "userId":{
+        "empty": "User ID is required.",
+      "invalidMongooseFormat": "Invalid User ID format!"
+    },
     "name": {
       "empty": "Employee Name must not be empty.",
       "length": "Name must have at least 4 characters long."
@@ -72,6 +76,7 @@
     },
     "response": {
       "createEmployee": {
+        "userNotFound": "User not found with given user id",
         "exist": "Employee alreday exist with given email",
         "success": "Employee created successfully",
         "server": "Server error in creating new employee"

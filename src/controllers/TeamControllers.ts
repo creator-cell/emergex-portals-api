@@ -84,7 +84,7 @@ export const addNewMemberToTeam = async (req: Request, res: Response) => {
   try {
     const team = await TeamModel.findById(id).populate("members");
     if (!team) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         error: req.i18n.t(
           "teamValidationMessages.response.addMemberToTeam.notFound"
@@ -140,7 +140,7 @@ export const removeMemberFromTeam = async (req: Request, res: Response) => {
   try {
     const team = await TeamModel.findById(id).populate("members");
     if (!team) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         error: req.i18n.t(
           "teamValidationMessages.response.removeMemberFromTeam.notFound"
@@ -150,7 +150,7 @@ export const removeMemberFromTeam = async (req: Request, res: Response) => {
 
     const employee = await EmployeeModel.findById(employeeId);
     if (!employee) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         error: req.i18n.t(
           "teamValidationMessages.response.removeMemberFromTeam.notFoundEmployee"
@@ -198,7 +198,7 @@ export const getTeamDetails = async (req: Request, res: Response) => {
   try {
     const team = await TeamModel.findById(id).populate("members");
     if (!team) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: req.i18n.t(
           "teamValidationMessages.response.getTeamById.notFound"
@@ -231,7 +231,7 @@ export const updateTeamDetail = async (req: Request, res: Response) => {
       { new: true, runValidators: true }
     );
     if (!team) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: req.i18n.t(
           "teamValidationMessages.response.updateTeamById.notFound"

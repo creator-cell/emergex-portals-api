@@ -124,7 +124,7 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
 
     const user = await UserModel.findOne({ email });
     if (!user) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         error: req.i18n.t("authValidationMessages.response.login.notFound"),
       });

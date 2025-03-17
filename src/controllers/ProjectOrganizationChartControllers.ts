@@ -8,7 +8,7 @@ export const addProjectOrganizationChart = async (req: Request, res: Response) =
     const existingCharts = await ProjectOrganizationChartModel.find({ project });
 
     if(!project){
-        return res.status(404).json({
+        return res.status(200).json({
             success:false,
             error:"Project not exist with id: "
         })
@@ -24,14 +24,14 @@ export const addProjectOrganizationChart = async (req: Request, res: Response) =
 
         const isFromEmployeeExist = await EmployeeModel.findById(from);
         if(!isFromEmployeeExist){
-            return res.status(404).json({
+            return res.status(200).json({
                 success:"Employee not exist with id: "
             })
         }
 
         const isFromExistInCurrentProjectChart = existingCharts.some((chart)=>chart.employee===from)
         if(!isFromExistInCurrentProjectChart){
-            return res.status(404).json({
+            return res.status(200).json({
                 success:"From Employee not exist in project chart"
             })
         }

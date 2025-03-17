@@ -128,7 +128,7 @@ export const updateSpecificRole = async (req: Request, res: Response) => {
   try {
     const project = await ProjectModel.findById(id);
     if (!project) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: req.i18n.t(
           "roleValidationMessages.response.updateSpecificRole.notFound"
@@ -137,7 +137,7 @@ export const updateSpecificRole = async (req: Request, res: Response) => {
     }
     const role = await RoleModel.findOne({ _id: roleId, project: id });
     if (!role) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: req.i18n.t(
           "roleValidationMessages.response.updateSpecificRole.roleNotAvailable"
@@ -149,7 +149,7 @@ export const updateSpecificRole = async (req: Request, res: Response) => {
     if (team) {
       const teamDetails = await TeamModel.findById(team);
       if (!teamDetails) {
-        return res.status(404).json({
+        return res.status(200).json({
           success: false,
           error: `${req.i18n.t(
             "roleValidationMessages.response.updateSpecificRole.teamNotFound"
@@ -162,7 +162,7 @@ export const updateSpecificRole = async (req: Request, res: Response) => {
     if (employee) {
       const employeeExists = await EmployeeModel.findById(employee);
       if (!employeeExists) {
-        return res.status(404).json({
+        return res.status(200).json({
           success: false,
           error: `${req.i18n.t(
             "roleValidationMessages.response.updateSpecificRole.employeeNotFound"
@@ -175,7 +175,7 @@ export const updateSpecificRole = async (req: Request, res: Response) => {
     if (team && employee) {
       const teamDetails = await TeamModel.findById(team);
       if (teamDetails && !teamDetails.members.includes(employee)) {
-        return res.status(404).json({
+        return res.status(200).json({
           success: false,
           error: req.i18n.t(
             "teamValidationMessages.response.removeMemberFromTeam.alreadyNotinTeam"
@@ -217,7 +217,7 @@ export const updateRolePriority = async (req: Request, res: Response) => {
     // Validate if the project exists
     const isProjectExist = await ProjectModel.findById(id);
     if (!isProjectExist) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         error: `${req.i18n.t(
           "projectValidationMessages.response.notExist"
@@ -231,7 +231,7 @@ export const updateRolePriority = async (req: Request, res: Response) => {
       if (team) {
         const existingTeam = await TeamModel.findById(team);
         if (!existingTeam) {
-          return res.status(404).json({
+          return res.status(200).json({
             success: false,
             message: req.i18n.t("teamValidationMessages.response.notExist"),
           });
@@ -252,7 +252,7 @@ export const updateRolePriority = async (req: Request, res: Response) => {
     }
 
     if (!role) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: req.i18n.t(
           "roleValidationMessages.response.updateRolePriority.notFound"
@@ -267,7 +267,7 @@ export const updateRolePriority = async (req: Request, res: Response) => {
     else if (from && !to) {
       const fromRole = await RoleModel.findOne({ project: id, employee: from });
       if (!fromRole) {
-        return res.status(404).json({
+        return res.status(200).json({
           success: false,
           message: req.i18n.t(
             "roleValidationMessages.response.updateRolePriority.fromNotFound"
@@ -280,7 +280,7 @@ export const updateRolePriority = async (req: Request, res: Response) => {
     else if (!from && to) {
       const toRole = await RoleModel.findOne({ project: id, employee: to });
       if (!toRole) {
-        return res.status(404).json({
+        return res.status(200).json({
           success: false,
           message: req.i18n.t(
             "roleValidationMessages.response.updateRolePriority.toNotFound"
@@ -306,7 +306,7 @@ export const updateRolePriority = async (req: Request, res: Response) => {
       const toRole = await RoleModel.findOne({ project: id, employee: to });
 
       if (!fromRole || !toRole) {
-        return res.status(404).json({
+        return res.status(200).json({
           success: false,
           message: req.i18n.t(
             "roleValidationMessages.response.updateRolePriority.toNotFound"
@@ -376,7 +376,7 @@ export const getProjectRolesByPriority = async (req: Request, res: Response) => 
     const isProjectExist = await ProjectModel.findById(projectId);
 
     if (!isProjectExist) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         error: `${req.i18n.t(
           "projectValidationMessages.response.notExist"
@@ -390,7 +390,7 @@ export const getProjectRolesByPriority = async (req: Request, res: Response) => 
       .populate("from", "name email")
 
     if (!roles.length) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         error: req.i18n.t(
           "roleValidationMessages.response.getProjectRolesByPriority.notFound"

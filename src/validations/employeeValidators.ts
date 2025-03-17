@@ -20,6 +20,11 @@ export const validateCreateEmployee = [
     .withMessage((_, { req }) => req.i18n.t("employeeValidationMessages.contactNo.length"))
     .matches(/^\d{10}$/)
     .withMessage((_, { req }) => req.i18n.t("employeeValidationMessages.contactNo.containCharacters")),
+    param("id")
+    .notEmpty()
+    .withMessage((_,{req})=>req.i18n.t("employeeValidationMessages.userId.empty"))
+    .isMongoId()
+    .withMessage((_,{req})=>req.i18n.t("employeeValidationMessages.userId.invalidMongooseFormat")),
 ];
 
 

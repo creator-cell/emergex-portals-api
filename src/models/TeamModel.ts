@@ -25,7 +25,7 @@ const TeamSchema = new Schema<ITeam>({
     },
     createdBy:{
         type:Schema.Types.ObjectId,
-        ref:'Employee',
+        ref:'User',
         required:true
     }
 },{

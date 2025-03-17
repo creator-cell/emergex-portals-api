@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import EmployeeModel, { IEmployee } from "../models/EmployeeModel";
 import { getPaginationOptions, paginate } from "../helper/pagination";
 import { ICustomRequest } from "../types/express";
+import UserModel from "../models/UserModel";
 import mongoose from "mongoose";
 
 // Create a new employee
@@ -9,7 +10,19 @@ export const createEmployee = async (req: Request, res: Response) => {
   const { name, email, designation, contactNo } = req.body;
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
+  const {id}=req.params;
   try {
+    const checkUserExist = await UserModel.findById(id);
+
+    if (!checkUserExist) {
+      return res.status(200).json({
+        success: false,
+        error: req.i18n.t(
+          "employeeValidationMessages.response.createEmployee.userNotFound"
+        ),
+      });
+    }
+
     const checkExist = await EmployeeModel.findOne({ email });
 
     if (checkExist) {
@@ -22,6 +35,7 @@ export const createEmployee = async (req: Request, res: Response) => {
     }
 
     const employee = new EmployeeModel({
+      user:id,
       name,
       email,
       designation,
@@ -51,13 +65,12 @@ export const createEmployee = async (req: Request, res: Response) => {
 export const getEmployees = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
-
   try {
     const options = getPaginationOptions(req, {
       sort: { createdAt: -1 },
       filter: {
         isDeleted:false,
-        // createdBy: new mongoose.Types.ObjectId(currentUser.id),
+        createdBy: new mongoose.Types.ObjectId(currentUser.id),
       },
     });
     const result = await paginate(EmployeeModel, options);
@@ -69,6 +82,7 @@ export const getEmployees = async (req: Request, res: Response) => {
         "employeeValidationMessages.response.getAllEmployees.success"
       ),
     });
+
   } catch (error: any) {
     return res.status(500).json({
       success: false,
@@ -85,7 +99,7 @@ export const getEmployeeById = async (req: Request, res: Response) => {
   try {
     const employee = await EmployeeModel.findById(id);
     if (!employee) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         error: req.i18n.t(
           "employeeValidationMessages.response.getEmployeeById.notFound"
@@ -112,7 +126,7 @@ export const getEmployeeById = async (req: Request, res: Response) => {
 // Update a employee
 export const updateEmployee = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { name, email, designation, contactNo } = req.body;
+  const { name, email, designation, contactNo,userId } = req.body;
   try {
     if (email) {
       const isExist = (await EmployeeModel.findOne({
@@ -129,14 +143,26 @@ export const updateEmployee = async (req: Request, res: Response) => {
       }
     }
 
+    if(userId){
+      const checkUserExist = await UserModel.findById(id);
+      if (!checkUserExist) {
+        return res.status(200).json({
+          success: false,
+          error: req.i18n.t(
+            "employeeValidationMessages.response.createEmployee.userNotFound"
+          ),
+        });
+      }
+    }
+
     const updatedEmployee = await EmployeeModel.findByIdAndUpdate(
       id,
-      { name, email, designation, contactNo },
+      { name, email, designation, contactNo,user:userId },
       { new: true, runValidators: true }
     );
 
     if (!updatedEmployee) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         error: req.i18n.t(
           "employeeValidationMessages.response.updateEmployeeById.notFound"
@@ -166,9 +192,13 @@ export const updateEmployee = async (req: Request, res: Response) => {
 export const deleteEmployee = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
-    const deletedEmployee = await EmployeeModel.findByIdAndDelete(id);
+    const deletedEmployee = await EmployeeModel.findByIdAndUpdate(id,{
+      isDeleted:true
+    },{
+      runValidators:true
+    });
     if (!deletedEmployee) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         error: req.i18n.t(
           "employeeValidationMessages.response.deleteEmployeeById.notFound"

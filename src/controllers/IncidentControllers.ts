@@ -10,6 +10,7 @@ import { UploadBase64File } from "../helper/S3Bucket";
 import mongoose from "mongoose";
 import IncidentHistoryModel from "../models/IncidentHistoryModel";
 import IncidentStatusHistoryModel from "../models/IncidentStatusHistoryModel";
+import RoleModel from "../models/RoleModel";
 
 export const createIncident = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
@@ -156,7 +157,7 @@ export const updateIncidentById = async (req: Request, res: Response) => {
     // Fetch the existing incident
     const existingIncident = await IncidentModel.findById(incidentId);
     if (!existingIncident) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         error: req.i18n.t(
           "incidentValidationMessages.response.getIncidentById.notFound"
@@ -178,7 +179,6 @@ export const updateIncidentById = async (req: Request, res: Response) => {
       utilityAffected,
       informToTeam,
       termsAndConditions,
-      projectId,
       images,
       signature,
     } = req.body;
@@ -385,11 +385,17 @@ export const updateIncidentById = async (req: Request, res: Response) => {
     // Save the updated incident
     const updatedIncident = await existingIncident.save();
 
+    const employee = await EmployeeModel.find({user:currentUser.id});
+    const role = await RoleModel.findOne({
+      employee: { $in: employee.map(emp => emp._id) },
+      project: existingIncident.project
+    });
+
     // Log changes to IncidentHistoryModel
     if (changes.length > 0) {
       const historyEntries = changes.map((change) => ({
-        title: `Updated: ${change.field} changed from ${change.oldValue} to ${change.newValue}`,
-        role: currentUser.id,
+        title: `${change.field} changed from ${change.oldValue} to ${change.newValue}`,
+        role: role?.id,
         incident: incidentId,
       }));
 
@@ -457,7 +463,7 @@ export const getIncidentsByProject = async (req: Request, res: Response) => {
     const result = await paginate(IncidentModel, options);
 
     if (result.data.length === 0) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: req.i18n.t(
           "incidentValidationMessages.response.getIncidentByProjectId.notFound"
@@ -487,7 +493,7 @@ export const deleteIncidentById = async (req: Request, res: Response) => {
   try {
     const incident = await IncidentModel.findById(id);
     if (!incident) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: req.i18n.t("incidentValidationMessages.response.notFound"),
       });
@@ -527,7 +533,7 @@ export const getIncidentById = async (req: Request, res: Response) => {
       });
 
     if (!incident) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: req.i18n.t("incidentValidationMessages.response.notFound"),
       });
@@ -558,7 +564,7 @@ export const updateIncidentStatus = async (req: Request, res: Response) => {
   try {
     const incident = await IncidentModel.findById(id);
     if (!incident) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         error: `${req.i18n.t(
           "incidentValidationMessages.response.notExist"
@@ -571,9 +577,15 @@ export const updateIncidentStatus = async (req: Request, res: Response) => {
     incident.status = status;
     await incident.save();
 
+    const employee = await EmployeeModel.find({user:currentUser.id});
+    const role = await RoleModel.findOne({
+      employee: { $in: employee.map(emp => emp._id) },
+      project: incident.project
+    });
+
     await IncidentStatusHistoryModel.create({
       incident: id,
-      role: currentUser.id,
+      role: role?._id,
       old,
       status,
     });
@@ -585,7 +597,8 @@ export const updateIncidentStatus = async (req: Request, res: Response) => {
       ),
     });
   } catch (error) {
-    return res.status(200).json({
+    console.log("error: ",error)
+    return res.status(500).json({
       success: false,
       message: req.i18n.t(
         "incidentValidationMessages.response.updateIncidentStatus.server"
@@ -599,7 +612,7 @@ export const stopIncidentTimer = async (req: Request, res: Response) => {
   try {
     const incident = await IncidentModel.findById(id);
     if (!incident) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         error: `${req.i18n.t(
           "incidentValidationMessages.response.notExist"
@@ -627,7 +640,7 @@ export const stopIncidentTimer = async (req: Request, res: Response) => {
       ),
     });
   } catch (error) {
-    return res.status(404).json({
+    return res.status(200).json({
       success: false,
       error: req.i18n.t(
         "incidentValidationMessages.response.stopIncidentTimer.server"

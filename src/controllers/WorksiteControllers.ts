@@ -87,7 +87,7 @@ export const getWorksitesByRegion = async (req: Request, res: Response) => {
     const worksites = await paginate(WorksiteModel, options);
 
     if (!worksites.data.length) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: req.i18n.t("worksiteValidationMessages.response.getWorksitesByRegion.notFound"),
       });
@@ -113,7 +113,7 @@ export const updateWorksiteById = async (req: Request, res: Response) => {
 
     const worksite = await WorksiteModel.findById(id);
     if (!worksite) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: req.i18n.t("worksiteValidationMessages.response.notFound"),
       });
@@ -180,7 +180,7 @@ export const getWorksiteById = async (req: Request, res: Response) => {
     })
 
     if (!worksite) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: "Worksite not found",
       });
@@ -211,7 +211,7 @@ export const deleteWorksiteById = async (req: Request, res: Response) => {
     );
 
     if (!worksite) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: req.i18n.t("worksiteValidationMessages.response.worksiteNotFound"),
       });

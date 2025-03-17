@@ -14,7 +14,8 @@ import { checkValidationResult } from "../middlewares/checkValidationsMiddleware
 
 const router = express.Router();
 
-router.route("/").post(authenticate, authorizeRoles(GlobalAdminRoles.SuperAdmin) ,validateCreateEmployee,checkValidationResult,createEmployee).get(authenticate, authorizeRoles(GlobalAdminRoles.SuperAdmin,GlobalAdminRoles.ClientAdmin),getEmployees);     
+router.post("/:id",authenticate, authorizeRoles(GlobalAdminRoles.SuperAdmin) ,validateCreateEmployee,checkValidationResult,createEmployee)
+router.get("/",authenticate, authorizeRoles(GlobalAdminRoles.SuperAdmin,GlobalAdminRoles.ClientAdmin),getEmployees);     
 
 router.route("/employee-by-id/:id").get(authenticate, authorizeRoles(GlobalAdminRoles.SuperAdmin),validateEmployeeId,checkValidationResult,getEmployeeById).put(authenticate, authorizeRoles(GlobalAdminRoles.SuperAdmin),validateUpdateEmployee,checkValidationResult,updateEmployee).delete(authenticate, authorizeRoles(GlobalAdminRoles.SuperAdmin),validateEmployeeId,checkValidationResult,deleteEmployee);     
 

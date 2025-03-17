@@ -160,7 +160,7 @@ export const getAnnouncementById = async (req: Request, res: Response) => {
   try {
     const announcement = await AnnouncementModel.findById(id);
     if (!announcement) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: true,
         message: req.i18n.t(
           "announcementValidationMessages.response.getAnnouncementById.notFound"
@@ -198,7 +198,7 @@ export const getAnnouncementById = async (req: Request, res: Response) => {
 
 //     if (!existingAnnouncement) {
 //       await session.abortTransaction();
-//       return res.status(404).json({
+//       return res.status(200).json({
 //         success: false,
 //         message: req.i18n.t(
 //           "announcementValidationMessages.response.updateAnnouncement.notFound"
@@ -324,7 +324,7 @@ export const deleteAnnouncement = async (req: Request, res: Response) => {
     },{new:false,runValidators:true});
 
     if (!deletedAnnouncement) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: req.i18n.t(
           "announcementValidationMessages.response.deleteAnnouncementById.notFound"

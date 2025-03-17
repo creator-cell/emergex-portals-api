@@ -75,7 +75,7 @@ export const updateCountryById = async (req: Request, res: Response) => {
     );
 
     if (!country) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: req.i18n.t("countryValidationMessages.response.CountryNotFound"),
       });
@@ -105,7 +105,7 @@ export const deleteCountryById = async (req: Request, res: Response) => {
     );
 
     if (!country) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: req.i18n.t("countryValidationMessages.response.CountryNotFound"),
       });
@@ -131,7 +131,7 @@ export const getCountryById = async (req: Request, res: Response) => {
     const country = await CountryModel.findById(id);
 
     if (!country) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: req.i18n.t("countryValidationMessages.response.CountryNotFound"),
       });

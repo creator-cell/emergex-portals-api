@@ -9,6 +9,8 @@ import WorksiteModel from "../models/WorksiteModel";
 import { generateUniqueId } from "../helper/ProjectFunctions";
 import { ICustomRequest } from "../types/express";
 import RoleModel from "../models/RoleModel";
+import { GlobalAdminRoles } from "../config/global-enum";
+import EmployeeModel from "../models/EmployeeModel";
 
 // Create a project only by getting name
 export const createProjectByName = async (req: Request, res: Response) => {
@@ -191,8 +193,10 @@ export const createProject = async (req: Request, res: Response) => {
 export const getAllProjects = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
+  const role = currentUser.role;
   try {
-    const {search}=req.query;
+    let result;
+    const { search } = req.query;
     const projectPopulateOptions = [
       {
         path: "parentProjectId",
@@ -209,30 +213,67 @@ export const getAllProjects = async (req: Request, res: Response) => {
       },
     ];
 
-    let options = getPaginationOptions(req, {
-      populate: projectPopulateOptions,
-      sort: { createdAt: -1 },
-      filter: { 
-        createdBy: new mongoose.Types.ObjectId(currentUser.id), 
-       },
-    });
-
-    if(search){
-      options = getPaginationOptions(req, {
+    if (role === GlobalAdminRoles.SuperAdmin) {
+      let options = getPaginationOptions(req, {
         populate: projectPopulateOptions,
         sort: { createdAt: -1 },
-        filter : { 
-          createdBy: new mongoose.Types.ObjectId(currentUser.id), 
-          isDeleted: false,
-          $or: [
-            { name: { $regex: search, $options: "i" } },
-            { id: { $regex: search, $options: "i" } }
-          ]
-        }
+        filter: {
+          createdBy: new mongoose.Types.ObjectId(currentUser.id),
+        },
       });
-    }
 
-    const result = await paginate(ProjectModel, options);
+      if (search) {
+        options = getPaginationOptions(req, {
+          populate: projectPopulateOptions,
+          sort: { createdAt: -1 },
+          filter: {
+            createdBy: new mongoose.Types.ObjectId(currentUser.id),
+            isDeleted: false,
+            $or: [
+              { name: { $regex: search, $options: "i" } },
+              { id: { $regex: search, $options: "i" } },
+            ],
+          },
+        });
+      }
+      result = await paginate(ProjectModel, options);
+    } else if (role === GlobalAdminRoles.ClientAdmin) {
+      const employees = await EmployeeModel.find({
+        user: new mongoose.Types.ObjectId(currentUser.id),
+      });
+
+      const roles = await RoleModel.find({
+        employee: { $in: employees.map(emp => new mongoose.Types.ObjectId(emp._id)) },
+      }).select("project");
+
+      const projectIds = roles.map((role) => role.project);
+
+      let options = getPaginationOptions(req, {
+        populate: projectPopulateOptions,
+        sort: { createdAt: -1 },
+        filter: {
+          _id: { $in: projectIds },
+          isDeleted: false,
+        },
+      });
+
+      if (search) {
+        options = getPaginationOptions(req, {
+          populate: projectPopulateOptions,
+          sort: { createdAt: -1 },
+          filter: {
+            _id: { $in: projectIds },
+            isDeleted: false,
+            $or: [
+              { name: { $regex: search, $options: "i" } },
+              { id: { $regex: search, $options: "i" } },
+            ],
+          },
+        });
+      }
+
+      result = await paginate(ProjectModel, options);
+    }
 
     return res.status(200).json({
       success: true,
@@ -242,7 +283,7 @@ export const getAllProjects = async (req: Request, res: Response) => {
       ),
     });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return res.status(500).json({
       success: false,
       error: req.i18n.t(
@@ -351,17 +392,16 @@ export const getProjectById = async (req: Request, res: Response) => {
 
   try {
     // Check if project exists
-    const project = await ProjectModel.findOne({ _id: id, isDeleted: false }).populate({
+    const project = await ProjectModel.findOne({
+      _id: id,
+      isDeleted: false,
+    }).populate({
       path: "location",
-      populate: [
-        { path: "country" },
-        { path: "region" },
-        { path: "worksite" },
-      ],
+      populate: [{ path: "country" }, { path: "region" }, { path: "worksite" }],
     });
 
     if (!project) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         error: "Project not found.",
       });
@@ -470,7 +510,7 @@ export const updateProject = async (req: Request, res: Response) => {
     if (location) {
       const isLocationExist = await LocationModel.exists({ _id: location });
       if (!isLocationExist) {
-        return res.status(404).json({
+        return res.status(200).json({
           success: false,
           error: `${req.i18n.t(
             "projectValidationMessages.response.updateProject.locationNotExist"
@@ -486,7 +526,7 @@ export const updateProject = async (req: Request, res: Response) => {
     );
 
     if (!updatedProject) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: req.i18n.t(
           "projectValidationMessages.response.updateProject.notFound"
@@ -523,7 +563,7 @@ export const deleteProject = async (req: Request, res: Response) => {
     });
 
     if (!project) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: req.i18n.t(
           "projectValidationMessages.response.deleteProjectById.notFound"
@@ -664,7 +704,7 @@ export const deleteProject = async (req: Request, res: Response) => {
 //   try {
 //     const project = await ProjectModel.findById(id);
 //     if (!project) {
-//       return res.status(404).json({
+//       return res.status(200).json({
 //         success: false,
 //         message: req.i18n.t(
 //           "projectValidationMessages.response.updateSpecificRole.notFound"
@@ -679,7 +719,7 @@ export const deleteProject = async (req: Request, res: Response) => {
 //     );
 
 //     if (roleIndex === -1) {
-//       return res.status(404).json({
+//       return res.status(200).json({
 //         success: false,
 //         message: req.i18n.t(
 //           "projectValidationMessages.response.updateSpecificRole.roleNotAvailabel"
@@ -693,7 +733,7 @@ export const deleteProject = async (req: Request, res: Response) => {
 //     if (team) {
 //       teamDetails = await TeamModel.findById(team);
 //       if (!teamDetails) {
-//         return res.status(404).json({
+//         return res.status(200).json({
 //           success: false,
 //           error: `${req.i18n.t(
 //             "projectValidationMessages.response.updateSpecificRole.teamNotFound"
@@ -706,7 +746,7 @@ export const deleteProject = async (req: Request, res: Response) => {
 //     if (assignTo) {
 //       const isEmployeeExist = await EmployeeModel.findById(assignTo);
 //       if (!isEmployeeExist) {
-//         return res.status(404).json({
+//         return res.status(200).json({
 //           success: false,
 //           error: `${req.i18n.t(
 //             "projectValidationMessages.response.updateSpecificRole.employeeNotFound"
@@ -719,7 +759,7 @@ export const deleteProject = async (req: Request, res: Response) => {
 //     if (team && assignTo && teamDetails) {
 //       const isEmployeeExistInTeam = teamDetails.members.includes(assignTo);
 //       if (!isEmployeeExistInTeam) {
-//         return res.status(404).json({
+//         return res.status(200).json({
 //           success: false,
 //           error: req.i18n.t(
 //             "teamValidationMessages.response.removeMemberFromTeam.alreadyNotinTeam"
@@ -762,7 +802,7 @@ export const getProjectsByLocation = async (req: Request, res: Response) => {
     });
 
     if (!location) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         error: req.i18n.t(
           "projectValidationMessages.response.getProjectsByLocation.locationNotExist"
@@ -782,19 +822,18 @@ export const getProjectsByLocation = async (req: Request, res: Response) => {
     const projects = await ProjectModel.find({
       location: new mongoose.Types.ObjectId(location._id),
       isDeleted: false,
-    })
-      .populate({
-        path: "location",
-        select: "country region worksite",
-        populate: [
-          { path: "country", select: "name" },
-          { path: "region", select: "name" },
-          { path: "worksite", select: "name" },
-        ],
-      })
+    }).populate({
+      path: "location",
+      select: "country region worksite",
+      populate: [
+        { path: "country", select: "name" },
+        { path: "region", select: "name" },
+        { path: "worksite", select: "name" },
+      ],
+    });
 
     if (!projects.length) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: `${req.i18n.t(
           "projectValidationMessages.response.getProjectsByLocation.notFound"
@@ -811,20 +850,21 @@ export const getProjectsByLocation = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Error fetching projects by location:", error);
-    return res
-      .status(500)
-      .json({
-        success: false,
-        error: req.i18n.t(
-          "projectValidationMessages.response.getProjectsByLocation.server"
-        ),
-      });
+    return res.status(500).json({
+      success: false,
+      error: req.i18n.t(
+        "projectValidationMessages.response.getProjectsByLocation.server"
+      ),
+    });
   }
 };
 
-export const getAllEmployeesInProjectOrganization = async(req: Request, res: Response)=>{
+export const getAllEmployeesInProjectOrganization = async (
+  req: Request,
+  res: Response
+) => {
   try {
-    const {id}=req.params;
+    const { id } = req.params;
     const { priority } = req.query;
 
     const matchCondition: any = {
@@ -843,50 +883,55 @@ export const getAllEmployeesInProjectOrganization = async(req: Request, res: Res
     const roles = await RoleModel.aggregate([
       { $match: matchCondition },
       {
-          $lookup: {
-              from: 'employees', 
-              localField: 'employee',
-              foreignField: '_id',
-              as: 'employeeDetails'
-          }
+        $lookup: {
+          from: "employees",
+          localField: "employee",
+          foreignField: "_id",
+          as: "employeeDetails",
+        },
       },
       {
-          $unwind: {
-              path: '$employeeDetails',
-              preserveNullAndEmptyArrays: true 
-          }
+        $unwind: {
+          path: "$employeeDetails",
+          preserveNullAndEmptyArrays: true,
+        },
       },
       {
         $group: {
-            _id: null,
-            employees: { $push: '$employeeDetails' } 
-        }
-    },
-    {
-      $project: {
+          _id: null,
+          employees: { $push: "$employeeDetails" },
+        },
+      },
+      {
+        $project: {
           _id: 0,
-          employees: 1
-      }
-  }
-  ]);
+          employees: 1,
+        },
+      },
+    ]);
 
-    if(!roles.length){
-      return res.status(404).json({
-        success:false,
-        error:req.i18n.t("projectValidationMessages.response.getAllEmployeesInProjectOrganization.notFound")
-      })
-    } 
+    if (!roles.length) {
+      return res.status(200).json({
+        success: false,
+        error: req.i18n.t(
+          "projectValidationMessages.response.getAllEmployeesInProjectOrganization.notFound"
+        ),
+      });
+    }
 
     return res.status(200).json({
-      success:true,
-      message:req.i18n.t("projectValidationMessages.response.getAllEmployeesInProjectOrganization.success"),
-      data:roles
-    })
-
+      success: true,
+      message: req.i18n.t(
+        "projectValidationMessages.response.getAllEmployeesInProjectOrganization.success"
+      ),
+      data: roles,
+    });
   } catch (error) {
     return res.status(200).json({
-      success:false,
-      error:req.i18n.t("projectValidationMessages.response.getAllEmployeesInProjectOrganization.server")
-    })
+      success: false,
+      error: req.i18n.t(
+        "projectValidationMessages.response.getAllEmployeesInProjectOrganization.server"
+      ),
+    });
   }
-}
+};
