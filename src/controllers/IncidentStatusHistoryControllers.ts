@@ -37,55 +37,66 @@ export const getIncidentStatusHistory = async (req: Request, res: Response) => {
 
     const history = await IncidentStatusHistoryModel.aggregate([
       {
-        $match: {
-          incident: new mongoose.Types.ObjectId(id),
-        },
+      $match: {
+        incident: new mongoose.Types.ObjectId(id),
+      },
       },
       {
-        $lookup: {
-          from: "roles",
-          localField: "role",
-          foreignField: "_id",
-          as: "role",
-        },
+      $lookup: {
+        from: "project_roles",
+        localField: "role",
+        foreignField: "_id",
+        as: "role",
+      },
       },
       {
-        $unwind: "$role",
+      $unwind: "$role",
       },
       {
-        $lookup: {
-          from: "employees",
-          localField: "role.employee",
-          foreignField: "_id",
-          as: "role.employee",
-        },
+      $lookup: {
+        from: "employees",
+        localField: "role.employee",
+        foreignField: "_id",
+        as: "role.employee",
+      },
       },
       {
-        $unwind: "$role.employee",
+      $unwind: "$role.employee",
       },
       {
-        $lookup: {
-          from: "teams",
-          localField: "role.team",
-          foreignField: "_id",
-          as: "role.team",
-        },
+      $lookup: {
+        from: "roles",
+        localField: "role.role",
+        foreignField: "_id",
+        as: "role.role",
+      },
       },
       {
-        $unwind: "$role.team",
+      $unwind: "$role.role",
       },
       {
-        $group: {
-          _id: "$role.team.name",
-          data: { $push: "$$ROOT" },
-        },
+      $lookup: {
+        from: "teams",
+        localField: "role.team",
+        foreignField: "_id",
+        as: "role.team",
+      },
       },
       {
-        $project: {
-          _id: 0,
-          team: "$_id",
-          data: 1,
-        },
+      $unwind: "$role.team",
+      },
+      {
+      $group: {
+        _id: "$role.team.name",
+        data: { $push: "$$ROOT" },
+      },
+      },
+      {
+      $project: {
+        _id: 0,
+        team: "$_id",
+        data: 1,
+      },
       },
     ]);
 
@@ -111,12 +122,17 @@ export const getIncidentUpdateHistory = async (req: Request, res: Response) => {
       populate: [
         {
           path: "role",
-          model: "Roles",
+          model: "Project_Roles",
           populate: [
             {
               path: "employee",
               model: "Employee",
               select: "name designation",
+            },
+            {
+              path: "role",
+              model: "Role",
+              select: "title",
             },
             {
               path: "team",

@@ -577,9 +577,9 @@ export const updateIncidentStatus = async (req: Request, res: Response) => {
     incident.status = status;
     await incident.save();
 
-    const employee = await EmployeeModel.find({user:currentUser.id});
+    const employee = await EmployeeModel.findOne({user:currentUser.id});
     const role = await ProjectRoleModel.findOne({
-      employee: { $in: employee.map(emp => emp._id) },
+      employee: employee?._id,
       project: incident.project
     });
 

@@ -11,11 +11,11 @@ const IncidentStatusHistorySchema = new Schema<IIncidentStatusHistory>(
   {
     status: { type: String, required: true },
     old: { type: String, required: true },
-    role: { type: Schema.Types.ObjectId, ref: "Roles", required: true },
+    role: { type: Schema.Types.ObjectId, ref: "Project_Roles", required: true },
     incident: { type: Schema.Types.ObjectId, ref: "Incident", required: true },
   },
   { timestamps: true }
-);
+);  
 
 const IncidentStatusHistoryModel = mongoose.model<IIncidentStatusHistory>(
   "incident_status_history",

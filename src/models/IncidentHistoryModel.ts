@@ -9,7 +9,7 @@ interface IIncidentHistory extends Document {
 const IncidentHistorySchema = new Schema<IIncidentHistory>(
   {
     title: { type: String, required: true },
-    role: { type: Schema.Types.ObjectId, ref: "Roles", required: true },
+    role: { type: Schema.Types.ObjectId, ref: "Project_Roles", required: true },
     incident: { type: Schema.Types.ObjectId, ref: "Incident", required: true },
   },
   { timestamps: true }

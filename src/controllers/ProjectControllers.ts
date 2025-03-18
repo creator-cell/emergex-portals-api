@@ -238,12 +238,12 @@ export const getAllProjects = async (req: Request, res: Response) => {
       }
       result = await paginate(ProjectModel, options);
     } else if (role === GlobalAdminRoles.ClientAdmin) {
-      const employees = await EmployeeModel.find({
+      const employee = await EmployeeModel.findOne({
         user: new mongoose.Types.ObjectId(currentUser.id),
       });
 
       const roles = await ProjectRoleModel.find({
-        employee: { $in: employees.map(emp => new mongoose.Types.ObjectId(emp._id)) },
+        employee: employee?._id,
       }).select("project");
 
       const projectIds = roles.map((role) => role.project);
