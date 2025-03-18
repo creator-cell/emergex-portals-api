@@ -110,21 +110,22 @@ export const getEmployees = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
   try {
-    let user:any=currentUser;
+    let user:any=currentUser.id;
+
     if(currentUser.role===GlobalAdminRoles.ClientAdmin){
       const data = await UserModel.findOne({_id:currentUser.id})
-      user = {
-        id:data?._id,
-        role:data?.role
-      }
+      user=data?.createdBy;
     }
+
     const options = getPaginationOptions(req, {
       sort: { createdAt: -1 },
       filter: {
         isDeleted: false,
-        createdBy: new mongoose.Types.ObjectId(user.id),
+        createdBy: new mongoose.Types.ObjectId(user),
       },
+      limit:20
     });
+
     const result = await paginate(EmployeeModel, options);
 
     return res.status(200).json({
@@ -135,6 +136,7 @@ export const getEmployees = async (req: Request, res: Response) => {
       ),
     });
   } catch (error: any) {
+    console.log("error: ",error)
     return res.status(500).json({
       success: false,
       error: req.i18n.t(

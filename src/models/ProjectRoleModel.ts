@@ -19,7 +19,7 @@ export const ProjectRoleSchema = new Schema<IProjectRoles>(
     },
     role: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Roles",
+      ref: "Role",
     },
     team: {
       type: mongoose.Schema.Types.ObjectId,

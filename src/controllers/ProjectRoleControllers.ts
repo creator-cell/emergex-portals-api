@@ -187,7 +187,7 @@ export const updateSpecificRole = async (req: Request, res: Response) => {
         });
       }
       role.employee = new mongoose.Types.ObjectId(employee);
-  
+
       const teams = await TeamModel.find({ members: employee })
         .populate("members", "name")
         .exec();
@@ -203,7 +203,7 @@ export const updateSpecificRole = async (req: Request, res: Response) => {
       const teamId = new mongoose.Types.ObjectId(
         (teams[0]._id as mongoose.Types.ObjectId).toString()
       );
-      role.team=teamId;
+      role.team = teamId;
     }
 
     if (description) {
@@ -233,7 +233,7 @@ export const updateSpecificRole = async (req: Request, res: Response) => {
 // add priority to given role
 export const updateRolePriority = async (req: Request, res: Response) => {
   try {
-    const { from, to, role:roleId, employee } = req.body;
+    const { from, to, role: roleId, employee } = req.body;
     const { id } = req.params;
 
     // Validate if the project exists
@@ -283,7 +283,12 @@ export const updateRolePriority = async (req: Request, res: Response) => {
           (teams[0]._id as mongoose.Types.ObjectId).toString()
         );
 
-        role = new ProjectRoleModel({ project: id, team, employee });
+        role = new ProjectRoleModel({
+          project: id,
+          team,
+          employee,
+          role: roleId,
+        });
         await role.save();
       }
     }
@@ -394,6 +399,10 @@ export const updateRolePriority = async (req: Request, res: Response) => {
       });
     }
 
+    if(roleId){
+      role.role = new mongoose.Types.ObjectId(roleId);
+    }
+
     await role.save();
 
     return res.status(200).json({
@@ -434,11 +443,70 @@ export const getProjectRolesByPriority = async (
     }
 
     // Fetch all roles for the given project with populated employee details
-    const roles = await ProjectRoleModel.find({ project: projectId })
-      .populate("employee", "name email designation")
-      .populate("from", "name email")
-      .populate("role","title")
-      .populate("team","name");
+    const roles = await ProjectRoleModel.aggregate([
+      { $match: { project: projectId } },
+      {
+        $lookup: {
+          from: "employees",
+          localField: "employee",
+          foreignField: "_id",
+          as: "employeeDetails",
+        },
+      },
+      { $unwind: "$employeeDetails" },
+      {
+        $lookup: {
+          from: "roles",
+          localField: "role",
+          foreignField: "_id",
+          as: "roleDetails",
+        },
+      },
+      { $unwind: "$roleDetails" },
+      {
+        $lookup: {
+          from: "teams",
+          localField: "team",
+          foreignField: "_id",
+          as: "teamDetails",
+        },
+      },
+      { $unwind: "$teamDetails" },
+      {
+        $lookup: {
+          from: "employees",
+          localField: "from",
+          foreignField: "_id",
+          as: "fromDetails",
+        },
+      },
+      { $unwind: { path: "$fromDetails", preserveNullAndEmptyArrays: true } },
+      {
+        $project: {
+          _id: 1,
+          project: 1,
+          priority: 1,
+          employee: {
+            _id: "$employeeDetails._id",
+            name: "$employeeDetails.name",
+            email: "$employeeDetails.email",
+            designation: "$employeeDetails.designation",
+            title: "$roleDetails.title",
+          },
+          from: {
+            _id: "$fromDetails._id",
+            name: "$fromDetails.name",
+            email: "$fromDetails.email",
+          },
+          role: 1,
+          team: {
+            _id: "$teamDetails._id",
+            name: "$teamDetails.name",
+          },
+          description: 1,
+        },
+      },
+    ]);
 
     if (!roles.length) {
       return res.status(200).json({
@@ -449,6 +517,8 @@ export const getProjectRolesByPriority = async (
       });
     }
 
+    // console.log("roles: ", roles);
+
     // Organizing roles first by priority, then by 'from'
     const rolesByPriority: Record<number, Record<string, any>> = {};
 
@@ -457,7 +527,8 @@ export const getProjectRolesByPriority = async (
       if (!rolesByPriority[priority]) {
         rolesByPriority[priority] = {};
       }
-      const fromKey = from?._id.toString() || "Unassigned";
+      // console.log("from: ", from);
+      const fromKey = from?._id ? from?._id.toString() : "Unassigned";
 
       if (!rolesByPriority[priority][fromKey]) {
         rolesByPriority[priority][fromKey] = {

@@ -252,7 +252,7 @@ export const getAllProjects = async (req: Request, res: Response) => {
         populate: projectPopulateOptions,
         sort: { createdAt: -1 },
         filter: {
-          _id: { $in: projectIds },
+          $or: [{ _id: { $in: projectIds } }, { createdBy: currentUser.id }],
           isDeleted: false,
         },
       });
