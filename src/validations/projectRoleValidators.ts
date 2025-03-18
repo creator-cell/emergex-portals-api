@@ -19,7 +19,7 @@ export const addRolesToProjectValidation = [
     .custom((roles) =>
       roles.every(
         (role: any) =>
-          typeof role.team === "string" &&
+          typeof role.roleId === "string" &&
           typeof role.assignTo === "string" &&
           typeof role.roleDescription === "string"
       )

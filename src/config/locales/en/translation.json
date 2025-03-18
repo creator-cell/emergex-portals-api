@@ -174,7 +174,8 @@
         "success": "Team employees fetched successfully",
         "server": "Server error in getting employees by team"
       },
-      "teamNotExist": "Team Not exist with id: "
+      "teamNotExist": "Team Not exist with id: ",
+      "noTeamFoundForEmployee":"No team found for this member."
     }
   },
 
@@ -349,7 +350,7 @@
     }
   },
 
-  "projectprojectRoleValidationMessages": {
+  "projectRoleValidationMessages": {
     "name": {
       "empty": "Role name must not be empty.",
       "length": "Role name must have at least 2 characters long."
@@ -390,14 +391,14 @@
     },
     "response": {
       "addRolesInProject": {
-        "success": "Roles added successfully",
+        "success": "Project Roles added successfully",
         "server": "Server error in adding roles to project",
-        "empty": "Roles array cannot be empty."
+        "empty": "Project Roles array cannot be empty."
       },
       "updateSpecificRole": {
         "notFound": "Project not found!",
-        "roleNotAvailable": "Role not availabel in Project ",
-        "teamNotFound": "Team does not exist with ID ",
+        "roleNotAvailable": "Project Role not availabel in Project ",
+        "roleNotFound": "Role does not exist with ID ",
         "employeeNotFound": "Employee does not exist with ID ",
         "success": "Project's Roles updated successfully!",
         "server": "Server error in updating project roles!"

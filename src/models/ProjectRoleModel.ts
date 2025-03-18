@@ -1,6 +1,7 @@
 import mongoose, { Model, Schema } from "mongoose";
 
 export interface IProjectRoles extends Document{
+  role: mongoose.Types.ObjectId;
   team: mongoose.Types.ObjectId;
   employee: mongoose.Types.ObjectId;
   description: string;
@@ -15,6 +16,10 @@ export const ProjectRoleSchema = new Schema<IProjectRoles>(
     project: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Project",
+    },
+    role: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Roles",
     },
     team: {
       type: mongoose.Schema.Types.ObjectId,
