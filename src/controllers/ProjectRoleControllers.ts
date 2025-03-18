@@ -440,8 +440,6 @@ export const getProjectRolesByPriority = async (
       .populate("role","title")
       .populate("team","name");
 
-    console.log("Roles: ", roles);
-
     if (!roles.length) {
       return res.status(200).json({
         success: false,
