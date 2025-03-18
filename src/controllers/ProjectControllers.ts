@@ -411,12 +411,12 @@ export const getProjectById = async (req: Request, res: Response) => {
     const rolesPipeline = [
       {
         $match: {
-          project: new mongoose.Types.ObjectId(id),
+          project: new mongoose.Types.ObjectId(id), // Match documents for the given project ID
         },
       },
       {
         $lookup: {
-          from: "teams",
+          from: "teams", // Lookup team data
           localField: "team",
           foreignField: "_id",
           as: "teamData",
@@ -424,7 +424,15 @@ export const getProjectById = async (req: Request, res: Response) => {
       },
       {
         $lookup: {
-          from: "employees",
+          from: "roles", // Lookup role data (ensure the collection name is correct)
+          localField: "role",
+          foreignField: "_id",
+          as: "roleData",
+        },
+      },
+      {
+        $lookup: {
+          from: "employees", // Lookup employee data
           localField: "employee",
           foreignField: "_id",
           as: "employeeData",
@@ -432,36 +440,43 @@ export const getProjectById = async (req: Request, res: Response) => {
       },
       {
         $unwind: {
-          path: "$teamData",
-          preserveNullAndEmptyArrays: true,
+          path: "$teamData", // Unwind teamData (single team per document)
+          preserveNullAndEmptyArrays: true, // Preserve documents even if teamData is empty
         },
       },
       {
         $unwind: {
-          path: "$employeeData",
-          preserveNullAndEmptyArrays: true,
+          path: "$roleData", // Unwind roleData (single role per document)
+          preserveNullAndEmptyArrays: true, // Preserve documents even if roleData is empty
+        },
+      },
+      {
+        $unwind: {
+          path: "$employeeData", // Unwind employeeData (single employee per document)
+          preserveNullAndEmptyArrays: true, // Preserve documents even if employeeData is empty
         },
       },
       {
         $group: {
-          _id: "$team",
-          team: { $first: "$teamData" },
+          _id: "$team", // Group by team
+          team: { $first: "$teamData" }, // Include team data
           employees: {
             $push: {
-              _id: "$employeeData._id",
-              name: "$employeeData.name",
-              email: "$employeeData.email",
-              designation: "$employeeData.designation",
-              description: "$description",
+              _id: "$employeeData._id", // Include employee ID
+              name: "$employeeData.name", // Include employee name
+              email: "$employeeData.email", // Include employee email
+              designation: "$employeeData.designation", // Include employee designation
+              description: "$description", // Include description from the ProjectRole document
+              title: "$roleData.title", // Include role title from the roleData lookup
             },
           },
         },
       },
       {
         $project: {
-          _id: 0,
-          team: 1,
-          employees: 1,
+          _id: 0, // Exclude the default _id field
+          team: 1, // Include the team field
+          employees: 1, // Include the employees array
         },
       },
     ];
