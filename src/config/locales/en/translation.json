@@ -53,8 +53,8 @@
       "empty": "Employee ID is required.",
       "invalidMongooseFormat": "Invalid Employee ID format!"
     },
-    "userId":{
-        "empty": "User ID is required.",
+    "userId": {
+      "empty": "User ID is required.",
       "invalidMongooseFormat": "Invalid User ID format!"
     },
     "name": {
@@ -164,88 +164,58 @@
         "success": "Employee removed from team successfully",
         "server": "Server error in removing employee to team"
       },
-      "getTeamNames":{
-        "notFound":"Team name not found",
-        "success":"Team names fetched successfully",
-        "server":"Server error in fetching team names"
+      "getTeamNames": {
+        "notFound": "Team name not found",
+        "success": "Team names fetched successfully",
+        "server": "Server error in fetching team names"
       },
-      "getTeamEmployees":{
-        "notFound":"Team not found",
-        "success":"Team employees fetched successfully",
-        "server":"Server error in getting employees by team"
+      "getTeamEmployees": {
+        "notFound": "Team not found",
+        "success": "Team employees fetched successfully",
+        "server": "Server error in getting employees by team"
       },
       "teamNotExist": "Team Not exist with id: "
     }
   },
 
   "roleValidationMessages": {
-    "name": {
-      "empty": "Role name must not be empty.",
-      "length": "Role name must have at least 2 characters long."
+    "title": {
+      "empty": "Role title is required",
+      "length": "Role title must be 2 character long",
+      "string": "Role title must be string"
+    },
+    "description": {
+      "empty": "Role description is required",
+      "string": "Role description must be string"
     },
     "id": {
-      "empty": "Role Id is required.",
-      "invalidMongooseFormat": "Invalid Role ID format!"
-    },
-    "addRolesToProject": {
-      "roles": {
-        "array": "At least one role is required.",
-        "custom": "Each role must have valid role, assignTo, and roleDescription.",
-        "invalidRoleId": "Invalid Role Id format!",
-        "invalidEmployeeId": "Invalid Employee Id format!"
-      }
-    },
-    "validateSpecificRole": {
-      "id": {
-        "empty": "Project Id is required.",
-        "invalidId": "Invalid Project Id Format."
-      },
-      "roleId": {
-        "empty": "Role Id is required.",
-        "invalidId": "Invalid Role Id Format."
-      },
-      "newRoleDetails": {
-        "team": {
-          "invalidId": "Team must be a valid MongoDB ObjectId."
-        },
-        "assignTo": {
-          "invalidId": "Assign To must be a valid MongoDB ObjectId."
-        },
-        "description": {
-          "string": "Role description must be a string.",
-          "length": "Role description must have atleast 6 characters"
-        }
-      }
+      "empty": "Role Id is required",
+      "invalidId": "Role Id must be a valid MongoDB ObjectId."
     },
     "response": {
-      "addRolesInProject": {
-        "success": "Roles added successfully",
-        "server": "Server error in adding roles to project",
-        "empty":"Roles array cannot be empty."
+      "createRole": {
+        "exist": "Role already exist with given title",
+        "success": "Role created successfully",
+        "server": "Server error in creating role"
       },
-      "updateSpecificRole": {
-        "notFound": "Project not found!",
-        "roleNotAvailable": "Role not availabel in Project ",
-        "teamNotFound": "Team does not exist with ID ",
-        "employeeNotFound": "Employee does not exist with ID ",
-        "success": "Project's Roles updated successfully!",
-        "server": "Server error in updating project roles!"
+      "updateRole": {
+        "exist": "Role already exist with given title",
+        "success": "Role updated successfully",
+        "server": "Server error in upadting role"
       },
-      "updateRolePriority":{
-        "notFound":"Given Role not found in this project",
-        "priority1":"Priority set to 1",
-        "fromNotFound":"'From' employee role not found",
-        "toNotFound":"'From' or 'To' employee role not found",
-        "conflict":"Priority conflict between from and to roles",
-        "success":"Priority updated",
-        "invalid":"Invalid Request",
-        "server":"Server error in updating project role priority"
+      "getAllRoles": {
+        "success": "Roles fetched successfully",
+        "server": "Server error in fetching roles"
       },
-      "getProjectRolesByPriority":{
-        "notFound":"No Roles available for this project organization",
-        "success":"Project organization chart roles grouped by priority fetched successfully",
-        "server":"Server error in getting project organization chart roles"
-      }
+      "getRoleById": {
+        "success": "Role fetched successfully",
+        "server": "Server error in fetching role"
+      },
+      "deleteRoleById": {
+        "success": "Role deleted successfully",
+        "server": "Server error in deleting role"
+      },
+      "notFound":"Role not found with id: "
     }
   },
 
@@ -370,12 +340,83 @@
         "success": "Project from location fetched successfully!",
         "server": "Server error in fetching project from location"
       },
-      "getAllEmployeesInProjectOrganization":{
-        "success":"Project employees fetched successfully",
-        "notFound":"No Employees not found in current project",
-        "server":"Server error in fetching project employees"
+      "getAllEmployeesInProjectOrganization": {
+        "success": "Project employees fetched successfully",
+        "notFound": "No Employees not found in current project",
+        "server": "Server error in fetching project employees"
       },
-      "notExist":"Project not exist with id: "
+      "notExist": "Project not exist with id: "
+    }
+  },
+
+  "projectprojectRoleValidationMessages": {
+    "name": {
+      "empty": "Role name must not be empty.",
+      "length": "Role name must have at least 2 characters long."
+    },
+    "id": {
+      "empty": "Role Id is required.",
+      "invalidMongooseFormat": "Invalid Role ID format!"
+    },
+    "addRolesToProject": {
+      "roles": {
+        "array": "At least one role is required.",
+        "custom": "Each role must have valid role, assignTo, and roleDescription.",
+        "invalidRoleId": "Invalid Role Id format!",
+        "invalidEmployeeId": "Invalid Employee Id format!"
+      }
+    },
+    "validateSpecificRole": {
+      "id": {
+        "empty": "Project Id is required.",
+        "invalidId": "Invalid Project Id Format."
+      },
+      "roleId": {
+        "empty": "Role Id is required.",
+        "invalidId": "Invalid Role Id Format."
+      },
+      "newRoleDetails": {
+        "team": {
+          "invalidId": "Team must be a valid MongoDB ObjectId."
+        },
+        "assignTo": {
+          "invalidId": "Assign To must be a valid MongoDB ObjectId."
+        },
+        "description": {
+          "string": "Role description must be a string.",
+          "length": "Role description must have atleast 6 characters"
+        }
+      }
+    },
+    "response": {
+      "addRolesInProject": {
+        "success": "Roles added successfully",
+        "server": "Server error in adding roles to project",
+        "empty": "Roles array cannot be empty."
+      },
+      "updateSpecificRole": {
+        "notFound": "Project not found!",
+        "roleNotAvailable": "Role not availabel in Project ",
+        "teamNotFound": "Team does not exist with ID ",
+        "employeeNotFound": "Employee does not exist with ID ",
+        "success": "Project's Roles updated successfully!",
+        "server": "Server error in updating project roles!"
+      },
+      "updateRolePriority": {
+        "notFound": "Given Role not found in this project",
+        "priority1": "Priority set to 1",
+        "fromNotFound": "'From' employee role not found",
+        "toNotFound": "'From' or 'To' employee role not found",
+        "conflict": "Priority conflict between from and to roles",
+        "success": "Priority updated",
+        "invalid": "Invalid Request",
+        "server": "Server error in updating project role priority"
+      },
+      "getProjectRolesByPriority": {
+        "notFound": "No Roles available for this project organization",
+        "success": "Project organization chart roles grouped by priority fetched successfully",
+        "server": "Server error in getting project organization chart roles"
+      }
     }
   },
 
@@ -741,8 +782,8 @@
       "createIncident": {
         "success": "Incident created successfully",
         "server": "Failed to create incident",
-        "imageUploadError":"Error in uploading incident images",
-        "signatureUploadError":"Error in uploading incident digital signature image"
+        "imageUploadError": "Error in uploading incident images",
+        "signatureUploadError": "Error in uploading incident digital signature image"
       },
       "getIncidentByProjectId": {
         "notFound": "No incidents found for this project or invalid project id",
@@ -769,9 +810,9 @@
         "success": "Incident status updated successfully!",
         "server": "Server error in updating Incident status"
       },
-      "getIncidentStatistics":{
-        "success":"Incident statics fetched successfully!",
-        "server":"Failed to fetch incident statistics"
+      "getIncidentStatistics": {
+        "success": "Incident statics fetched successfully!",
+        "server": "Failed to fetch incident statistics"
       },
       "stopIncidentTimer": {
         "success": "Incident Timer stopped successfully!",
@@ -811,11 +852,11 @@
     }
   },
 
-  "incidentStatusHistoryValidationMessages":{
-    "getIncidentStatusHistory":{
-      "id":{
-        "empty":"Incident Id is required",
-        "isMongoDbId":"Incident ID must be valid MongodDB ID."
+  "incidentStatusHistoryValidationMessages": {
+    "getIncidentStatusHistory": {
+      "id": {
+        "empty": "Incident Id is required",
+        "isMongoDbId": "Incident ID must be valid MongodDB ID."
       }
     }
   }

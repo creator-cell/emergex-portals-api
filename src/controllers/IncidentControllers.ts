@@ -10,7 +10,7 @@ import { UploadBase64File } from "../helper/S3Bucket";
 import mongoose from "mongoose";
 import IncidentHistoryModel from "../models/IncidentHistoryModel";
 import IncidentStatusHistoryModel from "../models/IncidentStatusHistoryModel";
-import RoleModel from "../models/RoleModel";
+import ProjectRoleModel from "../models/ProjectRoleModel";
 
 export const createIncident = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
@@ -386,7 +386,7 @@ export const updateIncidentById = async (req: Request, res: Response) => {
     const updatedIncident = await existingIncident.save();
 
     const employee = await EmployeeModel.find({user:currentUser.id});
-    const role = await RoleModel.findOne({
+    const role = await ProjectRoleModel.findOne({
       employee: { $in: employee.map(emp => emp._id) },
       project: existingIncident.project
     });
@@ -578,7 +578,7 @@ export const updateIncidentStatus = async (req: Request, res: Response) => {
     await incident.save();
 
     const employee = await EmployeeModel.find({user:currentUser.id});
-    const role = await RoleModel.findOne({
+    const role = await ProjectRoleModel.findOne({
       employee: { $in: employee.map(emp => emp._id) },
       project: incident.project
     });

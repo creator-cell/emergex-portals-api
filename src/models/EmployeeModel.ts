@@ -7,6 +7,7 @@ export interface IEmployee extends Document {
   contactNo: string;
   designation: string;
   email: string;
+  user: mongoose.Types.ObjectId;
   createdBy: mongoose.Types.ObjectId;
   isDeleted:boolean;
 }
@@ -44,6 +45,10 @@ export const EmployeeSchema = new Schema<IEmployee>(
     isDeleted:{
       type:Boolean,
       default:false
+    },
+    user: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: "User" 
     },
     createdBy:{
       type:Schema.Types.ObjectId,

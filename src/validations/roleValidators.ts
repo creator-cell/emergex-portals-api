@@ -1,107 +1,70 @@
 import { body, param } from "express-validator";
 
-export const addRolesToProjectValidation = [
-  param("id")
+export const createRoleValidations = [
+  body("title")
     .notEmpty()
     .withMessage((_, { req }) =>
-      req.i18n.t("projectValidationMessages.getProjectById.id.empty")
+      req.i18n.t("roleValidationMessages.title.empty")
     )
-    .isMongoId()
-    .withMessage((_, { req }) =>
-      req.i18n.t("projectValidationMessages.getProjectById.id.invalidId")
-    ),
-  body("roles")
-    .isArray({ min: 1 })
-    .withMessage((_, { req }) =>
-      req.i18n.t("roleValidationMessages.addRolesToProject.roles.array")
-    )
-    .bail()
-    .custom((roles) =>
-      roles.every(
-        (role: any) =>
-          typeof role.team === "string" &&
-          typeof role.assignTo === "string" &&
-          typeof role.roleDescription === "string"
-      )
-    )
-    .withMessage((_, { req }) =>
-      req.i18n.t("roleValidationMessages.addRolesToProject.roles.custom")
-    ),
-];
-
-export const validateSpecificRole = [
-  param("id")
-    .notEmpty()
-    .withMessage((_, { req }) =>
-      req.i18n.t("roleValidationMessages.validateSpecificRole.id.empty")
-    )
-    .isMongoId()
-    .withMessage((_, { req }) =>
-      req.i18n.t("roleValidationMessages.validateSpecificRole.id.invalidId")
-    ),
-  body("roleId")
-    .notEmpty()
-    .withMessage((_, { req }) =>
-      req.i18n.t("roleValidationMessages.validateSpecificRole.roleId.empty")
-    )
-    .isMongoId()
-    .withMessage((_, { req }) =>
-      req.i18n.t("roleValidationMessages.validateSpecificRole.roleId.invalidId")
-    ),
-  body("newRoleDetails.team")
-    .optional()
-    .isMongoId()
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "roleValidationMessages.validateSpecificRole.newRoleDetails.team.invalidId"
-      )
-    ),
-  body("newRoleDetails.assignTo")
-    .optional()
-    .isMongoId()
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "roleValidationMessages.validateSpecificRole.newRoleDetails.assignTo.invalidId"
-      )
-    ),
-  body("newRoleDetails.roleDescription")
-    .optional()
     .isString()
     .withMessage((_, { req }) =>
-      req.i18n.t(
-        "roleValidationMessages.validateSpecificRole.newRoleDetails.description.string"
-      )
+      req.i18n.t("roleValidationMessages.title.string")
     )
-    .isLength({ min: 6 })
+    .isLength({ min: 2 })
     .withMessage((_, { req }) =>
-      req.i18n.t(
-        "roleValidationMessages.validateSpecificRole.newRoleDetails.description.length"
-      )
+      req.i18n.t("roleValidationMessages.title.length")
+    ),
+  body("description")
+    .notEmpty()
+    .withMessage((_, { req }) =>
+      req.i18n.t("roleValidationMessages.description.empty")
     )
-    .trim()
-    .escape(),
+    .isString()
+    .withMessage((_, { req }) =>
+      req.i18n.t("roleValidationMessages.description.string")
+    ),
 ];
 
-export const validateRolePriority = [
+export const roleByIdValidation = [
   param("id")
     .notEmpty()
-    .withMessage("Employee Id is requried")
+    .withMessage((_, { req }) => req.i18n.t("roleValidationMessages.id.empty"))
     .isMongoId()
-    .withMessage("Invalid project ID"),
-  body("team").optional().isMongoId().withMessage("Invalid team ID"),
-  body("employee")
-    .notEmpty()
-    .withMessage("Employee Id is requried")
-    .isMongoId()
-    .withMessage("Employee ID is required"),
-  body("from").optional().isMongoId().withMessage("Invalid from employee ID"),
-  body("to").optional().isMongoId().withMessage("Invalid to employee ID"),
+    .withMessage((_, { req }) =>
+      req.i18n.t("roleValidationMessages.id.invalidId")
+    ),
 ];
 
-export const getProjectRolesByPriority = [
+export const updateRoleValidations = [
   param("id")
     .notEmpty()
-    .withMessage("project Id is requried")
+    .withMessage((_, { req }) => req.i18n.t("roleValidationMessages.id.empty"))
     .isMongoId()
-    .withMessage("Invalid project ID"),
+    .withMessage((_, { req }) =>
+      req.i18n.t("roleValidationMessages.id.invalidId")
+    ),
+  body("title")
+    .optional()
+    .notEmpty()
+    .withMessage((_, { req }) =>
+      req.i18n.t("roleValidationMessages.title.empty")
+    )
+    .isString()
+    .withMessage((_, { req }) =>
+      req.i18n.t("roleValidationMessages.title.string")
+    )
+    .isLength({ min: 2 })
+    .withMessage((_, { req }) =>
+      req.i18n.t("roleValidationMessages.title.length")
+    ),
+  body("description")
+    .optional()
+    .notEmpty()
+    .withMessage((_, { req }) =>
+      req.i18n.t("roleValidationMessages.description.empty")
+    )
+    .isString()
+    .withMessage((_, { req }) =>
+      req.i18n.t("roleValidationMessages.description.string")
+    ),
 ];

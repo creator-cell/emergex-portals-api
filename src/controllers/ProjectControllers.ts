@@ -8,7 +8,7 @@ import RegionModel from "../models/RegionModel";
 import WorksiteModel from "../models/WorksiteModel";
 import { generateUniqueId } from "../helper/ProjectFunctions";
 import { ICustomRequest } from "../types/express";
-import RoleModel from "../models/RoleModel";
+import ProjectRoleModel from "../models/ProjectRoleModel";
 import { GlobalAdminRoles } from "../config/global-enum";
 import EmployeeModel from "../models/EmployeeModel";
 
@@ -242,7 +242,7 @@ export const getAllProjects = async (req: Request, res: Response) => {
         user: new mongoose.Types.ObjectId(currentUser.id),
       });
 
-      const roles = await RoleModel.find({
+      const roles = await ProjectRoleModel.find({
         employee: { $in: employees.map(emp => new mongoose.Types.ObjectId(emp._id)) },
       }).select("project");
 
@@ -466,7 +466,7 @@ export const getProjectById = async (req: Request, res: Response) => {
       },
     ];
 
-    const roles = await RoleModel.aggregate(rolesPipeline);
+    const roles = await ProjectRoleModel.aggregate(rolesPipeline);
 
     // Construct response
     const data = {
@@ -880,7 +880,7 @@ export const getAllEmployeesInProjectOrganization = async (
 
     // console.log(matchCondition)
 
-    const roles = await RoleModel.aggregate([
+    const roles = await ProjectRoleModel.aggregate([
       { $match: matchCondition },
       {
         $lookup: {

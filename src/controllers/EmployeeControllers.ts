@@ -57,8 +57,12 @@ export const createEmployee = async (req: Request, res: Response) => {
       phoneNumber:contactNo,
       role: GlobalAdminRoles.ClientAdmin,
       accounts: [],
+      createdBy:currentUser.id
     });
     await user.save({ session });
+    
+    savedEmployee.user = user._id as mongoose.Types.ObjectId;
+    await savedEmployee.save({session});
 
     const account: IAccount = await AccountModel.create(
       [
@@ -106,11 +110,19 @@ export const getEmployees = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
   try {
+    let user:any=currentUser;
+    if(currentUser.role===GlobalAdminRoles.ClientAdmin){
+      const data = await UserModel.findOne({_id:currentUser.id})
+      user = {
+        id:data?._id,
+        role:data?.role
+      }
+    }
     const options = getPaginationOptions(req, {
       sort: { createdAt: -1 },
       filter: {
         isDeleted: false,
-        createdBy: new mongoose.Types.ObjectId(currentUser.id),
+        createdBy: new mongoose.Types.ObjectId(user.id),
       },
     });
     const result = await paginate(EmployeeModel, options);

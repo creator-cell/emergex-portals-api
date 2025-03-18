@@ -150,7 +150,7 @@
     }
   },
 
-  "roleValidationMessages": {
+  "projectRoleValidationMessages": {
     "name": {
       "empty": "भूमिका का नाम खाली नहीं होना चाहिए।",
       "length": "भूमिका का नाम कम से कम 2 वर्ण लंबा होना चाहिए।"
