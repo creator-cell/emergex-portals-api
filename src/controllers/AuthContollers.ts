@@ -6,6 +6,7 @@ import { AccountProviderType, GlobalAdminRoles } from "../config/global-enum";
 import AccountModel, { IAccount } from "../models/AccountModel";
 import mongoose from "mongoose";
 import SessionModel from "../models/SessionModel";
+import EmployeeModel from "../models/EmployeeModel";
 
 const parseUserAgent = (userAgent: string): { browser: string; os: string } => {
   let browser = "unknown";
@@ -98,6 +99,27 @@ export const register = async (
       user.accounts.push(account._id as mongoose.Types.ObjectId);
     }
     await user.save({ session });
+
+    const isEmployeeExist = await EmployeeModel.findOne({ email });
+    if (isEmployeeExist) {
+      await session.abortTransaction();
+      return res.status(400).json({
+        success: false,
+        error: req.i18n.t("employeeValidationMessages.response.createEmployee.exist"),
+      });
+    }
+
+    const employee = new EmployeeModel({
+      _id: new mongoose.Types.ObjectId(),
+      user: user._id,
+      name: username,
+      email,
+      contactNo: phoneNumber,
+      designation: role,
+      createdBy: user._id
+    }, { session })
+
+    await employee.save({session});
     await session.commitTransaction();
 
     return res.status(201).json({
