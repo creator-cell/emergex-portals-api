@@ -444,14 +444,18 @@ export const getProjectRolesByPriority = async (
 
     // Fetch all roles for the given project with populated employee details
     const roles = await ProjectRoleModel.aggregate([
-      { $match: { project: projectId } },
+      {
+        $match: {
+          project: projectId
+        }
+      },
       {
         $lookup: {
           from: "employees",
           localField: "employee",
           foreignField: "_id",
-          as: "employeeDetails",
-        },
+          as: "employeeDetails"
+        }
       },
       { $unwind: "$employeeDetails" },
       {
@@ -459,8 +463,8 @@ export const getProjectRolesByPriority = async (
           from: "roles",
           localField: "role",
           foreignField: "_id",
-          as: "roleDetails",
-        },
+          as: "roleDetails"
+        }
       },
       { $unwind: "$roleDetails" },
       {
@@ -468,19 +472,29 @@ export const getProjectRolesByPriority = async (
           from: "teams",
           localField: "team",
           foreignField: "_id",
-          as: "teamDetails",
-        },
+          as: "teamDetails"
+        }
       },
-      { $unwind: "$teamDetails" },
+      {
+        $unwind: {
+          path: "$teamDetails",
+          preserveNullAndEmptyArrays: true
+        }
+      },
       {
         $lookup: {
           from: "employees",
           localField: "from",
           foreignField: "_id",
-          as: "fromDetails",
-        },
+          as: "fromDetails"
+        }
       },
-      { $unwind: { path: "$fromDetails", preserveNullAndEmptyArrays: true } },
+      {
+        $unwind: {
+          path: "$fromDetails",
+          preserveNullAndEmptyArrays: true
+        }
+      },
       {
         $project: {
           _id: 1,
@@ -490,22 +504,23 @@ export const getProjectRolesByPriority = async (
             _id: "$employeeDetails._id",
             name: "$employeeDetails.name",
             email: "$employeeDetails.email",
-            designation: "$employeeDetails.designation",
+            designation:
+              "$employeeDetails.designation",
             title: "$roleDetails.title",
+            team: "$teamDetails.name"
           },
           from: {
             _id: "$fromDetails._id",
             name: "$fromDetails.name",
-            email: "$fromDetails.email",
+            email: "$fromDetails.email"
           },
-          role: 1,
-          team: {
-            _id: "$teamDetails._id",
-            name: "$teamDetails.name",
+          role: {
+            _id: "$roleDetails._id",
+            name: "$roleDetails.title"
           },
-          description: 1,
-        },
-      },
+          description: 1
+        }
+      }
     ]);
 
     if (!roles.length) {

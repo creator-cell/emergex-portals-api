@@ -103,7 +103,7 @@ export const updateRole = async (
       title,
       createdBy: currentUser.id,
     });
-    if (isRoleExist && isRoleExist._id !== id) {
+    if (isRoleExist && isRoleExist._id.toString() !== id) {
      return res.status(200).json({
         success: false,
         error: req.i18n.t("roleValidationMessages.response.updateRole.exist"),

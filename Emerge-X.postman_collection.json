@@ -3958,13 +3958,13 @@
 								"header": [
 									{
 										"key": "Authorization",
-										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoiUG9zdG1hblJ1bnRpbWUvNy40My4wIiwiZGV2aWNlIjoidW5rbm93biIsImlhdCI6MTczODc1MDYxMSwiZXhwIjoxNzM4ODM3MDExfQ.ZWSkBV3WpyeHzgLt_wKFsoD2U4rtDVkvAWhemp25m14",
+										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoiTWFjIE9TIiwiZGV2aWNlIjoiZGVza3RvcCIsImlhdCI6MTc0Mjg5MzU5MywiZXhwIjoxNzQyOTc5OTkzfQ.lmSOwRb-o_zvuwlaEHxUtUMuq2ll9EpHnRjAEkLPCpY",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n   \"employee\":\"678b58935631e6b15786953e\",\n   \"team\":\"\"\n}",
+									"raw": "{\n   \"employee\":\"67b6cbe0b8ee0957f7901f6a\",\n   \"role\":\"67d949f10cbf2a5263b61582\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -3972,7 +3972,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost:8080/api/roles/organization-chart/679b4e3b8309874fb219b6c5",
+									"raw": "http://localhost:8080/api/roles/organization-chart/67e272452b15240e50f74732",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -3982,25 +3982,25 @@
 										"api",
 										"roles",
 										"organization-chart",
-										"679b4e3b8309874fb219b6c5"
+										"67e272452b15240e50f74732"
 									]
 								}
 							},
 							"response": [
 								{
-									"name": "success 1",
+									"name": "Project Not found",
 									"originalRequest": {
 										"method": "PUT",
 										"header": [
 											{
 												"key": "Authorization",
-												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoiUG9zdG1hblJ1bnRpbWUvNy40My4wIiwiZGV2aWNlIjoidW5rbm93biIsImlhdCI6MTczODY1NDkzNCwiZXhwIjoxNzM4NzQxMzM0fQ.K14TMl-hfI-CAgK8J_3LtUrNhCBzYMxiH6lJoFwicdU",
+												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoiTWFjIE9TIiwiZGV2aWNlIjoiZGVza3RvcCIsImlhdCI6MTc0Mjg5MzU5MywiZXhwIjoxNzQyOTc5OTkzfQ.lmSOwRb-o_zvuwlaEHxUtUMuq2ll9EpHnRjAEkLPCpY",
 												"type": "text"
 											}
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n   \"employee\":\"678b58935631e6b15786953e\"\n}",
+											"raw": "{\n   \"employee\":\"67b6cbe0b8ee0957f7901f6a\",\n   \"role\":\"67d949f10cbf2a5263b61582\"\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -4008,7 +4008,7 @@
 											}
 										},
 										"url": {
-											"raw": "http://localhost:8080/api/roles/organization-chart/679b4e3b8309874fb219b6c5",
+											"raw": "http://localhost:8080/api/roles/organization-chart/67e272452b15240e50f74732",
 											"protocol": "http",
 											"host": [
 												"localhost"
@@ -4018,7 +4018,7 @@
 												"api",
 												"roles",
 												"organization-chart",
-												"679b4e3b8309874fb219b6c5"
+												"67e272452b15240e50f74732"
 											]
 										}
 									},
@@ -4044,7 +4044,7 @@
 										},
 										{
 											"key": "Set-Cookie",
-											"value": "i18next=en; Path=/; Expires=Wed, 04 Feb 2026 10:00:32 GMT; SameSite=Strict"
+											"value": "i18next=en; Path=/; Expires=Wed, 25 Mar 2026 10:12:19 GMT; SameSite=Strict"
 										},
 										{
 											"key": "Content-Type",
@@ -4052,15 +4052,15 @@
 										},
 										{
 											"key": "Content-Length",
-											"value": "330"
+											"value": "80"
 										},
 										{
 											"key": "ETag",
-											"value": "W/\"14a-zbvpPrH4HMcWV6Ta786DojmdC44\""
+											"value": "W/\"50-B/b+0FAKkkS2sqmBVHig081tNIA\""
 										},
 										{
 											"key": "Date",
-											"value": "Tue, 04 Feb 2025 10:00:32 GMT"
+											"value": "Tue, 25 Mar 2025 10:12:19 GMT"
 										},
 										{
 											"key": "Connection",
@@ -4072,22 +4072,22 @@
 										}
 									],
 									"cookie": [],
-									"body": "{\n    \"success\": true,\n    \"message\": \"Priority set to 1\",\n    \"role\": {\n        \"_id\": \"67a1c56c2665ec56ef0847b2\",\n        \"project\": \"679b4e3b8309874fb219b6c5\",\n        \"team\": \"6787981b712054fce41c2cc4\",\n        \"employee\": \"678b58935631e6b15786953e\",\n        \"description\": \"abcdefshshskhssig\",\n        \"__v\": 0,\n        \"createdAt\": \"2025-02-04T07:44:44.644Z\",\n        \"updatedAt\": \"2025-02-04T10:00:32.196Z\",\n        \"priority\": 1\n    }\n}"
+									"body": "{\n    \"success\": false,\n    \"error\": \"Project not exist with id:  679b4e3b8309874fb219b6c5\"\n}"
 								},
 								{
-									"name": "success 2 from",
+									"name": "success",
 									"originalRequest": {
 										"method": "PUT",
 										"header": [
 											{
 												"key": "Authorization",
-												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoiUG9zdG1hblJ1bnRpbWUvNy40My4wIiwiZGV2aWNlIjoidW5rbm93biIsImlhdCI6MTczODY1NDkzNCwiZXhwIjoxNzM4NzQxMzM0fQ.K14TMl-hfI-CAgK8J_3LtUrNhCBzYMxiH6lJoFwicdU",
+												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoiTWFjIE9TIiwiZGV2aWNlIjoiZGVza3RvcCIsImlhdCI6MTc0Mjg5MzU5MywiZXhwIjoxNzQyOTc5OTkzfQ.lmSOwRb-o_zvuwlaEHxUtUMuq2ll9EpHnRjAEkLPCpY",
 												"type": "text"
 											}
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n   \"employee\":\"678b58535631e6b15786953c\",\n   \"from\":\"678b58935631e6b15786953e\"\n}",
+											"raw": "{\n   \"employee\":\"67b6cbe0b8ee0957f7901f6a\",\n   \"role\":\"67d949f10cbf2a5263b61582\"\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -4095,7 +4095,7 @@
 											}
 										},
 										"url": {
-											"raw": "http://localhost:8080/api/roles/organization-chart/679b4e3b8309874fb219b6c5",
+											"raw": "http://localhost:8080/api/roles/organization-chart/67e272452b15240e50f74732",
 											"protocol": "http",
 											"host": [
 												"localhost"
@@ -4105,7 +4105,7 @@
 												"api",
 												"roles",
 												"organization-chart",
-												"679b4e3b8309874fb219b6c5"
+												"67e272452b15240e50f74732"
 											]
 										}
 									},
@@ -4131,7 +4131,7 @@
 										},
 										{
 											"key": "Set-Cookie",
-											"value": "i18next=en; Path=/; Expires=Wed, 04 Feb 2026 10:03:17 GMT; SameSite=Strict"
+											"value": "i18next=en; Path=/; Expires=Wed, 25 Mar 2026 10:13:51 GMT; SameSite=Strict"
 										},
 										{
 											"key": "Content-Type",
@@ -4139,15 +4139,15 @@
 										},
 										{
 											"key": "Content-Length",
-											"value": "318"
+											"value": "329"
 										},
 										{
 											"key": "ETag",
-											"value": "W/\"13e-OrBxtbiis8ISHlltgB3DgfHwNx0\""
+											"value": "W/\"149-YkMhRGomJhx3+81BszPhKWhDTj8\""
 										},
 										{
 											"key": "Date",
-											"value": "Tue, 04 Feb 2025 10:03:17 GMT"
+											"value": "Tue, 25 Mar 2025 10:13:51 GMT"
 										},
 										{
 											"key": "Connection",
@@ -4159,22 +4159,22 @@
 										}
 									],
 									"cookie": [],
-									"body": "{\n    \"success\": true,\n    \"message\": \"Priority updated\",\n    \"role\": {\n        \"_id\": \"67a1c5aa2665ec56ef0847b7\",\n        \"project\": \"679b4e3b8309874fb219b6c5\",\n        \"team\": \"679240deee69b7e4953d7ab0\",\n        \"employee\": \"678b58535631e6b15786953c\",\n        \"description\": \"Gaurav\",\n        \"__v\": 0,\n        \"createdAt\": \"2025-02-04T07:45:46.921Z\",\n        \"updatedAt\": \"2025-02-04T10:03:17.563Z\",\n        \"priority\": 2\n    }\n}"
+									"body": "{\n    \"success\": true,\n    \"message\": \"Priority updated\",\n    \"role\": {\n        \"_id\": \"67e281102568364b157c6a4c\",\n        \"project\": \"67e272452b15240e50f74732\",\n        \"role\": \"67d949f10cbf2a5263b61582\",\n        \"team\": \"67b6d4a5b8ee0957f7902201\",\n        \"employee\": \"67b6cbe0b8ee0957f7901f6a\",\n        \"createdAt\": \"2025-03-25T10:10:24.999Z\",\n        \"updatedAt\": \"2025-03-25T10:10:25.109Z\",\n        \"__v\": 0,\n        \"priority\": 1\n    }\n}"
 								},
 								{
-									"name": "Bad request Conflict",
+									"name": "From Success",
 									"originalRequest": {
 										"method": "PUT",
 										"header": [
 											{
 												"key": "Authorization",
-												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoiUG9zdG1hblJ1bnRpbWUvNy40My4wIiwiZGV2aWNlIjoidW5rbm93biIsImlhdCI6MTczODY1NDkzNCwiZXhwIjoxNzM4NzQxMzM0fQ.K14TMl-hfI-CAgK8J_3LtUrNhCBzYMxiH6lJoFwicdU",
+												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoiTWFjIE9TIiwiZGV2aWNlIjoiZGVza3RvcCIsImlhdCI6MTc0Mjg5MzU5MywiZXhwIjoxNzQyOTc5OTkzfQ.lmSOwRb-o_zvuwlaEHxUtUMuq2ll9EpHnRjAEkLPCpY",
 												"type": "text"
 											}
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n   \"employee\":\"678b58535631e6b15786953c\",\n   \"from\":\"678b58935631e6b15786953e\",\n   \"to\":\"6790b354914b2132de5c22fb\"\n}",
+											"raw": "{\n   \"employee\":\"67d81113b4385b7e94dbbae7\",\n   \"role\":\"67d949f10cbf2a5263b61582\",\n   \"from\":\"678b58935631e6b15786953e\"\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -4182,7 +4182,7 @@
 											}
 										},
 										"url": {
-											"raw": "http://localhost:8080/api/roles/organization-chart/679b4e3b8309874fb219b6c5",
+											"raw": "http://localhost:8080/api/roles/organization-chart/67e272452b15240e50f74732",
 											"protocol": "http",
 											"host": [
 												"localhost"
@@ -4192,94 +4192,7 @@
 												"api",
 												"roles",
 												"organization-chart",
-												"679b4e3b8309874fb219b6c5"
-											]
-										}
-									},
-									"status": "Bad Request",
-									"code": 400,
-									"_postman_previewlanguage": "json",
-									"header": [
-										{
-											"key": "X-Powered-By",
-											"value": "Express"
-										},
-										{
-											"key": "Access-Control-Allow-Origin",
-											"value": "*"
-										},
-										{
-											"key": "Access-Control-Allow-Credentials",
-											"value": "true"
-										},
-										{
-											"key": "Content-Language",
-											"value": "en"
-										},
-										{
-											"key": "Set-Cookie",
-											"value": "i18next=en; Path=/; Expires=Wed, 04 Feb 2026 10:12:10 GMT; SameSite=Strict"
-										},
-										{
-											"key": "Content-Type",
-											"value": "application/json; charset=utf-8"
-										},
-										{
-											"key": "Content-Length",
-											"value": "71"
-										},
-										{
-											"key": "ETag",
-											"value": "W/\"47-tqcLZ++X1fawrSG1A/xeyjnQrOI\""
-										},
-										{
-											"key": "Date",
-											"value": "Tue, 04 Feb 2025 10:12:10 GMT"
-										},
-										{
-											"key": "Connection",
-											"value": "keep-alive"
-										},
-										{
-											"key": "Keep-Alive",
-											"value": "timeout=5"
-										}
-									],
-									"cookie": [],
-									"body": "{\n    \"success\": false,\n    \"error\": \"Priority conflict between from and to roles\"\n}"
-								},
-								{
-									"name": "Success 3 from to",
-									"originalRequest": {
-										"method": "PUT",
-										"header": [
-											{
-												"key": "Authorization",
-												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoiUG9zdG1hblJ1bnRpbWUvNy40My4wIiwiZGV2aWNlIjoidW5rbm93biIsImlhdCI6MTczODY1NDkzNCwiZXhwIjoxNzM4NzQxMzM0fQ.K14TMl-hfI-CAgK8J_3LtUrNhCBzYMxiH6lJoFwicdU",
-												"type": "text"
-											}
-										],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n   \"employee\":\"6790b33c914b2132de5c22f8\",\n   \"from\":\"678b58935631e6b15786953e\",\n   \"to\":\"6790b354914b2132de5c22fb\"\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "http://localhost:8080/api/roles/organization-chart/679b4e3b8309874fb219b6c5",
-											"protocol": "http",
-											"host": [
-												"localhost"
-											],
-											"port": "8080",
-											"path": [
-												"api",
-												"roles",
-												"organization-chart",
-												"679b4e3b8309874fb219b6c5"
+												"67e272452b15240e50f74732"
 											]
 										}
 									},
@@ -4305,7 +4218,7 @@
 										},
 										{
 											"key": "Set-Cookie",
-											"value": "i18next=en; Path=/; Expires=Wed, 04 Feb 2026 10:17:33 GMT; SameSite=Strict"
+											"value": "i18next=en; Path=/; Expires=Wed, 25 Mar 2026 11:19:03 GMT; SameSite=Strict"
 										},
 										{
 											"key": "Content-Type",
@@ -4313,15 +4226,15 @@
 										},
 										{
 											"key": "Content-Length",
-											"value": "318"
+											"value": "363"
 										},
 										{
 											"key": "ETag",
-											"value": "W/\"13e-gFCBOt3uTAXpT22wbM4IH4Gqcmk\""
+											"value": "W/\"16b-7QIZ5k/i9RkUpidhxuLFvVPwndw\""
 										},
 										{
 											"key": "Date",
-											"value": "Tue, 04 Feb 2025 10:17:34 GMT"
+											"value": "Tue, 25 Mar 2025 11:19:03 GMT"
 										},
 										{
 											"key": "Connection",
@@ -4333,22 +4246,22 @@
 										}
 									],
 									"cookie": [],
-									"body": "{\n    \"success\": true,\n    \"message\": \"Priority updated\",\n    \"role\": {\n        \"_id\": \"67a1e8e32f0c3daedd4999a7\",\n        \"project\": \"679b4e3b8309874fb219b6c5\",\n        \"team\": \"679240deee69b7e4953d7ab0\",\n        \"employee\": \"6790b33c914b2132de5c22f8\",\n        \"description\": \"Gaurav\",\n        \"__v\": 0,\n        \"createdAt\": \"2025-02-04T07:45:46.921Z\",\n        \"updatedAt\": \"2025-02-04T10:17:05.671Z\",\n        \"priority\": 2\n    }\n}"
+									"body": "{\n    \"success\": true,\n    \"message\": \"Priority updated\",\n    \"role\": {\n        \"_id\": \"67e290ec24075883e70a90ce\",\n        \"project\": \"67e272452b15240e50f74732\",\n        \"role\": \"67d949f10cbf2a5263b61582\",\n        \"team\": \"67d2b3e37e44a7f3d0d4036a\",\n        \"employee\": \"67d81113b4385b7e94dbbae7\",\n        \"createdAt\": \"2025-03-25T11:18:04.319Z\",\n        \"updatedAt\": \"2025-03-25T11:19:03.506Z\",\n        \"__v\": 0,\n        \"priority\": 2,\n        \"from\": \"678b58935631e6b15786953e\"\n    }\n}"
 								},
 								{
-									"name": "Role not found",
+									"name": "To Success",
 									"originalRequest": {
 										"method": "PUT",
 										"header": [
 											{
 												"key": "Authorization",
-												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoiUG9zdG1hblJ1bnRpbWUvNy40My4wIiwiZGV2aWNlIjoidW5rbm93biIsImlhdCI6MTczODY1NDkzNCwiZXhwIjoxNzM4NzQxMzM0fQ.K14TMl-hfI-CAgK8J_3LtUrNhCBzYMxiH6lJoFwicdU",
+												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoiTWFjIE9TIiwiZGV2aWNlIjoiZGVza3RvcCIsImlhdCI6MTc0Mjg5MzU5MywiZXhwIjoxNzQyOTc5OTkzfQ.lmSOwRb-o_zvuwlaEHxUtUMuq2ll9EpHnRjAEkLPCpY",
 												"type": "text"
 											}
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n   \"employee\":\"6790b33c914b2132de5c22f9\",\n   \"from\":\"678b58935631e6b15786953e\",\n   \"to\":\"6790b354914b2132de5c22fb\"\n}",
+											"raw": "{\n   \"employee\":\"67d81113b4385b7e94dbbae7\",\n   \"role\":\"67d949f10cbf2a5263b61582\",\n   \"to\":\"678b58935631e6b15786953e\"\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -4356,7 +4269,7 @@
 											}
 										},
 										"url": {
-											"raw": "http://localhost:8080/api/roles/organization-chart/679b4e3b8309874fb219b6c5",
+											"raw": "http://localhost:8080/api/roles/organization-chart/67e272452b15240e50f74732",
 											"protocol": "http",
 											"host": [
 												"localhost"
@@ -4366,181 +4279,7 @@
 												"api",
 												"roles",
 												"organization-chart",
-												"679b4e3b8309874fb219b6c5"
-											]
-										}
-									},
-									"status": "Not Found",
-									"code": 404,
-									"_postman_previewlanguage": "json",
-									"header": [
-										{
-											"key": "X-Powered-By",
-											"value": "Express"
-										},
-										{
-											"key": "Access-Control-Allow-Origin",
-											"value": "*"
-										},
-										{
-											"key": "Access-Control-Allow-Credentials",
-											"value": "true"
-										},
-										{
-											"key": "Content-Language",
-											"value": "en"
-										},
-										{
-											"key": "Set-Cookie",
-											"value": "i18next=en; Path=/; Expires=Wed, 04 Feb 2026 10:18:27 GMT; SameSite=Strict"
-										},
-										{
-											"key": "Content-Type",
-											"value": "application/json; charset=utf-8"
-										},
-										{
-											"key": "Content-Length",
-											"value": "60"
-										},
-										{
-											"key": "ETag",
-											"value": "W/\"3c-Gj5vsRv8HLbc2hcz73PouH4zHik\""
-										},
-										{
-											"key": "Date",
-											"value": "Tue, 04 Feb 2025 10:18:27 GMT"
-										},
-										{
-											"key": "Connection",
-											"value": "keep-alive"
-										},
-										{
-											"key": "Keep-Alive",
-											"value": "timeout=5"
-										}
-									],
-									"cookie": [],
-									"body": "{\n    \"success\": false,\n    \"message\": \"Role not found in this project\"\n}"
-								},
-								{
-									"name": "Validation",
-									"originalRequest": {
-										"method": "PUT",
-										"header": [
-											{
-												"key": "Authorization",
-												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoiUG9zdG1hblJ1bnRpbWUvNy40My4wIiwiZGV2aWNlIjoidW5rbm93biIsImlhdCI6MTczODY1NDkzNCwiZXhwIjoxNzM4NzQxMzM0fQ.K14TMl-hfI-CAgK8J_3LtUrNhCBzYMxiH6lJoFwicdU",
-												"type": "text"
-											}
-										],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n   \"employee\":\"\"\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "http://localhost:8080/api/roles/organization-chart/679b4e3b8309874fb219b6c5",
-											"protocol": "http",
-											"host": [
-												"localhost"
-											],
-											"port": "8080",
-											"path": [
-												"api",
-												"roles",
-												"organization-chart",
-												"679b4e3b8309874fb219b6c5"
-											]
-										}
-									},
-									"status": "Bad Request",
-									"code": 400,
-									"_postman_previewlanguage": "json",
-									"header": [
-										{
-											"key": "X-Powered-By",
-											"value": "Express"
-										},
-										{
-											"key": "Access-Control-Allow-Origin",
-											"value": "*"
-										},
-										{
-											"key": "Access-Control-Allow-Credentials",
-											"value": "true"
-										},
-										{
-											"key": "Content-Language",
-											"value": "en"
-										},
-										{
-											"key": "Set-Cookie",
-											"value": "i18next=en; Path=/; Expires=Wed, 04 Feb 2026 10:18:59 GMT; SameSite=Strict"
-										},
-										{
-											"key": "Content-Type",
-											"value": "application/json; charset=utf-8"
-										},
-										{
-											"key": "Content-Length",
-											"value": "66"
-										},
-										{
-											"key": "ETag",
-											"value": "W/\"42-ny4z2XiXYMxDyY8zNzfB/o2gwzc\""
-										},
-										{
-											"key": "Date",
-											"value": "Tue, 04 Feb 2025 10:18:59 GMT"
-										},
-										{
-											"key": "Connection",
-											"value": "keep-alive"
-										},
-										{
-											"key": "Keep-Alive",
-											"value": "timeout=5"
-										}
-									],
-									"cookie": [],
-									"body": "{\n    \"success\": false,\n    \"errors\": [\n        {\n            \"message\": \"Employee ID is required\"\n        }\n    ]\n}"
-								},
-								{
-									"name": "success with team",
-									"originalRequest": {
-										"method": "PUT",
-										"header": [
-											{
-												"key": "Authorization",
-												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoiUG9zdG1hblJ1bnRpbWUvNy40My4wIiwiZGV2aWNlIjoidW5rbm93biIsImlhdCI6MTczODc1MDYxMSwiZXhwIjoxNzM4ODM3MDExfQ.ZWSkBV3WpyeHzgLt_wKFsoD2U4rtDVkvAWhemp25m14",
-												"type": "text"
-											}
-										],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n   \"employee\":\"678b58935631e6b15786953e\",\n   \"team\":\"67a05a23e66507b0bc055768\",\n   \"from\":\"6790b33c914b2132de5c22f8\"\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "http://localhost:8080/api/roles/organization-chart/67a1fa64c383af7d74153b56",
-											"protocol": "http",
-											"host": [
-												"localhost"
-											],
-											"port": "8080",
-											"path": [
-												"api",
-												"roles",
-												"organization-chart",
-												"67a1fa64c383af7d74153b56"
+												"67e272452b15240e50f74732"
 											]
 										}
 									},
@@ -4566,7 +4305,7 @@
 										},
 										{
 											"key": "Set-Cookie",
-											"value": "i18next=en; Path=/; Expires=Thu, 05 Feb 2026 10:20:39 GMT; SameSite=Strict"
+											"value": "i18next=en; Path=/; Expires=Wed, 25 Mar 2026 11:20:19 GMT; SameSite=Strict"
 										},
 										{
 											"key": "Content-Type",
@@ -4574,15 +4313,15 @@
 										},
 										{
 											"key": "Content-Length",
-											"value": "295"
+											"value": "361"
 										},
 										{
 											"key": "ETag",
-											"value": "W/\"127-oxaBrQCcCmY4kBQTqy0aNcp1ZPY\""
+											"value": "W/\"169-5A85sxt3klAD2AtjC5dVQOYfRAg\""
 										},
 										{
 											"key": "Date",
-											"value": "Wed, 05 Feb 2025 10:20:39 GMT"
+											"value": "Tue, 25 Mar 2025 11:20:19 GMT"
 										},
 										{
 											"key": "Connection",
@@ -4594,7 +4333,94 @@
 										}
 									],
 									"cookie": [],
-									"body": "{\n    \"success\": true,\n    \"message\": \"Priority updated\",\n    \"role\": {\n        \"project\": \"67a1fa64c383af7d74153b56\",\n        \"team\": \"67a05a23e66507b0bc055768\",\n        \"employee\": \"678b58935631e6b15786953e\",\n        \"_id\": \"67a33b7755f427985ba2682f\",\n        \"createdAt\": \"2025-02-05T10:20:39.355Z\",\n        \"updatedAt\": \"2025-02-05T10:20:39.474Z\",\n        \"__v\": 0,\n        \"priority\": 3\n    }\n}"
+									"body": "{\n    \"success\": true,\n    \"message\": \"Priority updated\",\n    \"role\": {\n        \"_id\": \"67e290ec24075883e70a90ce\",\n        \"project\": \"67e272452b15240e50f74732\",\n        \"role\": \"67d949f10cbf2a5263b61582\",\n        \"team\": \"67d2b3e37e44a7f3d0d4036a\",\n        \"employee\": \"67d81113b4385b7e94dbbae7\",\n        \"createdAt\": \"2025-03-25T11:18:04.319Z\",\n        \"updatedAt\": \"2025-03-25T11:20:19.574Z\",\n        \"__v\": 0,\n        \"priority\": 1,\n        \"to\": \"678b58935631e6b15786953e\"\n    }\n}"
+								},
+								{
+									"name": "Bad Request",
+									"originalRequest": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoiTWFjIE9TIiwiZGV2aWNlIjoiZGVza3RvcCIsImlhdCI6MTc0Mjg5MzU5MywiZXhwIjoxNzQyOTc5OTkzfQ.lmSOwRb-o_zvuwlaEHxUtUMuq2ll9EpHnRjAEkLPCpY",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n   \"employee\":\"67d81113b4385b7e94dbbae7\",\n   \"role\":\"67d949f10cbf2a5263b61582\",\n   \"to\":\"678b58935631e6b15786973e\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:8080/api/roles/organization-chart/67e272452b15240e50f74732",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"roles",
+												"organization-chart",
+												"67e272452b15240e50f74732"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Access-Control-Allow-Credentials",
+											"value": "true"
+										},
+										{
+											"key": "Content-Language",
+											"value": "en"
+										},
+										{
+											"key": "Set-Cookie",
+											"value": "i18next=en; Path=/; Expires=Wed, 25 Mar 2026 11:20:38 GMT; SameSite=Strict"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "68"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"44-c+VNKfp78EQV2TVC4dF0oCoPi/4\""
+										},
+										{
+											"key": "Date",
+											"value": "Tue, 25 Mar 2025 11:20:38 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"success\": false,\n    \"message\": \"'From' or 'To' employee role not found\"\n}"
 								}
 							]
 						}
@@ -4642,93 +4468,6 @@
 								}
 							},
 							"response": [
-								{
-									"name": "success",
-									"originalRequest": {
-										"method": "GET",
-										"header": [
-											{
-												"key": "Authorization",
-												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoiUG9zdG1hblJ1bnRpbWUvNy40My4wIiwiZGV2aWNlIjoidW5rbm93biIsImlhdCI6MTczODY1NDkzNCwiZXhwIjoxNzM4NzQxMzM0fQ.K14TMl-hfI-CAgK8J_3LtUrNhCBzYMxiH6lJoFwicdU",
-												"type": "text"
-											}
-										],
-										"body": {
-											"mode": "raw",
-											"raw": "",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "http://localhost:8080/api/roles/organization-chart/679b4e3b8309874fb219b6c5",
-											"protocol": "http",
-											"host": [
-												"localhost"
-											],
-											"port": "8080",
-											"path": [
-												"api",
-												"roles",
-												"organization-chart",
-												"679b4e3b8309874fb219b6c5"
-											]
-										}
-									},
-									"status": "OK",
-									"code": 200,
-									"_postman_previewlanguage": "json",
-									"header": [
-										{
-											"key": "X-Powered-By",
-											"value": "Express"
-										},
-										{
-											"key": "Access-Control-Allow-Origin",
-											"value": "*"
-										},
-										{
-											"key": "Access-Control-Allow-Credentials",
-											"value": "true"
-										},
-										{
-											"key": "Content-Language",
-											"value": "en"
-										},
-										{
-											"key": "Set-Cookie",
-											"value": "i18next=en; Path=/; Expires=Wed, 04 Feb 2026 10:27:52 GMT; SameSite=Strict"
-										},
-										{
-											"key": "Content-Type",
-											"value": "application/json; charset=utf-8"
-										},
-										{
-											"key": "Content-Length",
-											"value": "1039"
-										},
-										{
-											"key": "ETag",
-											"value": "W/\"40f-eiGdWY9hV7SS10x8D9HiNx9YcAg\""
-										},
-										{
-											"key": "Date",
-											"value": "Tue, 04 Feb 2025 10:27:52 GMT"
-										},
-										{
-											"key": "Connection",
-											"value": "keep-alive"
-										},
-										{
-											"key": "Keep-Alive",
-											"value": "timeout=5"
-										}
-									],
-									"cookie": [],
-									"body": "{\n    \"success\": true,\n    \"message\": \"Project roles grouped by priority fetched successfully\",\n    \"data\": [\n        {\n            \"employees\": [\n                {\n                    \"_id\": \"6790b354914b2132de5c22fb\",\n                    \"name\": \"Pankaj\",\n                    \"contactNo\": \"1256342334\",\n                    \"designation\": \"Planner\",\n                    \"email\": \"pankaj@gmail.com\",\n                    \"createdAt\": \"2025-01-22T08:59:00.940Z\",\n                    \"updatedAt\": \"2025-01-22T08:59:00.940Z\",\n                    \"__v\": 0\n                }\n            ],\n            \"priority\": 3\n        },\n        {\n            \"employees\": [\n                {\n                    \"_id\": \"678b58935631e6b15786953e\",\n                    \"name\": \"Shubh\",\n                    \"contactNo\": \"9876678909\",\n                    \"designation\": \"HR\",\n                    \"email\": \"shubh@gmail.com.com\",\n                    \"createdAt\": \"2025-01-18T05:41:15.000Z\",\n                    \"updatedAt\": \"2025-01-18T05:41:15.000Z\",\n                    \"__v\": 0\n                }\n            ],\n            \"priority\": 1\n        },\n        {\n            \"employees\": [\n                {\n                    \"_id\": \"678b58535631e6b15786953c\",\n                    \"name\": \"karan\",\n                    \"contactNo\": \"9876678909\",\n                    \"designation\": \"Developer\",\n                    \"email\": \"karan@gmail.com\",\n                    \"createdAt\": \"2025-01-18T05:34:13.971Z\",\n                    \"updatedAt\": \"2025-01-18T05:34:13.971Z\",\n                    \"__v\": 0\n                },\n                {\n                    \"_id\": \"6790b33c914b2132de5c22f8\",\n                    \"name\": \"Viraj\",\n                    \"contactNo\": \"0987789067\",\n                    \"designation\": \"Blockchain Developer\",\n                    \"email\": \"viraj@gmail.com\",\n                    \"createdAt\": \"2025-01-22T08:58:36.774Z\",\n                    \"updatedAt\": \"2025-01-22T08:58:36.774Z\",\n                    \"__v\": 0\n                }\n            ],\n            \"priority\": 2\n        }\n    ]\n}"
-								},
 								{
 									"name": "Project not availble",
 									"originalRequest": {
@@ -4902,6 +4641,93 @@
 									],
 									"cookie": [],
 									"body": "{\n    \"success\": false,\n    \"error\": \"No Roles available for this project organization\"\n}"
+								},
+								{
+									"name": "success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoiTWFjIE9TIiwiZGV2aWNlIjoiZGVza3RvcCIsImlhdCI6MTc0Mjg5MzU5MywiZXhwIjoxNzQyOTc5OTkzfQ.lmSOwRb-o_zvuwlaEHxUtUMuq2ll9EpHnRjAEkLPCpY",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:8080/api/roles/organization-chart/67e272452b15240e50f74732",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"roles",
+												"organization-chart",
+												"67e272452b15240e50f74732"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Access-Control-Allow-Credentials",
+											"value": "true"
+										},
+										{
+											"key": "Content-Language",
+											"value": "en"
+										},
+										{
+											"key": "Set-Cookie",
+											"value": "i18next=en; Path=/; Expires=Wed, 25 Mar 2026 11:21:20 GMT; SameSite=Strict"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "1565"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"61d-NXI9ejcB/2ocuPXH68aH+03MdTE\""
+										},
+										{
+											"key": "Date",
+											"value": "Tue, 25 Mar 2025 11:21:20 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"success\": true,\n    \"message\": \"Project organization chart roles grouped by priority fetched successfully\",\n    \"data\": {\n        \"1\": {\n            \"Unassigned\": {\n                \"fromEmployee\": {},\n                \"roles\": [\n                    {\n                        \"_id\": \"67e290ec24075883e70a90ce\",\n                        \"project\": \"67e272452b15240e50f74732\",\n                        \"role\": {\n                            \"_id\": \"67d949f10cbf2a5263b61582\",\n                            \"name\": \"DevOps\"\n                        },\n                        \"employee\": {\n                            \"_id\": \"67d81113b4385b7e94dbbae7\",\n                            \"name\": \"ankush\",\n                            \"email\": \"ankushwaghmare050@gmail.com\",\n                            \"designation\": \"Software Engineer\",\n                            \"title\": \"DevOps\",\n                            \"team\": \"Test part 2\"\n                        },\n                        \"priority\": 1,\n                        \"from\": {}\n                    }\n                ]\n            }\n        },\n        \"2\": {\n            \"67d81113b4385b7e94dbbae7\": {\n                \"fromEmployee\": {\n                    \"_id\": \"67d81113b4385b7e94dbbae7\",\n                    \"name\": \"ankush\",\n                    \"email\": \"ankushwaghmare050@gmail.com\"\n                },\n                \"roles\": [\n                    {\n                        \"_id\": \"67e272452b15240e50f74738\",\n                        \"project\": \"67e272452b15240e50f74732\",\n                        \"role\": {\n                            \"_id\": \"67e272452b15240e50f74735\",\n                            \"name\": \"Owner\"\n                        },\n                        \"employee\": {\n                            \"_id\": \"678b58935631e6b15786953e\",\n                            \"name\": \"Gaurav\",\n                            \"email\": \"gaurav@gmail.com\",\n                            \"designation\": \"HR\",\n                            \"title\": \"Owner\"\n                        },\n                        \"description\": \"Owner of the project\",\n                        \"priority\": 2,\n                        \"from\": {\n                            \"_id\": \"67d81113b4385b7e94dbbae7\",\n                            \"name\": \"ankush\",\n                            \"email\": \"ankushwaghmare050@gmail.com\"\n                        }\n                    }\n                ]\n            }\n        },\n        \"3\": {\n            \"678b58935631e6b15786953e\": {\n                \"fromEmployee\": {\n                    \"_id\": \"678b58935631e6b15786953e\",\n                    \"name\": \"Gaurav\",\n                    \"email\": \"gaurav@gmail.com\"\n                },\n                \"roles\": [\n                    {\n                        \"_id\": \"67e281102568364b157c6a4c\",\n                        \"project\": \"67e272452b15240e50f74732\",\n                        \"role\": {\n                            \"_id\": \"67d949f10cbf2a5263b61582\",\n                            \"name\": \"DevOps\"\n                        },\n                        \"employee\": {\n                            \"_id\": \"67b6cbe0b8ee0957f7901f6a\",\n                            \"name\": \"Ganesh\",\n                            \"email\": \"ganesh@gmail.com\",\n                            \"designation\": \"DevOps Engineer\",\n                            \"title\": \"DevOps\",\n                            \"team\": \"Internal Testing 2\"\n                        },\n                        \"priority\": 3,\n                        \"from\": {\n                            \"_id\": \"678b58935631e6b15786953e\",\n                            \"name\": \"Gaurav\",\n                            \"email\": \"gaurav@gmail.com\"\n                        }\n                    }\n                ]\n            }\n        }\n    }\n}"
 								}
 							]
 						}
@@ -5680,84 +5506,6 @@
 							},
 							"response": [
 								{
-									"name": "success",
-									"originalRequest": {
-										"method": "GET",
-										"header": [
-											{
-												"key": "Authorization",
-												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsImlhdCI6MTczNzYyMzkzMCwiZXhwIjoxNzM3NzEwMzMwfQ.dcvoz_qqMdCGNRW5fPT8B5NDQ2yShozTOypWoU4qKLs",
-												"type": "text"
-											}
-										],
-										"url": {
-											"raw": "http://localhost:8080/api/projects/project-by-id/67920e1944d71ee4dff7ec7b",
-											"protocol": "http",
-											"host": [
-												"localhost"
-											],
-											"port": "8080",
-											"path": [
-												"api",
-												"projects",
-												"project-by-id",
-												"67920e1944d71ee4dff7ec7b"
-											]
-										}
-									},
-									"status": "OK",
-									"code": 200,
-									"_postman_previewlanguage": "json",
-									"header": [
-										{
-											"key": "X-Powered-By",
-											"value": "Express"
-										},
-										{
-											"key": "Access-Control-Allow-Origin",
-											"value": "*"
-										},
-										{
-											"key": "Access-Control-Allow-Credentials",
-											"value": "true"
-										},
-										{
-											"key": "Content-Language",
-											"value": "en"
-										},
-										{
-											"key": "Set-Cookie",
-											"value": "i18next=en; Path=/; Expires=Fri, 23 Jan 2026 09:48:11 GMT; SameSite=Strict"
-										},
-										{
-											"key": "Content-Type",
-											"value": "application/json; charset=utf-8"
-										},
-										{
-											"key": "Content-Length",
-											"value": "973"
-										},
-										{
-											"key": "ETag",
-											"value": "W/\"3cd-uLAKPkzGbg3OArcb3Iy/zTvAwPw\""
-										},
-										{
-											"key": "Date",
-											"value": "Thu, 23 Jan 2025 09:48:13 GMT"
-										},
-										{
-											"key": "Connection",
-											"value": "keep-alive"
-										},
-										{
-											"key": "Keep-Alive",
-											"value": "timeout=5"
-										}
-									],
-									"cookie": [],
-									"body": "{\n    \"success\": true,\n    \"project\": {\n        \"_id\": \"67920e1944d71ee4dff7ec7b\",\n        \"location\": {\n            \"_id\": \"67920beb38aa0bcf36596f00\",\n            \"country\": {\n                \"_id\": \"6790ad2aa49ce9e3b0df21c8\",\n                \"name\": \"India\"\n            },\n            \"region\": {\n                \"_id\": \"6790ca92fc3c316daeeb3eb7\",\n                \"name\": \"New Delhi\"\n            },\n            \"worksite\": {\n                \"_id\": \"6790ed030f5b27441e0bde49\",\n                \"name\": \"Hauz Khass\"\n            },\n            \"isDeleted\": false,\n            \"createdAt\": \"2025-01-23T09:29:15.187Z\",\n            \"updatedAt\": \"2025-01-23T09:29:15.187Z\",\n            \"__v\": 0\n        },\n        \"parentProjectId\": {\n            \"_id\": \"678f9859aafc3f11d2540cdc\"\n        },\n        \"description\": \"hello this is description of testing project\",\n        \"roles\": [\n            {\n                \"role\": {\n                    \"_id\": \"678b5a974bdaea8e1948e840\",\n                    \"name\": \"Tester\"\n                },\n                \"assignTo\": {\n                    \"_id\": \"6790b354914b2132de5c22fb\",\n                    \"name\": \"Pankaj\",\n                    \"email\": \"pankaj@gmail.com\"\n                },\n                \"roleDescription\": \"This is the description of project's role\",\n                \"_id\": \"67920e1944d71ee4dff7ec7c\",\n                \"createdAt\": \"2025-01-23T09:38:33.998Z\",\n                \"updatedAt\": \"2025-01-23T09:38:33.998Z\"\n            }\n        ],\n        \"createdAt\": \"2025-01-23T09:38:34.000Z\",\n        \"updatedAt\": \"2025-01-23T09:38:34.000Z\",\n        \"__v\": 0\n    },\n    \"message\": \"Project fetched successfully\"\n}"
-								},
-								{
 									"name": "Bad Request Project not found",
 									"originalRequest": {
 										"method": "GET",
@@ -5990,6 +5738,84 @@
 									],
 									"cookie": [],
 									"body": "{\n    \"success\": false,\n    \"error\": \"Invalid token!\"\n}"
+								},
+								{
+									"name": "success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoiTWFjIE9TIiwiZGV2aWNlIjoiZGVza3RvcCIsImlhdCI6MTc0Mjg5MzU5MywiZXhwIjoxNzQyOTc5OTkzfQ.lmSOwRb-o_zvuwlaEHxUtUMuq2ll9EpHnRjAEkLPCpY",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "http://localhost:8080/api/projects/project-by-id/67e272452b15240e50f74732",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"projects",
+												"project-by-id",
+												"67e272452b15240e50f74732"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Access-Control-Allow-Credentials",
+											"value": "true"
+										},
+										{
+											"key": "Content-Language",
+											"value": "en"
+										},
+										{
+											"key": "Set-Cookie",
+											"value": "i18next=en; Path=/; Expires=Wed, 25 Mar 2026 11:23:21 GMT; SameSite=Strict"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "1807"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"70f-em/0PckLiDE43a6ow59odjmuhdY\""
+										},
+										{
+											"key": "Date",
+											"value": "Tue, 25 Mar 2025 11:23:21 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"success\": true,\n    \"data\": {\n        \"id\": \"FIRMD-595498DU\",\n        \"name\": \"Hello\",\n        \"description\": \"Hello, how are you, are you okay?\",\n        \"parentProject\": null,\n        \"location\": {\n            \"_id\": \"67a2ef5abdc75bf5bce4fe80\",\n            \"country\": {\n                \"_id\": \"6790ad2aa49ce9e3b0df21c8\",\n                \"name\": \"India\",\n                \"createdAt\": \"2025-01-22T08:32:42.784Z\",\n                \"updatedAt\": \"2025-01-22T08:32:42.784Z\",\n                \"__v\": 0\n            },\n            \"region\": {\n                \"_id\": \"679340d497532852aafd6204\",\n                \"name\": \"maharashtra\",\n                \"country\": \"6790ad2aa49ce9e3b0df21c8\",\n                \"isDeleted\": false,\n                \"createdAt\": \"2025-01-24T07:27:16.356Z\",\n                \"updatedAt\": \"2025-01-24T07:27:16.356Z\",\n                \"__v\": 0\n            },\n            \"worksite\": {\n                \"_id\": \"679340d497532852aafd6208\",\n                \"name\": \"Mumbai\",\n                \"region\": \"679340d497532852aafd6204\",\n                \"isDeleted\": false,\n                \"__v\": 0,\n                \"createdAt\": \"2025-01-24T07:27:16.437Z\",\n                \"updatedAt\": \"2025-01-24T07:27:16.437Z\"\n            },\n            \"isDeleted\": false,\n            \"createdAt\": \"2025-02-05T04:55:54.566Z\",\n            \"updatedAt\": \"2025-02-05T04:55:54.566Z\",\n            \"__v\": 0\n        },\n        \"roles\": [\n            {\n                \"role\": {\n                    \"_id\": \"67d949f10cbf2a5263b61582\",\n                    \"title\": \"DevOps\",\n                    \"description\": \"This role is related with employee who deploy applications\",\n                    \"createdBy\": \"6787908cb6296a9e10d2e042\",\n                    \"isTrash\": false,\n                    \"createdAt\": \"2025-03-18T10:24:49.072Z\",\n                    \"updatedAt\": \"2025-03-18T10:24:49.072Z\",\n                    \"__v\": 0\n                },\n                \"employees\": [\n                    {\n                        \"_id\": \"67b6cbe0b8ee0957f7901f6a\",\n                        \"name\": \"Ganesh\",\n                        \"email\": \"ganesh@gmail.com\",\n                        \"designation\": \"DevOps Engineer\",\n                        \"title\": \"DevOps\"\n                    },\n                    {\n                        \"_id\": \"67d81113b4385b7e94dbbae7\",\n                        \"name\": \"ankush\",\n                        \"email\": \"ankushwaghmare050@gmail.com\",\n                        \"designation\": \"Software Engineer\",\n                        \"title\": \"DevOps\"\n                    }\n                ]\n            },\n            {\n                \"role\": {\n                    \"_id\": \"67e272452b15240e50f74735\",\n                    \"title\": \"Owner\",\n                    \"description\": \"Owner Of The Project\",\n                    \"createdBy\": \"6787908cb6296a9e10d2e042\",\n                    \"isTrash\": false,\n                    \"createdAt\": \"2025-03-25T09:07:17.406Z\",\n                    \"updatedAt\": \"2025-03-25T09:07:17.406Z\",\n                    \"__v\": 0\n                },\n                \"employees\": [\n                    {\n                        \"_id\": \"678b58935631e6b15786953e\",\n                        \"name\": \"Gaurav\",\n                        \"email\": \"gaurav@gmail.com\",\n                        \"designation\": \"HR\",\n                        \"description\": \"Owner of the project\",\n                        \"title\": \"Owner\"\n                    }\n                ]\n            }\n        ]\n    }\n}"
 								}
 							]
 						}

@@ -11,6 +11,8 @@ import { ICustomRequest } from "../types/express";
 import ProjectRoleModel from "../models/ProjectRoleModel";
 import { GlobalAdminRoles } from "../config/global-enum";
 import EmployeeModel from "../models/EmployeeModel";
+import RoleModel, { IRole } from "../models/RoleModel";
+import UserModel from "../models/UserModel";
 
 // Create a project only by getting name
 export const createProjectByName = async (req: Request, res: Response) => {
@@ -148,6 +150,55 @@ export const createProject = async (req: Request, res: Response) => {
         session,
       });
 
+      let ownerRole: IRole | null = await RoleModel.findOne({
+        title: "Owner",
+      }).session(session);
+
+      if (!ownerRole) {
+        [ownerRole] = await RoleModel.create(
+          [
+            {
+              title: "Owner",
+              description: "Owner Of The Project",
+              createdBy: currentUser.id,
+            },
+          ],
+          { session }
+        );
+      }
+
+      let employee = await EmployeeModel.findOne({
+        user: currentUser.id,
+      }).session(session);
+
+      if (!employee) {
+        const user = await UserModel.findById(currentUser.id).session(session);
+
+        [employee] = await EmployeeModel.create(
+          [
+            {
+              name: "Owner",
+              contactNo: user?.phoneNumber || "",
+              designation: "Owner",
+              email: user?.email || "",
+              user: currentUser.id,
+              createdBy: currentUser.id,
+            },
+          ],
+          { session }
+        );
+      }
+
+      const projectRoleData = {
+        project: newProject._id,
+        role: ownerRole._id,
+        employee: employee._id,
+        description: "Owner of the project",
+        createdBy: currentUser.id,
+      };
+
+      await ProjectRoleModel.create([projectRoleData], { session });
+
       const populatedProject = await ProjectModel.findById(newProject._id)
         .populate({
           path: "location",
@@ -163,7 +214,7 @@ export const createProject = async (req: Request, res: Response) => {
       populatedProjectOriginal = populatedProject;
     });
 
-    // If we reach here, the transaction was successful
+    // If we reach here, the transaction was successfull
     return res.status(201).json({
       success: true,
       message: req.i18n.t(
@@ -416,14 +467,6 @@ export const getProjectById = async (req: Request, res: Response) => {
       },
       {
         $lookup: {
-          from: "teams", // Lookup team data
-          localField: "team",
-          foreignField: "_id",
-          as: "teamData",
-        },
-      },
-      {
-        $lookup: {
           from: "roles", // Lookup role data (ensure the collection name is correct)
           localField: "role",
           foreignField: "_id",
@@ -440,12 +483,6 @@ export const getProjectById = async (req: Request, res: Response) => {
       },
       {
         $unwind: {
-          path: "$teamData", // Unwind teamData (single team per document)
-          preserveNullAndEmptyArrays: true, // Preserve documents even if teamData is empty
-        },
-      },
-      {
-        $unwind: {
           path: "$roleData", // Unwind roleData (single role per document)
           preserveNullAndEmptyArrays: true, // Preserve documents even if roleData is empty
         },
@@ -458,8 +495,8 @@ export const getProjectById = async (req: Request, res: Response) => {
       },
       {
         $group: {
-          _id: "$team", // Group by team
-          team: { $first: "$teamData" }, // Include team data
+          _id: "$role", // Group by team
+          role: { $first: "$roleData" }, // Include team data
           employees: {
             $push: {
               _id: "$employeeData._id", // Include employee ID
@@ -475,7 +512,7 @@ export const getProjectById = async (req: Request, res: Response) => {
       {
         $project: {
           _id: 0, // Exclude the default _id field
-          team: 1, // Include the team field
+          role: 1, // Include the team field
           employees: 1, // Include the employees array
         },
       },

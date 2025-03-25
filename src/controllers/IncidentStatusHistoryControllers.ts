@@ -37,67 +37,72 @@ export const getIncidentStatusHistory = async (req: Request, res: Response) => {
 
     const history = await IncidentStatusHistoryModel.aggregate([
       {
-      $match: {
-        incident: new mongoose.Types.ObjectId(id),
-      },
-      },
-      {
-      $lookup: {
-        from: "project_roles",
-        localField: "role",
-        foreignField: "_id",
-        as: "role",
-      },
+        $match: {
+          incident: new mongoose.Types.ObjectId(id),
+        },
       },
       {
-      $unwind: "$role",
+        $lookup: {
+          from: "project_roles",
+          localField: "role",
+          foreignField: "_id",
+          as: "role"
+        }
       },
       {
-      $lookup: {
-        from: "employees",
-        localField: "role.employee",
-        foreignField: "_id",
-        as: "role.employee",
-      },
+        $unwind: "$role"
       },
       {
-      $unwind: "$role.employee",
+        $lookup: {
+          from: "employees",
+          localField: "role.employee",
+          foreignField: "_id",
+          as: "role.employee"
+        }
       },
       {
-      $lookup: {
-        from: "roles",
-        localField: "role.role",
-        foreignField: "_id",
-        as: "role.role",
-      },
+        $unwind: "$role.employee"
       },
       {
-      $unwind: "$role.role",
+        $lookup: {
+          from: "roles",
+          localField: "role.role",
+          foreignField: "_id",
+          as: "role.role"
+        }
       },
       {
-      $lookup: {
-        from: "teams",
-        localField: "role.team",
-        foreignField: "_id",
-        as: "role.team",
-      },
+        $unwind: "$role.role"
       },
       {
-      $unwind: "$role.team",
+        $lookup: {
+          from: "teams",
+          localField: "role.team",
+          foreignField: "_id",
+          as: "role.team"
+        }
       },
       {
-      $group: {
-        _id: "$role.team.name",
-        data: { $push: "$$ROOT" },
-      },
+        $unwind: {
+          path: "$role.team",
+          preserveNullAndEmptyArrays: true
+        }
       },
       {
-      $project: {
-        _id: 0,
-        team: "$_id",
-        data: 1,
+        $group: {
+          _id: {
+            $ifNull: ["$role.team.name", null]
+          },
+          data: { $push: "$$ROOT" }
+        }
       },
-      },
+      {
+        $project: {
+          _id: 0,
+          team: "$_id",
+          data: 1
+        }
+      }
     ]);
 
     return res.status(200).json({
