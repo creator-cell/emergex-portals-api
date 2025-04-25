@@ -417,6 +417,19 @@
         "notFound": "No Roles available for this project organization",
         "success": "Project organization chart roles grouped by priority fetched successfully",
         "server": "Server error in getting project organization chart roles"
+      },
+      "getUserRoleDetails": {
+        "roleNotAvailable": "Project Role not availabel in Project ",
+        "success": "Project role data fetched successfully",
+        "server": "Server error in fetching project role data"
+      },
+      "getRolesByIncidentId": {
+        "success": "Incident's Project Roles fetched successfully",
+        "server": "Server error in fetching incidents's project roles"
+      },
+      "getUserRoleInIncident": {
+        "success": "User Role fetched successfully",
+        "server": "Server error in fetching user role"
       }
     }
   },

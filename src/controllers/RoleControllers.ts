@@ -52,6 +52,7 @@ export const getAllRoles = async (
     const customReq = req as ICustomRequest;
     const currentUser = customReq.user;
     const roles: IRole[] = await RoleModel.find({isTrash:false});
+    
    return res.status(200).json({
       success: true,
       data: roles,

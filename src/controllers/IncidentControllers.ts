@@ -21,7 +21,7 @@ export const createIncident = async (req: Request, res: Response) => {
       type,
       description,
       status,
-      assignedTo,
+      // assignedTo,
       countOfInjuredPeople,
       countOfTotalPeople,
       location,
@@ -42,15 +42,15 @@ export const createIncident = async (req: Request, res: Response) => {
       id = await generateUniqueIncidentId();
     }
 
-    const isEmployeeExist = await EmployeeModel.findById(assignedTo);
-    if (!isEmployeeExist) {
-      return res.status(400).json({
-        success: false,
-        error: req.i18n.t(
-          "projectValidationMessages.response.createProject.employeeNotExist"
-        ),
-      });
-    }
+    // const isEmployeeExist = await EmployeeModel.findById(assignedTo);
+    // if (!isEmployeeExist) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     error: req.i18n.t(
+    //       "projectValidationMessages.response.createProject.employeeNotExist"
+    //     ),
+    //   });
+    // }
 
     const isProjectexist = await ProjectModel.findById(projectId);
     if (!isProjectexist) {
@@ -106,7 +106,7 @@ export const createIncident = async (req: Request, res: Response) => {
       type,
       description,
       status,
-      assignedTo,
+      // assignedTo,
       countOfInjuredPeople,
       countOfTotalPeople,
       location,
@@ -170,7 +170,7 @@ export const updateIncidentById = async (req: Request, res: Response) => {
       type,
       description,
       status,
-      assignedTo,
+      // assignedTo,
       countOfInjuredPeople,
       countOfTotalPeople,
       location,
@@ -223,14 +223,14 @@ export const updateIncidentById = async (req: Request, res: Response) => {
       existingIncident.status = status;
     }
 
-    if (assignedTo && existingIncident.assignedTo.toString() !== assignedTo) {
-      changes.push({
-        field: "assignedTo",
-        oldValue: existingIncident.assignedTo,
-        newValue: assignedTo,
-      });
-      existingIncident.assignedTo = assignedTo;
-    }
+    // if (assignedTo && existingIncident.assignedTo.toString() !== assignedTo) {
+    //   changes.push({
+    //     field: "assignedTo",
+    //     oldValue: existingIncident.assignedTo,
+    //     newValue: assignedTo,
+    //   });
+    //   existingIncident.assignedTo = assignedTo;
+    // }
 
     if (
       countOfInjuredPeople &&
@@ -448,10 +448,15 @@ export const getIncidentsByProject = async (req: Request, res: Response) => {
       sort: { createdAt: -1 },
       filter: { project: id },
       populate: [
+        // {
+        //   path: "assignedTo",
+        //   model: "Employee",
+        //   select: "name email designation contactNo",
+        // },
         {
-          path: "assignedTo",
-          model: "Employee",
-          select: "name email designation contactNo",
+          path: "location",
+          model: "Worksite",
+          select: "name",
         },
         {
           path: "project",
@@ -522,15 +527,19 @@ export const getIncidentById = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const incident = await IncidentModel.findById(id)
-      .populate({
-        path: "assignedTo",
-        model: "Employee",
-        select: "name email designation contactNo",
-      })
+      // .populate({
+      //   path: "assignedTo",
+      //   model: "Employee",
+      //   select: "name email designation contactNo",
+      // })
       .populate({
         path: "project",
         model: "Project",
-      });
+      }).populate({
+        path:'location',
+        model:'Worksite',
+        select:'name'
+      })
 
     if (!incident) {
       return res.status(200).json({
@@ -578,6 +587,7 @@ export const updateIncidentStatus = async (req: Request, res: Response) => {
     await incident.save();
 
     const employee = await EmployeeModel.findOne({user:currentUser.id});
+    
     const role = await ProjectRoleModel.findOne({
       employee: employee?._id,
       project: incident.project
@@ -726,3 +736,4 @@ export const getIncidentStatistics = async (req: Request, res: Response) => {
     });
   }
 };
+

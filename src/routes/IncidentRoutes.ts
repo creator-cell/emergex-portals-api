@@ -28,7 +28,7 @@ router.route("/incident-by-id/:id")
 .put(authenticate,authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin),[...incidentsByIdValidationRules,...updateIncidentValidationRules],checkValidationResult,updateIncidentById)
 .delete(authenticate,authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin),incidentsByIdValidationRules,checkValidationResult,deleteIncidentById);
 
-router.get("/incident-by-id/:id", authenticate,authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin),incidentsByIdValidationRules,checkValidationResult,getIncidentsByProject);
+// router.get("/incident-by-id/:id", authenticate,authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin),incidentsByIdValidationRules,checkValidationResult,getIncidentsByProject);
 
 router.put("/update-status/:id",authenticate,authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin),updateStatusValidation,checkValidationResult,updateIncidentStatus);
 

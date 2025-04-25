@@ -3384,6 +3384,533 @@
 					]
 				},
 				{
+					"name": "Get  Roles By Incident Id",
+					"item": [
+						{
+							"name": "Get  Roles By Incident Id",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoiTWFjIE9TIiwiZGV2aWNlIjoiZGVza3RvcCIsImlhdCI6MTc0NTU0NDYxNSwiZXhwIjoxNzQ1NjMxMDE1fQ.435XAI91pW_ZGcRsrZagKSmTWz4-sKwnMI7UY6OGpUA",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/roles/incident-roles/67d97456fececb7dd017c3aa",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"roles",
+										"incident-roles",
+										"67d97456fececb7dd017c3aa"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Unauthorized",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoidW5rbm93biIsImRldmljZSI6ImRlc2t0b3AiLCJpYXQiOjE3NDIyODM0NzksImV4cCI6MTc0MjM2OTg3OX0.35FmJ45tfB2iTIPSNr97aMo4inRHhfJnCL3zqsabc7I",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:8080/api/roles/incident-roles/67d2b1e77e44a7f3d0d40264",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"roles",
+												"incident-roles",
+												"67d2b1e77e44a7f3d0d40264"
+											]
+										}
+									},
+									"status": "Unauthorized",
+									"code": 401,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Access-Control-Allow-Credentials",
+											"value": "true"
+										},
+										{
+											"key": "Content-Language",
+											"value": "en"
+										},
+										{
+											"key": "Set-Cookie",
+											"value": "i18next=en; Path=/; Expires=Sat, 25 Apr 2026 01:22:48 GMT; SameSite=Strict"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "42"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"2a-RfAMK1IuUhpKYLWUU4NqDP6L9Yw\""
+										},
+										{
+											"key": "Date",
+											"value": "Fri, 25 Apr 2025 01:22:48 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"success\": false,\n    \"error\": \"Invalid token!\"\n}"
+								},
+								{
+									"name": "success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoiTWFjIE9TIiwiZGV2aWNlIjoiZGVza3RvcCIsImlhdCI6MTc0NTU0NDYxNSwiZXhwIjoxNzQ1NjMxMDE1fQ.435XAI91pW_ZGcRsrZagKSmTWz4-sKwnMI7UY6OGpUA",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:8080/api/roles/incident-roles/67d97456fececb7dd017c3aa",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"roles",
+												"incident-roles",
+												"67d97456fececb7dd017c3aa"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Access-Control-Allow-Credentials",
+											"value": "true"
+										},
+										{
+											"key": "Content-Language",
+											"value": "en"
+										},
+										{
+											"key": "Set-Cookie",
+											"value": "i18next=en; Path=/; Expires=Sat, 25 Apr 2026 01:32:37 GMT; SameSite=Strict"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "1321"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"529-7MLpIW7tY3f+d6fzoQG8sHnasUE\""
+										},
+										{
+											"key": "Date",
+											"value": "Fri, 25 Apr 2025 01:32:38 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"success\": true,\n    \"message\": \"Incident's Project Roles fetched successfully\",\n    \"data\": [\n        {\n            \"role\": {\n                \"_id\": \"67d949e20cbf2a5263b6157f\",\n                \"title\": \"Ui/Ux\",\n                \"description\": \"This role is related with employee who design applications\",\n                \"createdBy\": \"6787908cb6296a9e10d2e042\",\n                \"isTrash\": false,\n                \"createdAt\": \"2025-03-18T10:24:34.054Z\",\n                \"updatedAt\": \"2025-03-18T10:24:34.054Z\",\n                \"__v\": 0\n            },\n            \"employees\": [\n                {\n                    \"_id\": \"67b6cb80b8ee0957f7901f64\",\n                    \"name\": \"Rahul\",\n                    \"email\": \"rahul@gmail.com\",\n                    \"designation\": \"Programmer\",\n                    \"title\": \"Ui/Ux\"\n                }\n            ]\n        },\n        {\n            \"role\": {\n                \"_id\": \"67d94a000cbf2a5263b61585\",\n                \"title\": \"Manager\",\n                \"description\": \"This role is related with employee who manage team\",\n                \"createdBy\": \"6787908cb6296a9e10d2e042\",\n                \"isTrash\": false,\n                \"createdAt\": \"2025-03-18T10:25:04.126Z\",\n                \"updatedAt\": \"2025-03-18T10:25:04.126Z\",\n                \"__v\": 0\n            },\n            \"employees\": [\n                {\n                    \"_id\": \"678b58935631e6b15786953e\",\n                    \"name\": \"Gaurav\",\n                    \"email\": \"gaurav@gmail.com\",\n                    \"designation\": \"HR\",\n                    \"description\": \"Hello\",\n                    \"title\": \"Manager\"\n                }\n            ]\n        },\n        {\n            \"role\": {\n                \"_id\": \"67d949d30cbf2a5263b6157c\",\n                \"title\": \"Tester\",\n                \"description\": \"This role is related with employee who test applications\",\n                \"createdBy\": \"6787908cb6296a9e10d2e042\",\n                \"isTrash\": false,\n                \"createdAt\": \"2025-03-18T10:24:19.833Z\",\n                \"updatedAt\": \"2025-03-18T10:24:19.833Z\",\n                \"__v\": 0\n            },\n            \"employees\": [\n                {\n                    \"_id\": \"6790b354914b2132de5c22fb\",\n                    \"name\": \"Pankaj\",\n                    \"email\": \"pankaj@gmail.com\",\n                    \"designation\": \"Planner\",\n                    \"title\": \"Tester\"\n                }\n            ]\n        }\n    ]\n}"
+								},
+								{
+									"name": "Bad Request",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoiTWFjIE9TIiwiZGV2aWNlIjoiZGVza3RvcCIsImlhdCI6MTc0NTU0NDYxNSwiZXhwIjoxNzQ1NjMxMDE1fQ.435XAI91pW_ZGcRsrZagKSmTWz4-sKwnMI7UY6OGpUA",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:8080/api/roles/incident-roles/67d97456fececb7dd017c3ab",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"roles",
+												"incident-roles",
+												"67d97456fececb7dd017c3ab"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Access-Control-Allow-Credentials",
+											"value": "true"
+										},
+										{
+											"key": "Content-Language",
+											"value": "en"
+										},
+										{
+											"key": "Set-Cookie",
+											"value": "i18next=en; Path=/; Expires=Sat, 25 Apr 2026 01:33:11 GMT; SameSite=Strict"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "81"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"51-HNGYI2EoF73zLbjV3eE8XxF59x0\""
+										},
+										{
+											"key": "Date",
+											"value": "Fri, 25 Apr 2025 01:33:11 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"success\": false,\n    \"error\": \"Incident not exist with id:  67d97456fececb7dd017c3ab\"\n}"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Get User Role in Incident",
+					"item": [
+						{
+							"name": "Get User Role in Incident",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoiTWFjIE9TIiwiZGV2aWNlIjoiZGVza3RvcCIsImlhdCI6MTc0NTU0NDYxNSwiZXhwIjoxNzQ1NjMxMDE1fQ.435XAI91pW_ZGcRsrZagKSmTWz4-sKwnMI7UY6OGpUA",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/roles/user-role-in-incident/680b4e01eca29c721da129af",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"roles",
+										"user-role-in-incident",
+										"680b4e01eca29c721da129af"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoiTWFjIE9TIiwiZGV2aWNlIjoiZGVza3RvcCIsImlhdCI6MTc0NTU0NDYxNSwiZXhwIjoxNzQ1NjMxMDE1fQ.435XAI91pW_ZGcRsrZagKSmTWz4-sKwnMI7UY6OGpUA",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:8080/api/roles/user-role-in-incident/680b4e01eca29c721da129ac",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"roles",
+												"user-role-in-incident",
+												"680b4e01eca29c721da129ac"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Access-Control-Allow-Credentials",
+											"value": "true"
+										},
+										{
+											"key": "Content-Language",
+											"value": "en"
+										},
+										{
+											"key": "Set-Cookie",
+											"value": "i18next=en; Path=/; Expires=Sat, 25 Apr 2026 09:00:34 GMT; SameSite=Strict"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "807"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"327-yz9saqW49qVwloK1VZ2zbP4Qc4g\""
+										},
+										{
+											"key": "Date",
+											"value": "Fri, 25 Apr 2025 09:00:34 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"success\": true,\n    \"message\": \"User Role fetched successfully\",\n    \"data\": {\n        \"_id\": \"680b4dcceca29c721da12988\",\n        \"project\": \"680b4dcceca29c721da12984\",\n        \"role\": {\n            \"_id\": \"67e272452b15240e50f74735\",\n            \"title\": \"Owner\",\n            \"description\": \"Owner Of The Project\",\n            \"createdBy\": \"6787908cb6296a9e10d2e042\",\n            \"isTrash\": false,\n            \"createdAt\": \"2025-03-25T09:07:17.406Z\",\n            \"updatedAt\": \"2025-03-25T09:07:17.406Z\",\n            \"__v\": 0\n        },\n        \"employee\": {\n            \"_id\": \"678b58935631e6b15786953e\",\n            \"name\": \"Gaurav\",\n            \"contactNo\": \"9876678909\",\n            \"designation\": \"HR\",\n            \"email\": \"gaurav@gmail.com\",\n            \"createdAt\": \"2025-01-18T05:41:15.000Z\",\n            \"updatedAt\": \"2025-01-18T05:41:15.000Z\",\n            \"__v\": 0,\n            \"isDeleted\": false,\n            \"user\": \"6787908cb6296a9e10d2e042\",\n            \"createdBy\": \"6787908cb6296a9e10d2e042\"\n        },\n        \"description\": \"Owner of the project\",\n        \"createdAt\": \"2025-04-25T08:54:36.777Z\",\n        \"updatedAt\": \"2025-04-25T08:54:36.777Z\",\n        \"__v\": 0\n    }\n}"
+								},
+								{
+									"name": "Bad Request",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoiTWFjIE9TIiwiZGV2aWNlIjoiZGVza3RvcCIsImlhdCI6MTc0NTU0NDYxNSwiZXhwIjoxNzQ1NjMxMDE1fQ.435XAI91pW_ZGcRsrZagKSmTWz4-sKwnMI7UY6OGpUA",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:8080/api/roles/user-role-in-incident/680b4e01eca29c721da129af",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"roles",
+												"user-role-in-incident",
+												"680b4e01eca29c721da129af"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Access-Control-Allow-Credentials",
+											"value": "true"
+										},
+										{
+											"key": "Content-Language",
+											"value": "en"
+										},
+										{
+											"key": "Set-Cookie",
+											"value": "i18next=en; Path=/; Expires=Sat, 25 Apr 2026 09:00:52 GMT; SameSite=Strict"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "81"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"51-ueLfQGx+SSYt4n1Rk6en5uB2i3s\""
+										},
+										{
+											"key": "Date",
+											"value": "Fri, 25 Apr 2025 09:00:52 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"success\": false,\n    \"error\": \"Incident not exist with id:  680b4e01eca29c721da129af\"\n}"
+								}
+							]
+						}
+					]
+				},
+				{
 					"name": "Update specific role in project",
 					"item": [
 						{
@@ -4728,6 +5255,352 @@
 									],
 									"cookie": [],
 									"body": "{\n    \"success\": true,\n    \"message\": \"Project organization chart roles grouped by priority fetched successfully\",\n    \"data\": {\n        \"1\": {\n            \"Unassigned\": {\n                \"fromEmployee\": {},\n                \"roles\": [\n                    {\n                        \"_id\": \"67e290ec24075883e70a90ce\",\n                        \"project\": \"67e272452b15240e50f74732\",\n                        \"role\": {\n                            \"_id\": \"67d949f10cbf2a5263b61582\",\n                            \"name\": \"DevOps\"\n                        },\n                        \"employee\": {\n                            \"_id\": \"67d81113b4385b7e94dbbae7\",\n                            \"name\": \"ankush\",\n                            \"email\": \"ankushwaghmare050@gmail.com\",\n                            \"designation\": \"Software Engineer\",\n                            \"title\": \"DevOps\",\n                            \"team\": \"Test part 2\"\n                        },\n                        \"priority\": 1,\n                        \"from\": {}\n                    }\n                ]\n            }\n        },\n        \"2\": {\n            \"67d81113b4385b7e94dbbae7\": {\n                \"fromEmployee\": {\n                    \"_id\": \"67d81113b4385b7e94dbbae7\",\n                    \"name\": \"ankush\",\n                    \"email\": \"ankushwaghmare050@gmail.com\"\n                },\n                \"roles\": [\n                    {\n                        \"_id\": \"67e272452b15240e50f74738\",\n                        \"project\": \"67e272452b15240e50f74732\",\n                        \"role\": {\n                            \"_id\": \"67e272452b15240e50f74735\",\n                            \"name\": \"Owner\"\n                        },\n                        \"employee\": {\n                            \"_id\": \"678b58935631e6b15786953e\",\n                            \"name\": \"Gaurav\",\n                            \"email\": \"gaurav@gmail.com\",\n                            \"designation\": \"HR\",\n                            \"title\": \"Owner\"\n                        },\n                        \"description\": \"Owner of the project\",\n                        \"priority\": 2,\n                        \"from\": {\n                            \"_id\": \"67d81113b4385b7e94dbbae7\",\n                            \"name\": \"ankush\",\n                            \"email\": \"ankushwaghmare050@gmail.com\"\n                        }\n                    }\n                ]\n            }\n        },\n        \"3\": {\n            \"678b58935631e6b15786953e\": {\n                \"fromEmployee\": {\n                    \"_id\": \"678b58935631e6b15786953e\",\n                    \"name\": \"Gaurav\",\n                    \"email\": \"gaurav@gmail.com\"\n                },\n                \"roles\": [\n                    {\n                        \"_id\": \"67e281102568364b157c6a4c\",\n                        \"project\": \"67e272452b15240e50f74732\",\n                        \"role\": {\n                            \"_id\": \"67d949f10cbf2a5263b61582\",\n                            \"name\": \"DevOps\"\n                        },\n                        \"employee\": {\n                            \"_id\": \"67b6cbe0b8ee0957f7901f6a\",\n                            \"name\": \"Ganesh\",\n                            \"email\": \"ganesh@gmail.com\",\n                            \"designation\": \"DevOps Engineer\",\n                            \"title\": \"DevOps\",\n                            \"team\": \"Internal Testing 2\"\n                        },\n                        \"priority\": 3,\n                        \"from\": {\n                            \"_id\": \"678b58935631e6b15786953e\",\n                            \"name\": \"Gaurav\",\n                            \"email\": \"gaurav@gmail.com\"\n                        }\n                    }\n                ]\n            }\n        }\n    }\n}"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Get User's Project Role Details",
+					"item": [
+						{
+							"name": "Get User's Project Role Details",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoidW5rbm93biIsImRldmljZSI6ImRlc2t0b3AiLCJpYXQiOjE3NDMwNDc4MTgsImV4cCI6MTc0MzEzNDIxOH0.D3yNbRvonRYegbeXXrwxRfJkOwQfZwNZcYDF6zljHZ8",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://localhost:8080/api/roles/user-role-details/67a49330efdd3275fcb7b943",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"roles",
+										"user-role-details",
+										"67a49330efdd3275fcb7b943"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoidW5rbm93biIsImRldmljZSI6ImRlc2t0b3AiLCJpYXQiOjE3NDMwNDc4MTgsImV4cCI6MTc0MzEzNDIxOH0.D3yNbRvonRYegbeXXrwxRfJkOwQfZwNZcYDF6zljHZ8",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "http://localhost:8080/api/roles/user-role-details/67e272a32b15240e50f7475a",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"roles",
+												"user-role-details",
+												"67e272a32b15240e50f7475a"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Access-Control-Allow-Credentials",
+											"value": "true"
+										},
+										{
+											"key": "Content-Language",
+											"value": "en"
+										},
+										{
+											"key": "Set-Cookie",
+											"value": "i18next=en; Path=/; Expires=Fri, 27 Mar 2026 04:00:20 GMT; SameSite=Strict"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "894"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"37e-Bdw3xlaSaiFojVsLUEi+BjhmZNo\""
+										},
+										{
+											"key": "Date",
+											"value": "Thu, 27 Mar 2025 04:00:20 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"success\": true,\n    \"message\": \"project role data fetched successfully\",\n    \"data\": {\n        \"_id\": \"67e272452b15240e50f74738\",\n        \"project\": \"67e272452b15240e50f74732\",\n        \"role\": {\n            \"_id\": \"67e272452b15240e50f74735\",\n            \"title\": \"Owner\",\n            \"description\": \"Owner Of The Project\",\n            \"createdBy\": \"6787908cb6296a9e10d2e042\",\n            \"isTrash\": false,\n            \"createdAt\": \"2025-03-25T09:07:17.406Z\",\n            \"updatedAt\": \"2025-03-25T09:07:17.406Z\",\n            \"__v\": 0\n        },\n        \"employee\": {\n            \"_id\": \"678b58935631e6b15786953e\",\n            \"name\": \"Gaurav\",\n            \"contactNo\": \"9876678909\",\n            \"designation\": \"HR\",\n            \"email\": \"gaurav@gmail.com\",\n            \"createdAt\": \"2025-01-18T05:41:15.000Z\",\n            \"updatedAt\": \"2025-01-18T05:41:15.000Z\",\n            \"__v\": 0,\n            \"isDeleted\": false,\n            \"user\": \"6787908cb6296a9e10d2e042\",\n            \"createdBy\": \"6787908cb6296a9e10d2e042\"\n        },\n        \"description\": \"Owner of the project\",\n        \"createdAt\": \"2025-03-25T09:07:17.573Z\",\n        \"updatedAt\": \"2025-03-25T11:20:19.508Z\",\n        \"__v\": 0,\n        \"priority\": 2,\n        \"to\": \"67b6cbe0b8ee0957f7901f6a\",\n        \"from\": \"67d81113b4385b7e94dbbae7\"\n    }\n}"
+								},
+								{
+									"name": "Incident not found",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoidW5rbm93biIsImRldmljZSI6ImRlc2t0b3AiLCJpYXQiOjE3NDMwNDc4MTgsImV4cCI6MTc0MzEzNDIxOH0.D3yNbRvonRYegbeXXrwxRfJkOwQfZwNZcYDF6zljHZ8",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "http://localhost:8080/api/roles/user-role-details/67e272a32b15240e50f7475b",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"roles",
+												"user-role-details",
+												"67e272a32b15240e50f7475b"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Access-Control-Allow-Credentials",
+											"value": "true"
+										},
+										{
+											"key": "Content-Language",
+											"value": "en"
+										},
+										{
+											"key": "Set-Cookie",
+											"value": "i18next=en; Path=/; Expires=Fri, 27 Mar 2026 04:07:24 GMT; SameSite=Strict"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "46"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"2e-x9dkxJgFJIfzJZsUp1uEjQdHz7o\""
+										},
+										{
+											"key": "Date",
+											"value": "Thu, 27 Mar 2025 04:07:24 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"success\": false,\n    \"error\": \"Incident not found\"\n}"
+								},
+								{
+									"name": "Not Found",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoidW5rbm93biIsImRldmljZSI6ImRlc2t0b3AiLCJpYXQiOjE3NDMwNDc4MTgsImV4cCI6MTc0MzEzNDIxOH0.D3yNbRvonRYegbeXXrwxRfJkOwQfZwNZcYDF6zljHZ8",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "http://localhost:8080/api/roles/user-role-details/67a49330efdd3275fcb7b943",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"roles",
+												"user-role-details",
+												"67a49330efdd3275fcb7b943"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Access-Control-Allow-Credentials",
+											"value": "true"
+										},
+										{
+											"key": "Content-Language",
+											"value": "en"
+										},
+										{
+											"key": "Set-Cookie",
+											"value": "i18next=en; Path=/; Expires=Fri, 27 Mar 2026 04:08:17 GMT; SameSite=Strict"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "66"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"42-L5ojW95XgPLxMF+lnoPyz8OsgeQ\""
+										},
+										{
+											"key": "Date",
+											"value": "Thu, 27 Mar 2025 04:08:18 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"success\": false,\n    \"error\": \"Project Role not availabel in Project \"\n}"
+								},
+								{
+									"name": "Validation",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3ODc5MDhjYjYyOTZhOWUxMGQyZTA0MiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoidW5rbm93biIsImRldmljZSI6ImRlc2t0b3AiLCJpYXQiOjE3NDMwNDc4MTgsImV4cCI6MTc0MzEzNDIxOH0.D3yNbRvonRYegbeXXrwxRfJkOwQfZwNZcYDF6zljHZ8",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "http://localhost:8080/api/roles/user-role-details/67a49",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"api",
+												"roles",
+												"user-role-details",
+												"67a49"
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Access-Control-Allow-Credentials",
+											"value": "true"
+										},
+										{
+											"key": "Content-Language",
+											"value": "en"
+										},
+										{
+											"key": "Set-Cookie",
+											"value": "i18next=en; Path=/; Expires=Fri, 27 Mar 2026 04:09:02 GMT; SameSite=Strict"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "81"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"51-jHX8aI/sAc3Ec2iQSjrooZaC9XU\""
+										},
+										{
+											"key": "Date",
+											"value": "Thu, 27 Mar 2025 04:09:02 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"success\": false,\n    \"errors\": [\n        {\n            \"message\": \"Incident ID must be valid MongodDB ID.\"\n        }\n    ]\n}"
 								}
 							]
 						}

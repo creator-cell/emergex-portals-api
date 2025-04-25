@@ -7,10 +7,10 @@ export interface IIncident extends Document {
   description: string;
   status: "Assigned" | "Delayed" | "In Progress" | "Completed" | "Cancelled";
   project: mongoose.Types.ObjectId;
-  assignedTo: mongoose.Types.ObjectId;
+  // assignedTo: mongoose.Types.ObjectId;
   countOfInjuredPeople: number;
   countOfTotalPeople: number;
-  location: string;
+  location: mongoose.Types.ObjectId;
   damageAssets: string[];
   finance: number;
   utilityAffected: string[];
@@ -53,11 +53,11 @@ const IncidentSchema: Schema = new Schema(
       ref: "Project",
       required: true,
     },
-    assignedTo: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Employee",
-      required: true,
-    },
+    // assignedTo: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: "Employee",
+    //   required: true,
+    // },
     countOfInjuredPeople: {
       type: Number,
       required: true,
@@ -67,7 +67,8 @@ const IncidentSchema: Schema = new Schema(
       required: true,
     },
     location: {
-      type: String,
+      type:  mongoose.Schema.Types.ObjectId,
+      ref:"Worksite",
       required: true,
     },
     damageAssets: {

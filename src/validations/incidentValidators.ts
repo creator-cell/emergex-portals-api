@@ -62,19 +62,19 @@ export const incidentValidationRules = [
         "incidentValidationMessages.incidentValidationRules.projectId.isMongoDbId"
       )
     ),
-  body("assignedTo")
-    .notEmpty()
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "incidentValidationMessages.incidentValidationRules.assignedTo.empty"
-      )
-    )
-    .isMongoId()
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "incidentValidationMessages.incidentValidationRules.assignedTo.isMongoDbId"
-      )
-    ),
+  // body("assignedTo")
+  //   .notEmpty()
+  //   .withMessage((_, { req }) =>
+  //     req.i18n.t(
+  //       "incidentValidationMessages.incidentValidationRules.assignedTo.empty"
+  //     )
+  //   )
+  //   .isMongoId()
+  //   .withMessage((_, { req }) =>
+  //     req.i18n.t(
+  //       "incidentValidationMessages.incidentValidationRules.assignedTo.isMongoDbId"
+  //     )
+  //   ),
   body("countOfInjuredPeople")
     .notEmpty()
     .withMessage((_, { req }) =>
@@ -249,14 +249,14 @@ export const updateIncidentValidationRules = [
         "incidentValidationMessages.incidentValidationRules.projectId.isMongoDbId"
       )
     ),
-  body("assignedTo")
-    .optional()
-    .isMongoId()
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "incidentValidationMessages.incidentValidationRules.assignedTo.isMongoDbId"
-      )
-    ),
+  // body("assignedTo")
+  //   .optional()
+  //   .isMongoId()
+  //   .withMessage((_, { req }) =>
+  //     req.i18n.t(
+  //       "incidentValidationMessages.incidentValidationRules.assignedTo.isMongoDbId"
+  //     )
+  //   ),
   body("countOfInjuredPeople")
     .optional()
     .isInt({ min: 0 })

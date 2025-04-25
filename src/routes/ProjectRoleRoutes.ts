@@ -5,17 +5,24 @@ import {addRolesToProjectValidation, validateRolePriority, validateSpecificRole
 
 import { authorizeRoles } from "../middlewares/roleMiddleware";
 import { GlobalAdminRoles } from "../config/global-enum";
-import { addRolesInProject, getProjectRolesByPriority, updateRolePriority, updateSpecificRole } from "../controllers/ProjectRoleControllers";
+import { addRolesInProject, getProjectRolesByPriority, updateRolePriority, updateSpecificRole,getUserRoleDetails, getRolesByIncidentId, getUserRoleInIncident } from "../controllers/ProjectRoleControllers";
+import { incidentsByIdValidationRules } from "../validations/incidentValidators";
 
 const router = express.Router();
 
-router.route('/project-roles/:id').put(addRolesToProjectValidation,checkValidationResult,addRolesInProject);
+router.route('/project-roles/:id').put(addRolesToProjectValidation,checkValidationResult,addRolesInProject)
 
 router.put('/update-project-role/:id',validateSpecificRole,checkValidationResult,updateSpecificRole);
+
+router.get('/user-role-details/:id',incidentsByIdValidationRules,checkValidationResult,getUserRoleDetails);
 
 router.route('/organization-chart/:id')
 .put(validateRolePriority,checkValidationResult,updateRolePriority)
 .get(getProjectRolesByPriority);
+
+router.route('/incident-roles/:id').get(incidentsByIdValidationRules,checkValidationResult,getRolesByIncidentId);
+
+router.route('/user-role-in-incident/:id').get(incidentsByIdValidationRules,checkValidationResult,getUserRoleInIncident);
 
 router.use(authorizeRoles(GlobalAdminRoles.SuperAdmin,GlobalAdminRoles.ClientAdmin));
 
