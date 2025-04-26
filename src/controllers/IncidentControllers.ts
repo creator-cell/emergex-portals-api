@@ -11,6 +11,7 @@ import mongoose from "mongoose";
 import IncidentHistoryModel from "../models/IncidentHistoryModel";
 import IncidentStatusHistoryModel from "../models/IncidentStatusHistoryModel";
 import ProjectRoleModel from "../models/ProjectRoleModel";
+import WorksiteModel from "../models/WorksiteModel";
 
 export const createIncident = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
@@ -185,11 +186,13 @@ export const updateIncidentById = async (req: Request, res: Response) => {
 
     // Track changes
     const changes: { field: string; oldValue: any; newValue: any }[] = [];
+    let statusChanged:boolean = false;
+    let oldStatus:string = "";
 
     // Compare and update fields
     if (level && existingIncident.level !== level) {
       changes.push({
-        field: "level",
+        field: "Level",
         oldValue: existingIncident.level,
         newValue: level,
       });
@@ -198,7 +201,7 @@ export const updateIncidentById = async (req: Request, res: Response) => {
 
     if (type && existingIncident.type !== type) {
       changes.push({
-        field: "type",
+        field: "Type",
         oldValue: existingIncident.type,
         newValue: type,
       });
@@ -207,7 +210,7 @@ export const updateIncidentById = async (req: Request, res: Response) => {
 
     if (description && existingIncident.description !== description) {
       changes.push({
-        field: "description",
+        field: "Description",
         oldValue: existingIncident.description,
         newValue: description,
       });
@@ -216,10 +219,12 @@ export const updateIncidentById = async (req: Request, res: Response) => {
 
     if (status && existingIncident.status !== status) {
       changes.push({
-        field: "status",
+        field: "Status",
         oldValue: existingIncident.status,
         newValue: status,
       });
+      statusChanged = true;
+      oldStatus = existingIncident.status;
       existingIncident.status = status;
     }
 
@@ -237,7 +242,7 @@ export const updateIncidentById = async (req: Request, res: Response) => {
       existingIncident.countOfInjuredPeople !== countOfInjuredPeople
     ) {
       changes.push({
-        field: "countOfInjuredPeople",
+        field: "Count of injured people",
         oldValue: existingIncident.countOfInjuredPeople,
         newValue: countOfInjuredPeople,
       });
@@ -249,18 +254,35 @@ export const updateIncidentById = async (req: Request, res: Response) => {
       existingIncident.countOfTotalPeople !== countOfTotalPeople
     ) {
       changes.push({
-        field: "countOfTotalPeople",
+        field: "Count of total people",
         oldValue: existingIncident.countOfTotalPeople,
         newValue: countOfTotalPeople,
       });
       existingIncident.countOfTotalPeople = countOfTotalPeople;
     }
 
-    if (location && existingIncident.location !== location) {
+    if (location && existingIncident.location.toString() !== location.toString()) {
+      let oldLocation = await WorksiteModel.findById(existingIncident.location);
+      let newLocation = await WorksiteModel.findById(location);
+
+      if(!oldLocation){
+        return res.status(200).json({
+          success:false,
+          error:req.i18n.t("locationValidationMessages.response.oldLocationNotFound")
+        })
+      }
+
+      if(!newLocation){
+        return res.status(200).json({
+          success:false,
+          error:req.i18n.t("locationValidationMessages.response.newLocationNotFound")
+        })
+      }
+
       changes.push({
-        field: "location",
-        oldValue: existingIncident.location,
-        newValue: location,
+        field: "Location",
+        oldValue: oldLocation.name,
+        newValue: newLocation.name,
       });
       existingIncident.location = location;
     }
@@ -271,7 +293,7 @@ export const updateIncidentById = async (req: Request, res: Response) => {
       !damageAssets.every((item: string, index: number) => item === existingIncident.damageAssets[index])
     ) {
       changes.push({
-      field: "damageAssets",
+      field: "Damage Assets",
       oldValue: "old damage assets value",
       newValue: "new damage assets value",
       });
@@ -280,7 +302,7 @@ export const updateIncidentById = async (req: Request, res: Response) => {
 
     if (finance && existingIncident.finance !== finance) {
       changes.push({
-        field: "finance",
+        field: "Finance",
         oldValue: existingIncident.finance,
         newValue: finance,
       });
@@ -289,10 +311,10 @@ export const updateIncidentById = async (req: Request, res: Response) => {
 
     if (
       utilityAffected &&
-      existingIncident.utilityAffected !== utilityAffected
+      JSON.stringify(existingIncident.utilityAffected) !== JSON.stringify(utilityAffected)
     ) {
       changes.push({
-        field: "utilityAffected",
+        field: "Utility Affected",
         oldValue: existingIncident.utilityAffected,
         newValue: utilityAffected,
       });
@@ -301,7 +323,7 @@ export const updateIncidentById = async (req: Request, res: Response) => {
 
     if (informToTeam && existingIncident.informToTeam !== informToTeam) {
       changes.push({
-        field: "informToTeam",
+        field: "Inform to Team",
         oldValue: existingIncident.informToTeam,
         newValue: informToTeam,
       });
@@ -313,7 +335,7 @@ export const updateIncidentById = async (req: Request, res: Response) => {
       existingIncident.termsAndConditions !== termsAndConditions
     ) {
       changes.push({
-        field: "termsAndConditions",
+        field: "Terms and Conditions",
         oldValue: existingIncident.termsAndConditions,
         newValue: termsAndConditions,
       });
@@ -354,7 +376,7 @@ export const updateIncidentById = async (req: Request, res: Response) => {
       imagePaths = [...imagePaths, ...imagesUri];
       existingIncident.image = [...imagePaths];
       changes.push({
-        field: "images",
+        field: "Images",
         newValue: `${
           existingIncident.image.length > imagePaths.length
             ? "Some images are deleted"
@@ -375,7 +397,7 @@ export const updateIncidentById = async (req: Request, res: Response) => {
       if (signaturePath) {
         existingIncident.signature = signaturePath;
         changes.push({
-          field: "signature",
+          field: "Signature",
           oldValue: "old signature",
           newValue: "new signature",
         });
@@ -402,11 +424,21 @@ export const updateIncidentById = async (req: Request, res: Response) => {
       await IncidentHistoryModel.insertMany(historyEntries);
     }
 
+    if(statusChanged && oldStatus!==status){
+      await IncidentStatusHistoryModel.create({
+        incident: existingIncident._id,
+        role: role?._id,
+        old: oldStatus,
+        status,
+      });
+    }
+
+
     // Return success response
     return res.status(200).json({
       success: true,
       message: req.i18n.t(
-        "incidentValidationMessages.response.updateIncident.success"
+        "incidentValidationMessages.response.updateIncidentById.success"
       ),
       data: updatedIncident,
     });
@@ -415,7 +447,7 @@ export const updateIncidentById = async (req: Request, res: Response) => {
     return res.status(500).json({
       success: false,
       error: req.i18n.t(
-        "incidentValidationMessages.response.updateIncident.server"
+        "incidentValidationMessages.response.updateIncidentById.server"
       ),
     });
   }

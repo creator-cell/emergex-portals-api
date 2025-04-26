@@ -589,7 +589,9 @@
         "notFound": "Location not found",
         "success": "Location deleted successfully",
         "server": "Error in deleting location permanently"
-      }
+      },
+      "oldLocationNotFound": "Old location not found",
+      "newLocationNotFound": "New location not found"
     }
   },
 
