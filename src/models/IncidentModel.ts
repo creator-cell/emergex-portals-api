@@ -76,7 +76,7 @@ const IncidentSchema: Schema = new Schema(
       required: true,
     },
     finance: {
-      type: Number,
+      type: String,
       required: true,
     },
     utilityAffected: {

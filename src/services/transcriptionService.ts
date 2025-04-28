@@ -1,0 +1,65 @@
+import fs from 'fs';
+import ffmpeg from 'fluent-ffmpeg';
+import path from 'path';
+import speechClient from '../config/googleClient';
+import openai from '../config/openAiClient';
+
+// Convert audio to WAV
+export async function convertToWav(inputPath: string, outputPath: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    ffmpeg(inputPath)
+      .output(outputPath)
+      .audioCodec('pcm_s16le')
+      .audioFilters('aformat=channel_layouts=mono')
+      .on('end', () => resolve(outputPath))
+      .on('error', (err: Error) => reject(new Error(`Conversion error: ${err.message}`)))
+      .run();
+  });
+}
+
+// Transcribe audio using Google Speech-to-Text
+export async function transcribeAudio(audioFilePath: string): Promise<string> {
+  const file = fs.readFileSync(audioFilePath);
+  const audioBytes = file.toString('base64');
+
+  const request = {
+    audio: { content: audioBytes },
+    config: { encoding: "LINEAR16" as const, languageCode: 'en-US' },
+  };
+
+  const [response] = await speechClient.recognize(request);
+
+  const transcription = response.results
+    ?.map((result: any) => result.alternatives[0].transcript)
+    .join('\n') || '';
+
+  return transcription;
+}
+
+// Extract incident information using OpenAI
+export async function extractIncidentInfo(text: string): Promise<string> {
+  const prompt = `
+Extract the following details from the text:
+- Incident Type
+- Location
+- Time
+- Number of Injured People
+- Status
+- Damage Assets
+- Finance
+and provide Damage Assets in an array of strings.
+
+Text: """${text}"""
+
+Return result as a JSON object.
+`;
+
+  const completion = await openai.chat.completions.create({
+    model: 'gpt-3.5-turbo',
+    messages: [{ role: 'user', content: prompt }],
+  });
+
+  const result = JSON.parse(completion.choices[0].message.content?.trim() || '{}');
+
+  return result;
+}

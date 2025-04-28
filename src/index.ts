@@ -21,6 +21,8 @@ import regionRoutes from './routes/RegionRoutes'
 import worksiteRoutes from './routes/WorksiteRoutes'
 import incidentRoutes from './routes/IncidentRoutes'
 import incidentHistoryRoutes from './routes/IncidentHistoryRoutes'
+import transcriptionRoutes from './routes/transcriptionRoutes'
+
 import path from 'path';    
 import configureSocket from './socket';
 // import locationRoutes from './routes/LocationRoutes'
@@ -65,6 +67,7 @@ app.use('/api/regions', regionRoutes);
 app.use('/api/worksites', worksiteRoutes);
 app.use('/api/incidents', incidentRoutes);
 app.use('/api/incidents-history', incidentHistoryRoutes);
+app.use('/api/transcription', transcriptionRoutes);
 
 configureSocket(server);
 
