@@ -14,4 +14,11 @@ export const config = {
   aws_secret_key: process.env.AWS_SECRET_KEY,
   aws_region: process.env.AWS_REGION,
   aws_bucket_name: process.env.AWS_BUCKET_NAME,
+  twilio: {
+    accountSid: process.env.TWILIO_ACCOUNT_SID || '',
+    authToken: process.env.TWILIO_AUTH_TOKEN || '',
+    apiKey: process.env.TWILIO_API_KEY || '',
+    apiSecret: process.env.TWILIO_API_SECRET || '',
+    serviceSid: process.env.TWILIO_SERVICE_SID || ''
+  }
 };

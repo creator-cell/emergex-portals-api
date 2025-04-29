@@ -1,29 +1,75 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema, Model } from 'mongoose';
 
-export interface IMessage extends Document {
-  sender: mongoose.Types.ObjectId;
-  content: string;
-  chat: mongoose.Types.ObjectId;
-  readBy: mongoose.Types.ObjectId[];
+export enum MessageType {
+  TEXT = 'text',
+  IMAGE = 'image',
+  VIDEO = 'video',
+  AUDIO = 'audio',
+  FILE = 'file',
+  LOCATION = 'location',
+  SYSTEM = 'system'
 }
 
-const MessageSchema = new Schema<IMessage>(
+export interface IMessage extends Document {
+  conversationId: mongoose.Types.ObjectId;
+  twilioSid: string;
+  sender: mongoose.Types.ObjectId;
+  body: string;
+  type: MessageType;
+  mediaUrl?: string;
+  readBy: mongoose.Types.ObjectId[];
+  attributes?: Record<string, any>;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const messageSchema = new Schema<IMessage>(
   {
-    sender: { 
-      type: mongoose.Schema.Types.ObjectId, 
-      ref: 'User' 
+    conversationId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Conversation',
+      required: true
     },
-    content: { type: String, trim: true },
-    chat: { 
-      type: mongoose.Schema.Types.ObjectId, 
-      ref: 'Chat' 
+    twilioSid: {
+      type: String,
+      required: true,
+      unique: true
     },
-    readBy: [{ 
-      type: mongoose.Schema.Types.ObjectId, 
-      ref: 'User' 
+    sender: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+    body: {
+      type: String,
+      required: true
+    },
+    type: {
+      type: String,
+      enum: Object.values(MessageType),
+      default: MessageType.TEXT
+    },
+    mediaUrl: {
+      type: String
+    },
+    readBy: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
     }],
+    attributes: {
+      type: Schema.Types.Mixed
+    }
   },
   { timestamps: true }
 );
 
-export default mongoose.model<IMessage>('Message', MessageSchema);
+messageSchema.index({ conversationId: 1, createdAt: -1 });
+messageSchema.index({ sender: 1 });
+messageSchema.index({ twilioSid: 1 });
+
+const MessageModel: Model<IMessage> = mongoose.model<IMessage>(
+  'Message',
+  messageSchema
+);
+
+export default MessageModel;

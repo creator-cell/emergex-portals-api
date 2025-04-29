@@ -1,6 +1,7 @@
 import mongoose, { Document, Schema, Model } from "mongoose";
 import bcrypt from "bcrypt";
 import { GlobalAdminRoles } from "../config/global-enum";
+import AccessToken, { ChatGrant } from "twilio/lib/jwt/AccessToken";
 
 export interface IUser extends Document {
   username: string;
@@ -16,6 +17,7 @@ export interface IUser extends Document {
   accounts?: [mongoose.Types.ObjectId];
   createdBy?:mongoose.Types.ObjectId;
   comparePassword(password: string): Promise<boolean>;
+  generateChatToken(identity: string): Promise<string>;
 }
 
 const userSchema = new Schema<IUser>(
@@ -94,6 +96,28 @@ userSchema.methods.comparePassword = async function (
 ): Promise<boolean> {
   return bcrypt.compare(password, this.password);
 };
+
+userSchema.methods.generateChatToken = async (identity:string)=>{
+  if (typeof identity !== 'string') {
+    return 'Missing or invalid identity';
+  }
+
+  const token = new AccessToken(
+    process.env.TWILIO_ACCOUNT_SID!,
+    process.env.TWILIO_API_KEY!,
+    process.env.TWILIO_API_SECRET!,
+    { identity }
+  );
+ 
+  const chatGrant = new ChatGrant({
+    serviceSid: process.env.TWILIO_CHAT_SERVICE_SID!,
+  });
+ 
+  token.addGrant(chatGrant);
+  const twilioToken = token.toJwt();
+  return twilioToken;
+}
+
 
 const UserModel: Model<IUser> = mongoose.model<IUser>("User", userSchema);
 

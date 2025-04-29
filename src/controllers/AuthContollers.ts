@@ -7,6 +7,8 @@ import AccountModel, { IAccount } from "../models/AccountModel";
 import mongoose from "mongoose";
 import SessionModel from "../models/SessionModel";
 import EmployeeModel from "../models/EmployeeModel";
+import { ICustomRequest } from "../types/express";
+import { logger } from "../config/logger";
 
 const parseUserAgent = (userAgent: string): { browser: string; os: string } => {
   let browser = "unknown";
@@ -212,3 +214,17 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
     });
   }
 };
+
+// export const refreshTwilioToken = async (req: Request, res: Response): Promise<void> => {
+//   const customReq = req as ICustomRequest;
+//   const currentUser = customReq.user;
+//   try {
+//     const userId = currentUser.id.toString();
+//     const twilioToken = generateTwilioToken(userId);
+    
+//     res.status(200).json({ twilioToken });
+//   } catch (error) {
+//     logger.error('Refresh Twilio token error:', error);
+//     res.status(500).json({ message: 'Server error', error });
+//   }
+// };

@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from "mongoose";
 
 export interface IChat extends Document {
   name?: string;
@@ -6,26 +6,34 @@ export interface IChat extends Document {
   users: mongoose.Types.ObjectId[];
   latestMessage?: mongoose.Types.ObjectId;
   groupAdmin?: mongoose.Types.ObjectId;
+  project: mongoose.Types.ObjectId;
 }
 
 const ChatSchema = new Schema<IChat>(
   {
+    project:{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Project",
+      required: true,
+    },
     name: { type: String, trim: true },
     isGroupChat: { type: Boolean, default: false },
-    users: [{ 
-      type: mongoose.Schema.Types.ObjectId, 
-      ref: 'User' 
-    }],
+    users: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     latestMessage: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Message',
+      ref: "Message",
     },
     groupAdmin: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
     },
   },
   { timestamps: true }
 );
 
-export default mongoose.model<IChat>('Chat', ChatSchema);
+export default mongoose.model<IChat>("Chat", ChatSchema);
