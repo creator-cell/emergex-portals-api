@@ -18,7 +18,16 @@ export const generateChatToken = async (req: Request, res: Response) => {
         .json({ success: false, message: "Identity is required" });
     }
 
-    const user = await UserModel.findById(identity);
+    const employee = await EmployeeModel.findOne({
+      _id: identity,
+    });
+    if (!employee) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Employee not found" });
+    }
+
+    const user = await UserModel.findById(employee.user);
 
     if (!user) {
       return res
@@ -27,14 +36,12 @@ export const generateChatToken = async (req: Request, res: Response) => {
     }
 
     const token = await user.generateChatToken(identity as string);
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "Token generated successfully",
-        token: token,
-        user,
-      });
+    return res.status(200).json({
+      success: true,
+      message: "Token generated successfully",
+      token: token,
+      user,
+    });
   } catch (error) {
     return res
       .status(500)
@@ -258,13 +265,11 @@ export const createSuperAdminChat = async (req: Request, res: Response) => {
       .populate("users", "-password")
       .populate("groupAdmin", "-password");
 
-    return res
-      .status(201)
-      .json({
-        success: true,
-        data: fullGroupChat,
-        message: "Group chat created successfully",
-      });
+    return res.status(201).json({
+      success: true,
+      data: fullGroupChat,
+      message: "Group chat created successfully",
+    });
   } catch (error) {
     return res
       .status(500)
