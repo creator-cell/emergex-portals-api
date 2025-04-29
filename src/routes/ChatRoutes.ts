@@ -33,7 +33,7 @@ router.post(
 );
 
 router.get(
-  "/generate-chat-token",
+  "/token",
   authenticate,
   authorizeRoles(GlobalAdminRoles.SuperAdmin,GlobalAdminRoles.ClientAdmin),
   generateChatToken

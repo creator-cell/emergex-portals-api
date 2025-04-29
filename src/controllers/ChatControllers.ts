@@ -10,10 +10,8 @@ import { GlobalAdminRoles } from "../config/global-enum";
 import ProjectModel from "../models/ProjectModel";
 
 export const generateChatToken = async (req: Request, res: Response) => {
-  const customReq = req as ICustomRequest;
-  const currentUser = customReq.user;
   try {
-    const identity = currentUser.id;
+    const { identity } = req.query;
     if (!identity) {
       return res
         .status(400)
