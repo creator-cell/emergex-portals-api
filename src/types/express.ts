@@ -6,5 +6,6 @@ export interface ICustomRequest extends Request {
       role:string;
       iat:Number;
       exp:Number;
+      email?: string;
     }
   }

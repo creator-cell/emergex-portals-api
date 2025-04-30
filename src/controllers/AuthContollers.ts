@@ -197,6 +197,7 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
       success: true,
       message: req.i18n.t("authValidationMessages.response.login.success"),
       admin: {
+        _id: user._id,
         username: user.username,
         firstName: user.firstName,
         lastName: user.lastName,
