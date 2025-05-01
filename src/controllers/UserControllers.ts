@@ -5,7 +5,7 @@ import { GlobalAdminRoles } from "../config/global-enum";
 import jwt from "jsonwebtoken";
 import { config } from "../config";
 
-exports.getAllUsers = async (req: Request, res: Response) => {
+export const getAllUsers = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
   try {

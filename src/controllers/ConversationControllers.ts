@@ -1,21 +1,45 @@
 import { Request, Response } from "express";
 import conversationService from "../services/conversation.service";
 import { ICustomRequest } from "../types/express";
+import IncidentModel, { IIncident } from "../models/IncidentModel";
+import UserModel, { IUser } from "../models/UserModel";
 
 export const createConversation = async (req: Request, res: Response) => {
-    const customReq=req as ICustomRequest;
-    const currentUser = customReq.user;
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
   try {
-    const { friendlyName } = req.body;
-    const userId = currentUser.id; // Assuming your auth middleware adds user to the request
+    const { incidentId, participant } = req.body;
+    const userId = currentUser.id;
 
-    if (!friendlyName) {
-      return res.status(400).json({ message: "Friendly name is required" });
+    if (!participant) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Participant is required" });
+    }
+
+    const user = await UserModel.findById(participant);
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Participant not found" });
+    }
+
+    const friendlyName = `conversation: ${currentUser.id} ${user._id}`;
+
+    let incident: IIncident | null = null;
+    if (incidentId && incidentId.match(/^[0-9a-fA-F]{24}$/)) {
+      incident = await IncidentModel.findById(incidentId);
+      if (!incident) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Incident not found" });
+      }
     }
 
     const conversation = await conversationService.createConversation(
       friendlyName,
-      userId
+      userId,
+      incident ? (incident._id as string) : undefined
     );
 
     // Ensure conversation has a known type
@@ -25,10 +49,22 @@ export const createConversation = async (req: Request, res: Response) => {
     await conversationService.addParticipant(
       conversationId.toString(),
       userId,
-      currentUser.email || "gaurav@gmail.com" // Using email as identity, adjust as needed
+      currentUser.email || currentUser.id
     );
 
-    return res.status(201).json({success:true,conversation,message:"Conversation created successfully"});
+    const participantId = user?._id!.toString();
+
+    await conversationService.addParticipant(
+      conversationId.toString(),
+      participantId,
+      user.email || (user?._id as string)
+    );
+
+    return res.status(201).json({
+      success: true,
+      conversation,
+      message: "Conversation created successfully",
+    });
   } catch (error: any) {
     console.error("Error creating conversation:", error);
     return res
@@ -38,14 +74,32 @@ export const createConversation = async (req: Request, res: Response) => {
 };
 
 export const getUserConversations = async (req: Request, res: Response) => {
-    const customReq=req as ICustomRequest;
-    const currentUser = customReq.user;
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
   try {
+    const { incidentId } = req.query;
+
+    let incident: IIncident | null = null;
+    if (incidentId) {
+      incident = await IncidentModel.findById(incidentId);
+      if (!incident) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Incident not found" });
+      }
+    }
+
     const userId = currentUser.id;
     const conversations = await conversationService.getUserConversations(
-      userId
+      userId,
+      incident ? (incident?._id as string) : undefined
     );
-    return res.status(200).json(conversations);
+
+    return res.status(200).json({
+      success: true,
+      conversations,
+      message: "Conversations fetched successfully",
+    });
   } catch (error: any) {
     console.error("Error getting user conversations:", error);
     return res
@@ -55,8 +109,8 @@ export const getUserConversations = async (req: Request, res: Response) => {
 };
 
 export const getConversation = async (req: Request, res: Response) => {
-    const customReq=req as ICustomRequest;
-    const currentUser = customReq.user;
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
   try {
     const { id } = req.params;
     const userId = currentUser.id;
@@ -64,8 +118,6 @@ export const getConversation = async (req: Request, res: Response) => {
       id,
       userId
     );
-
-
 
     return res.status(200).json(conversation);
   } catch (error: any) {
@@ -83,8 +135,8 @@ export const getConversation = async (req: Request, res: Response) => {
 };
 
 export const getConversationMessages = async (req: Request, res: Response) => {
-    const customReq=req as ICustomRequest;
-    const currentUser = customReq.user;
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
   try {
     const { id } = req.params;
     const userId = currentUser.id;
@@ -113,8 +165,8 @@ export const getConversationMessages = async (req: Request, res: Response) => {
 };
 
 export const addParticipant = async (req: Request, res: Response) => {
-    const customReq=req as ICustomRequest;
-    const currentUser = customReq.user;
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
   try {
     const { id } = req.params;
     const { userId, identity } = req.body;
@@ -147,8 +199,8 @@ export const addParticipant = async (req: Request, res: Response) => {
 };
 
 export const removeParticipant = async (req: Request, res: Response) => {
-    const customReq=req as ICustomRequest;
-    const currentUser = customReq.user;
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
   try {
     const { id, participantId } = req.params;
     const requesterId = currentUser.id;
@@ -176,13 +228,13 @@ export const removeParticipant = async (req: Request, res: Response) => {
 };
 
 export const sendMessage = async (req: Request, res: Response) => {
-    const customReq=req as ICustomRequest;
-    const currentUser = customReq.user;
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
   try {
     const { id } = req.params;
     const { body, media } = req.body;
     const userId = currentUser.id;
-    console.log("user id: ",userId)
+    console.log("user id: ", userId);
 
     if (!body && (!media || media.length === 0)) {
       return res
@@ -212,8 +264,8 @@ export const sendMessage = async (req: Request, res: Response) => {
 };
 
 export const updateConversation = async (req: Request, res: Response) => {
-    const customReq=req as ICustomRequest;
-    const currentUser = customReq.user;
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
   try {
     const { id } = req.params;
     const { friendlyName, attributes } = req.body;
@@ -245,8 +297,8 @@ export const updateConversation = async (req: Request, res: Response) => {
 };
 
 export const deleteConversation = async (req: Request, res: Response) => {
-    const customReq=req as ICustomRequest;
-    const currentUser = customReq.user;
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
   try {
     const { id } = req.params;
     const userId = currentUser.id;
@@ -270,18 +322,21 @@ export const deleteConversation = async (req: Request, res: Response) => {
 };
 
 export const generateToken = async (req: Request, res: Response) => {
-    const customReq=req as ICustomRequest;
-    const currentUser = customReq.user;
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
   try {
     const userId = currentUser.id;
-    const identity = currentUser.email || "default_identity"; // Using email as identity, fallback to default if undefined
+    const identity = currentUser.email || "default_identity";
 
     const token = await conversationService.generateToken(userId, identity);
-    return res.status(200).json({ success:true,token, message:"Token generated successfully" });
+    return res
+      .status(200)
+      .json({ success: true, token, message: "Token generated successfully" });
   } catch (error: any) {
     console.error("Error generating token:", error);
-    return res
-      .status(500)
-      .json({ success:false,error: error.message || "An error occurred in generating token" });
+    return res.status(500).json({
+      success: false,
+      error: error.message || "An error occurred in generating token",
+    });
   }
 };

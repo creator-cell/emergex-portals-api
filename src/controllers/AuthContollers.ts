@@ -193,6 +193,17 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
       { expiresIn: "1d" }
     );
 
+    const date = new Date();
+    date.setDate(date.getDate() + 30);
+ 
+    res.cookie('auth_emergex', token, { 
+      path: '/', 
+      expires: date, 
+      domain: process.env.NODE_ENV === 'production' 
+      ? process.env.PROD_AUTHORIZED_DOMAIN 
+      : process.env.DEV_AUTHORIZED_DOMAIN || 'localhost' 
+    });
+
     return res.status(200).json({
       success: true,
       message: req.i18n.t("authValidationMessages.response.login.success"),

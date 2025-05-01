@@ -6,7 +6,11 @@ import UserModel from "../models/UserModel";
 import mongoose from "mongoose";
 import AccountModel, { IAccount } from "../models/AccountModel";
 import { AccountProviderType, GlobalAdminRoles } from "../config/global-enum";
-import { generatePassword, generateUniqueUsername } from "../helper/UserFunctions";
+import {
+  generatePassword,
+  generateUniqueUsername,
+} from "../helper/UserFunctions";
+import conversationService from "../services/conversation.service";
 
 // Create a new employee
 export const createEmployee = async (req: Request, res: Response) => {
@@ -48,22 +52,22 @@ export const createEmployee = async (req: Request, res: Response) => {
 
     const username = await generateUniqueUsername(name);
     // const password = generatePassword();
-    const password= name+"123"
+    const password = name + "123";
     // console.log("password: ",password)
 
     const user = new UserModel({
       username,
       email,
       password,
-      phoneNumber:contactNo,
+      phoneNumber: contactNo,
       role: GlobalAdminRoles.ClientAdmin,
       accounts: [],
-      createdBy:currentUser.id
+      createdBy: currentUser.id,
     });
     await user.save({ session });
-    
+
     savedEmployee.user = user._id as mongoose.Types.ObjectId;
-    await savedEmployee.save({session});
+    await savedEmployee.save({ session });
 
     const account: IAccount = await AccountModel.create(
       [
@@ -83,6 +87,25 @@ export const createEmployee = async (req: Request, res: Response) => {
       user.accounts.push(account._id as mongoose.Types.ObjectId);
     }
     await user.save({ session });
+
+    const friendlyName = `conversation: ${currentUser.id} ${user._id}`;
+    const conversation = await conversationService.createConversation(
+      friendlyName,
+      currentUser.id
+    );
+    const conversationId = (conversation as { _id: string })._id;
+    await conversationService.addParticipant(
+      conversationId.toString(),
+      currentUser.id,
+      currentUser.email || currentUser.id
+    );
+
+    await conversationService.addParticipant(
+      conversationId.toString(),
+      user._id!.toString(),
+      user.email || user?._id as string
+    );
+
     await session.commitTransaction();
     session.endSession();
 
@@ -96,7 +119,7 @@ export const createEmployee = async (req: Request, res: Response) => {
   } catch (error: any) {
     await session.abortTransaction();
     session.endSession();
-    console.log("error: ",error)
+    console.log("error: ", error);
     return res.status(500).json({
       success: false,
       error: req.i18n.t(
@@ -111,11 +134,11 @@ export const getEmployees = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
   try {
-    let user:any=currentUser.id;
+    let user: any = currentUser.id;
 
-    if(currentUser.role===GlobalAdminRoles.ClientAdmin){
-      const data = await UserModel.findOne({_id:currentUser.id})
-      user=data?.createdBy;
+    if (currentUser.role === GlobalAdminRoles.ClientAdmin) {
+      const data = await UserModel.findOne({ _id: currentUser.id });
+      user = data?.createdBy;
     }
 
     const options = getPaginationOptions(req, {
@@ -124,7 +147,7 @@ export const getEmployees = async (req: Request, res: Response) => {
         isDeleted: false,
         createdBy: new mongoose.Types.ObjectId(user),
       },
-      limit:20
+      limit: 20,
     });
 
     const result = await paginate(EmployeeModel, options);
@@ -137,7 +160,7 @@ export const getEmployees = async (req: Request, res: Response) => {
       ),
     });
   } catch (error: any) {
-    console.log("error: ",error)
+    console.log("error: ", error);
     return res.status(500).json({
       success: false,
       error: req.i18n.t(

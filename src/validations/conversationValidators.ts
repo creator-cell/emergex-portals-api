@@ -10,11 +10,27 @@ export const validate = (req: Request, res: Response, next: NextFunction) => {
 };
 
 export const createConversationValidation = [
-  body('friendlyName')
+  body('participant')
     .notEmpty()
-    .withMessage('Friendly name is required')
-    .isLength({ min: 3, max: 100 })
-    .withMessage('Friendly name must be between 3 and 100 characters'),
+    .withMessage('Participant is required')
+    .isMongoId()
+    .withMessage('Participant must be a valid MongoDB ID'),
+  body('incidentId')
+  .optional()
+    .notEmpty()
+    .withMessage('incidentId is required')
+    .isMongoId()
+    .withMessage('incidentId must be a valid MongoDB ID'),
+  validate
+];
+
+export const getUserConversationsValidation = [
+  body('incidentId')
+  .optional()
+    .notEmpty()
+    .withMessage('incidentId is required')
+    .isMongoId()
+    .withMessage('incidentId must be a valid MongoDB ID'),
   validate
 ];
 

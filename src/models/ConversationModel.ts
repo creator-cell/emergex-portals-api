@@ -5,6 +5,11 @@ export enum ConversationType {
   GROUP = "group",
 }
 
+export enum ConversationSection {
+  SUPERADMIN = "superadmin",
+  INCIDENT = "incident",
+}
+
 export interface IParticipant extends Document {
   user: mongoose.Types.ObjectId;
   participantSid: string;
@@ -20,11 +25,13 @@ const ParticipantSchema: Schema = new Schema({
 export interface IConversation extends Document {
   twilioSid: string;
   type: ConversationType;
+  section: ConversationSection;
   name?: string;
   participants: IParticipant[];
   createdBy: mongoose.Types.ObjectId;
   attributes: Record<string, any>;
   lastMessage?: mongoose.Types.ObjectId;
+  incident?: mongoose.Types.ObjectId;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -42,6 +49,11 @@ const conversationSchema = new Schema<IConversation>(
       enum: Object.values(ConversationType),
       required: true,
     },
+    section: {
+      type: String,
+      enum: Object.values(ConversationSection),
+      required: true,
+    },
     name: {
       type: String,
       trim: true,
@@ -50,6 +62,11 @@ const conversationSchema = new Schema<IConversation>(
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      required: true,
+    },
+    incident: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Project",
       required: true,
     },
     isActive: {
