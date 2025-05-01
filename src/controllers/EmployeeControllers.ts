@@ -55,8 +55,12 @@ export const createEmployee = async (req: Request, res: Response) => {
     const password = name + "123";
     // console.log("password: ",password)
 
+    const [firstName, lastName] = name.split(" ");
+
     const user = new UserModel({
       username,
+      firstName,
+      lastName,
       email,
       password,
       phoneNumber: contactNo,
