@@ -66,8 +66,8 @@ const conversationSchema = new Schema<IConversation>(
     },
     incident: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Project",
-      required: true,
+      ref: "Incident",
+      required: false,
     },
     isActive: {
       type: Boolean,
