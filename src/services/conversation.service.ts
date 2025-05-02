@@ -286,11 +286,11 @@ class ConversationService {
 
       // Get messages
       const messages = await MessageModel.find(query)
-        .populate("author", "name email")
+        .populate("author","firstName lastName email image")
         .sort({ createdAt: -1 })
         .limit(limit);
 
-      return messages.reverse(); // Return in chronological order
+      return messages.reverse();
     } catch (error) {
       console.error("Error getting conversation messages:", error);
       throw error;

@@ -117,14 +117,16 @@ export const getTeamsWithMembersAndConversations = async (
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
   const { teamId } = req.query;
-  
+
   try {
     // First fetch teams with their members
     const pipeline: mongoose.PipelineStage[] = [
       {
         $match: {
           isDeleted: false,
-          ...(teamId ? { _id: new mongoose.Types.ObjectId(teamId as string) } : {}),
+          ...(teamId
+            ? { _id: new mongoose.Types.ObjectId(teamId as string) }
+            : {}),
         },
       },
       // Lookup team members (employees)
@@ -160,10 +162,10 @@ export const getTeamsWithMembersAndConversations = async (
                 user: {
                   _id: 1,
                   username: 1,
-                  email: 1
-                }
-              }
-            }
+                  email: 1,
+                },
+              },
+            },
           ],
         },
       },
@@ -194,14 +196,14 @@ export const getTeamsWithMembersAndConversations = async (
           members: 1,
           isDeleted: 1,
           createdBy: 1,
-          conversation: 1
-        }
-      }
+          conversation: 1,
+        },
+      },
     ];
-    
+
     // Execute the aggregation pipeline to get teams with members
     const teams = await TeamModel.aggregate(pipeline);
-    
+
     // For each team member, find the direct conversation with current user
     for (const team of teams) {
       if (team.members && team.members.length > 0) {
@@ -213,13 +215,10 @@ export const getTeamsWithMembersAndConversations = async (
               type: ConversationType.SINGLE,
               isActive: true,
               "participants.user": {
-                $all: [
-                  member.user._id,
-                  currentUser.id
-                ]
-              }
+                $all: [member.user._id, currentUser.id],
+              },
             }).lean();
-            
+
             // Attach conversation to member
             member.conversation = memberConversation || null;
           }
@@ -227,19 +226,17 @@ export const getTeamsWithMembersAndConversations = async (
       }
     }
 
-    return res.status(200).json({ 
-      success: true, 
-      data: teams, 
-      message: "Teams fetched successfully" 
+    return res.status(200).json({
+      success: true,
+      data: teams,
+      message: "Teams fetched successfully",
     });
   } catch (error) {
     console.error("Error getting teams with members and conversations:", error);
-    return res
-      .status(500)
-      .json({
-        success: false,
-        error: "server error in getting teams with members and conversations",
-      });
+    return res.status(500).json({
+      success: false,
+      error: "server error in getting teams with members and conversations",
+    });
   }
 };
 
@@ -284,7 +281,11 @@ export const getConversationMessages = async (req: Request, res: Response) => {
       limit,
       before
     );
-    return res.status(200).json(messages);
+    return res.status(200).json({
+      success: true,
+      data: messages,
+      message: "Message fetched successfully",
+    });
   } catch (error: any) {
     console.error("Error getting conversation messages:", error);
     if (
@@ -383,18 +384,22 @@ export const sendMessage = async (req: Request, res: Response) => {
       body,
       media
     );
-    return res.status(201).json(message);
+    return res.status(201).json({
+      success: true,
+      data: message,
+      message: "Messages Send Successfully",
+    });
   } catch (error: any) {
     console.error("Error sending message:", error);
     if (
       error.message === "Conversation not found" ||
       error.message === "User is not a participant in this conversation"
     ) {
-      return res.status(404).json({ message: error.message });
+      return res.status(404).json({ success: false, message: error.message });
     }
     return res
       .status(500)
-      .json({ message: error.message || "An error occurred" });
+      .json({ success: false, message: error.message || "An error occurred" });
   }
 };
 
