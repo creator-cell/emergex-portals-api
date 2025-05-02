@@ -32,6 +32,23 @@ export const createConversation = async (req: Request, res: Response) => {
         .json({ success: false, message: "Participant not found" });
     }
 
+    const isConversationExist = await ConversationModel.findOne({
+      type: ConversationType.SINGLE,
+      isActive: true,
+      "participants.user": {
+        $all: [userId, employee.user],
+      },
+    });
+
+    // console.log("conver: ",isConversationExist)
+
+    if (isConversationExist) {
+      return res.status(400).json({
+        success: false,
+        message: "Conversation already exists between the participants",
+      });
+    }
+
     const friendlyName = `conversation-${currentUser.id}-${employee.user}`;
 
     const conversation = await conversationService.createConversation(
@@ -281,6 +298,7 @@ export const getConversationMessages = async (req: Request, res: Response) => {
       limit,
       before
     );
+
     return res.status(200).json({
       success: true,
       data: messages,

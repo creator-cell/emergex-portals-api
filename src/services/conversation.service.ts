@@ -20,6 +20,7 @@ class ConversationService {
     identityId?: mongoose.Types.ObjectId
   ): Promise<IConversation> {
     try {
+
       // Create conversation in Twilio
       const twilioConversation = await conversationsClient.conversations.create(
         {

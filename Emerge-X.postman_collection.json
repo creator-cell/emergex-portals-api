@@ -24743,6 +24743,559 @@
 					]
 				}
 			]
+		},
+		{
+			"name": "Transcription",
+			"item": [
+				{
+					"name": "transcription",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MGI5M2RkNGFhMmE4YTdhY2VmZDM0NiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoidW5rbm93biIsImRldmljZSI6ImRlc2t0b3AiLCJpYXQiOjE3NDU5MTMyNjYsImV4cCI6MTc0NTk5OTY2Nn0.BCZdVpLyN_CJy20AmtDtKi5UJ3Fe4b7ksThQhDUokEs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"text\":\"A road accident occurred this morning at Maple Avenue around 8:15 AM involving two heavy vehicles. The collision resulted in 3 injured people, who were immediately taken to the city hospital. The status is currently under investigation by local authorities. The damaged assets include both trucks and nearby public property such as a bus stop shelter. Early estimates indicate a financial loss of approximately $150,000.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/transcription",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"transcription"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MGI5M2RkNGFhMmE4YTdhY2VmZDM0NiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoidW5rbm93biIsImRldmljZSI6ImRlc2t0b3AiLCJpYXQiOjE3NDU5MTMyNjYsImV4cCI6MTc0NTk5OTY2Nn0.BCZdVpLyN_CJy20AmtDtKi5UJ3Fe4b7ksThQhDUokEs",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"text\":\"A road accident occurred this morning at Maple Avenue around 8:15 AM involving two heavy vehicles. The collision resulted in 3 injured people, who were immediately taken to the city hospital. The status is currently under investigation by local authorities. The damaged assets include both trucks and nearby public property such as a bus stop shelter. Early estimates indicate a financial loss of approximately $150,000.\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/transcription",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"transcription"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Content-Language",
+									"value": "en"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "i18next=en; Path=/; Expires=Wed, 29 Apr 2026 07:54:54 GMT; SameSite=Strict"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "681"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"2a9-VMq+vi42vx+LDef7F5RJnh3WEJ4\""
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 29 Apr 2025 07:54:56 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"transcription\": \"A road accident occurred this morning at Maple Avenue around 8:15 AM involving two heavy vehicles. The collision resulted in 3 injured people, who were immediately taken to the city hospital. The status is currently under investigation by local authorities. The damaged assets include both trucks and nearby public property such as a bus stop shelter. Early estimates indicate a financial loss of approximately $150,000.\",\n    \"incidentInfo\": {\n        \"Incident Type\": \"Road accident\",\n        \"Location\": \"Maple Avenue\",\n        \"Time\": \"around 8:15 AM\",\n        \"Number of Injured People\": 3,\n        \"Status\": \"Under investigation\",\n        \"Damage Assets\": [\n            \"trucks\",\n            \"bus stop shelter\"\n        ],\n        \"Finance\": \"$150,000\"\n    }\n}"
+						},
+						{
+							"name": "error",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MGI5M2RkNGFhMmE4YTdhY2VmZDM0NiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoidW5rbm93biIsImRldmljZSI6ImRlc2t0b3AiLCJpYXQiOjE3NDU5MTMyNjYsImV4cCI6MTc0NTk5OTY2Nn0.BCZdVpLyN_CJy20AmtDtKi5UJ3Fe4b7ksThQhDUokEs",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"text\":\"Aaanalhah aajhaja\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/transcription",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"transcription"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Content-Language",
+									"value": "en"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "i18next=en; Path=/; Expires=Wed, 29 Apr 2026 07:55:40 GMT; SameSite=Strict"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "125"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"7d-5KTfcKhlxcVOHd/gJ8tzE05eGjg\""
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 29 Apr 2025 07:55:42 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"transcription\": \"Aaanalhah aajhaja\",\n    \"incidentInfo\": {\n        \"error\": \"Unable to extract details from the given text\"\n    }\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Chats",
+			"item": [
+				{
+					"name": "Get available chats for super-admin",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MGI5M2RkNGFhMmE4YTdhY2VmZDM0NiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoidW5rbm93biIsImRldmljZSI6ImRlc2t0b3AiLCJpYXQiOjE3NDYwOTA3NDMsImV4cCI6MTc0NjE3NzE0M30.cw-aTL8W9UewyjcZkygKIkstf_gXZyskGm9GgPgNnqM",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\":\"680b94df575a67ec0d461045\",\n    \"identity\":\"abhinav@gmail.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/conversations/team-and-members/get-list",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"conversations",
+								"team-and-members",
+								"get-list"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MGI5M2RkNGFhMmE4YTdhY2VmZDM0NiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoidW5rbm93biIsImRldmljZSI6ImRlc2t0b3AiLCJpYXQiOjE3NDYxODI0MDEsImV4cCI6MTc0NjI2ODgwMX0.z0HkazLMZNRM2s7UfpJBtDGZir-pvZ6YM1X93F4qDJ0",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/conversations/team-and-members/get-list",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"conversations",
+										"team-and-members",
+										"get-list"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Content-Language",
+									"value": "en"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "i18next=en; Path=/; Expires=Sat, 02 May 2026 10:40:21 GMT; SameSite=Strict"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "3013"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"bc5-J8KeKDS18JvirxCP/Od7B+syYbo\""
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 02 May 2025 10:40:21 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": [\n        {\n            \"_id\": \"68147bc5b2937f71aa8a85d7\",\n            \"name\": \"Reponse Team\",\n            \"members\": [\n                {\n                    \"_id\": \"68147b98b2937f71aa8a85c1\",\n                    \"name\": \"Kavya\",\n                    \"contactNo\": \"9876678909\",\n                    \"designation\": \"HR\",\n                    \"email\": \"kavya@gmail.com\",\n                    \"isDeleted\": false,\n                    \"createdBy\": \"680b93dd4aa2a8a7acefd346\",\n                    \"user\": {\n                        \"_id\": \"68147b98b2937f71aa8a85c5\",\n                        \"username\": \"kavya20394\",\n                        \"email\": \"kavya@gmail.com\"\n                    },\n                    \"conversation\": {\n                        \"_id\": \"68147b9ab2937f71aa8a85cb\",\n                        \"twilioSid\": \"CH66bedc4bff114360830213063685a346\",\n                        \"type\": \"single\",\n                        \"identity\": \"Employee\",\n                        \"name\": \"conversation-680b93dd4aa2a8a7acefd346-68147b98b2937f71aa8a85c5\",\n                        \"participants\": [\n                            {\n                                \"user\": \"680b93dd4aa2a8a7acefd346\",\n                                \"participantSid\": \"MB5c672d7a7cb04b3299bbc66ca38f3407\",\n                                \"identity\": \"680b93dd4aa2a8a7acefd346\",\n                                \"_id\": \"68147b9ab2937f71aa8a85ce\"\n                            },\n                            {\n                                \"user\": \"68147b98b2937f71aa8a85c5\",\n                                \"participantSid\": \"MB5a10468bc2f44e9ca46e0c31046cb2ce\",\n                                \"identity\": \"68147b98b2937f71aa8a85c5\",\n                                \"_id\": \"68147b9bb2937f71aa8a85d3\"\n                            }\n                        ],\n                        \"createdBy\": \"680b93dd4aa2a8a7acefd346\",\n                        \"isActive\": true,\n                        \"createdAt\": \"2025-05-02T08:00:26.199Z\",\n                        \"updatedAt\": \"2025-05-02T08:00:27.696Z\",\n                        \"__v\": 2\n                    }\n                },\n                {\n                    \"_id\": \"6814814285739f5b94dd91fc\",\n                    \"name\": \"Varun\",\n                    \"contactNo\": \"9876678909\",\n                    \"designation\": \"Designer\",\n                    \"email\": \"varun@gmail.com\",\n                    \"isDeleted\": false,\n                    \"createdBy\": \"680b93dd4aa2a8a7acefd346\",\n                    \"user\": {\n                        \"_id\": \"6814814285739f5b94dd9200\",\n                        \"username\": \"varun89972\",\n                        \"email\": \"varun@gmail.com\"\n                    },\n                    \"conversation\": {\n                        \"_id\": \"6814814385739f5b94dd9206\",\n                        \"twilioSid\": \"CH4ffaa1a0323745b897ff675d9ba842ef\",\n                        \"type\": \"single\",\n                        \"identity\": \"Employee\",\n                        \"name\": \"conversation-680b93dd4aa2a8a7acefd346-6814814285739f5b94dd9200\",\n                        \"participants\": [\n                            {\n                                \"user\": \"680b93dd4aa2a8a7acefd346\",\n                                \"participantSid\": \"MBa95d1f28fca44bb4b496d280c761cbf8\",\n                                \"identity\": \"680b93dd4aa2a8a7acefd346\",\n                                \"_id\": \"6814814485739f5b94dd9209\"\n                            },\n                            {\n                                \"user\": \"6814814285739f5b94dd9200\",\n                                \"participantSid\": \"MB07f20c1d3101463987cadca8c8d66cfb\",\n                                \"identity\": \"6814814285739f5b94dd9200\",\n                                \"_id\": \"6814814585739f5b94dd920e\"\n                            }\n                        ],\n                        \"createdBy\": \"680b93dd4aa2a8a7acefd346\",\n                        \"isActive\": true,\n                        \"createdAt\": \"2025-05-02T08:24:35.678Z\",\n                        \"updatedAt\": \"2025-05-02T08:24:37.253Z\",\n                        \"__v\": 2\n                    }\n                }\n            ],\n            \"isDeleted\": false,\n            \"createdBy\": \"680b93dd4aa2a8a7acefd346\",\n            \"conversation\": {\n                \"_id\": \"68147bc6b2937f71aa8a85d9\",\n                \"twilioSid\": \"CH07c51cf8f5b546ceb5965786133fed43\",\n                \"type\": \"group\",\n                \"identity\": \"Team\",\n                \"identityId\": \"68147bc5b2937f71aa8a85d7\",\n                \"name\": \"conversation-68147bc5b2937f71aa8a85d7\",\n                \"participants\": [\n                    {\n                        \"user\": \"680b93dd4aa2a8a7acefd346\",\n                        \"participantSid\": \"MBd38101aa5be541a2a9f90f89ccccb35f\",\n                        \"identity\": \"680b93dd4aa2a8a7acefd346\",\n                        \"_id\": \"68147bc7b2937f71aa8a85dc\"\n                    },\n                    {\n                        \"user\": \"68147b98b2937f71aa8a85c5\",\n                        \"participantSid\": \"MBc5d8a595d5044299875b10e8b0c49ac0\",\n                        \"identity\": \"68147b98b2937f71aa8a85c5\",\n                        \"_id\": \"68147bfdb2937f71aa8a85e7\"\n                    },\n                    {\n                        \"user\": \"6814814285739f5b94dd9200\",\n                        \"participantSid\": \"MB9bf02ec37c64453fb6a560754f8d0d8c\",\n                        \"identity\": \"6814814285739f5b94dd9200\",\n                        \"_id\": \"6814816085739f5b94dd921c\"\n                    }\n                ],\n                \"createdBy\": \"680b93dd4aa2a8a7acefd346\",\n                \"isActive\": true,\n                \"createdAt\": \"2025-05-02T08:01:10.278Z\",\n                \"updatedAt\": \"2025-05-02T10:22:41.807Z\",\n                \"__v\": 3,\n                \"lastMessage\": \"68149cf1c3bd8de5aa388187\"\n            }\n        }\n    ],\n    \"message\": \"Teams fetched successfully\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Create Conversation from current user to employee",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MTQ4MTQyODU3MzlmNWI5NGRkOTIwMCIsInJvbGUiOiJjbGllbnQtYWRtaW4iLCJvcyI6InVua25vd24iLCJkZXZpY2UiOiJkZXNrdG9wIiwiaWF0IjoxNzQ2MTkyNzU1LCJleHAiOjE3NDYyNzkxNTV9.iG2uXbYxUMh0q63ZfSy8nXfKiaqZeKLh5-MAAK9mfBI",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"participant\":\"68147b98b2937f71aa8a85c1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/conversations/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"conversations",
+								""
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "already exist",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MGI5M2RkNGFhMmE4YTdhY2VmZDM0NiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoidW5rbm93biIsImRldmljZSI6ImRlc2t0b3AiLCJpYXQiOjE3NDYxOTIyNTEsImV4cCI6MTc0NjI3ODY1MX0.x8cCyr9wozUF_3V0DWpSt_j1ITFqTQnZjkjj4-rOLBk",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"participant\":\"68147b98b2937f71aa8a85c1\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/conversations/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"conversations",
+										""
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Content-Language",
+									"value": "en"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "i18next=en; Path=/; Expires=Sat, 02 May 2026 13:31:39 GMT; SameSite=Strict"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "82"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"52-F2w7guwo1upTwcUYR33GfToGv5c\""
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 02 May 2025 13:31:40 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"message\": \"Conversation already exists between the participants\"\n}"
+						},
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MTQ4MTQyODU3MzlmNWI5NGRkOTIwMCIsInJvbGUiOiJjbGllbnQtYWRtaW4iLCJvcyI6InVua25vd24iLCJkZXZpY2UiOiJkZXNrdG9wIiwiaWF0IjoxNzQ2MTkyNzU1LCJleHAiOjE3NDYyNzkxNTV9.iG2uXbYxUMh0q63ZfSy8nXfKiaqZeKLh5-MAAK9mfBI",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"participant\":\"68147b98b2937f71aa8a85c1\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/conversations/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"conversations",
+										""
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Content-Language",
+									"value": "en"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "i18next=en; Path=/; Expires=Sat, 02 May 2026 13:34:10 GMT; SameSite=Strict"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "430"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"1ae-6ktQI+e2ona60hTFgqU8zOvni0Y\""
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 02 May 2025 13:34:13 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"conversation\": {\n        \"twilioSid\": \"CHfeeecefdd17644c683e55cb126e80dcc\",\n        \"type\": \"single\",\n        \"identity\": \"Employee\",\n        \"name\": \"conversation-6814814285739f5b94dd9200-68147b98b2937f71aa8a85c5\",\n        \"participants\": [],\n        \"createdBy\": \"6814814285739f5b94dd9200\",\n        \"isActive\": true,\n        \"_id\": \"6814c9d38dd324e3afb867c4\",\n        \"createdAt\": \"2025-05-02T13:34:11.859Z\",\n        \"updatedAt\": \"2025-05-02T13:34:11.859Z\",\n        \"__v\": 0\n    },\n    \"message\": \"Conversation created successfully\"\n}"
+						}
+					]
+				}
+			]
 		}
 	],
 	"variable": [

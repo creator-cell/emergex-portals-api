@@ -7,8 +7,6 @@ import AccountModel, { IAccount } from "../models/AccountModel";
 import mongoose from "mongoose";
 import SessionModel from "../models/SessionModel";
 import EmployeeModel from "../models/EmployeeModel";
-import { ICustomRequest } from "../types/express";
-import { logger } from "../config/logger";
 
 const parseUserAgent = (userAgent: string): { browser: string; os: string } => {
   let browser = "unknown";
