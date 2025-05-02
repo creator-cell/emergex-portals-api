@@ -3,7 +3,7 @@ import conversationService from "../services/conversation.service";
 import { ICustomRequest } from "../types/express";
 import IncidentModel, { IIncident } from "../models/IncidentModel";
 import UserModel, { IUser } from "../models/UserModel";
-import {
+import ConversationModel, {
   ConversationIdentity,
   ConversationType,
 } from "../models/ConversationModel";
@@ -117,13 +117,14 @@ export const getTeamsWithMembersAndConversations = async (
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
   const { teamId } = req.query;
-  console.log("in: ","hello")
+  
   try {
+    // First fetch teams with their members
     const pipeline: mongoose.PipelineStage[] = [
       {
         $match: {
           isDeleted: false,
-          ...(teamId ? { _id: teamId } : {}),
+          ...(teamId ? { _id: new mongoose.Types.ObjectId(teamId as string) } : {}),
         },
       },
       // Lookup team members (employees)
@@ -146,40 +147,23 @@ export const getTeamsWithMembersAndConversations = async (
               },
             },
             { $unwind: { path: "$user", preserveNullAndEmptyArrays: true } },
-            // Lookup conversation for each employee (user)
+            // Project only needed fields
             {
-              $lookup: {
-                from: "conversations",
-                localField: "user._id",
-                foreignField: "participants.user",
-                as: "conversation",
-                pipeline: [
-                  { $match: { isActive: true } },
-                  { $limit: 1 },
-                  // Lookup last message
-                  {
-                    $lookup: {
-                      from: "messages",
-                      localField: "lastMessage",
-                      foreignField: "_id",
-                      as: "lastMessage",
-                    },
-                  },
-                  {
-                    $unwind: {
-                      path: "$lastMessage",
-                      preserveNullAndEmptyArrays: true,
-                    },
-                  },
-                ],
-              },
-            },
-            {
-              $unwind: {
-                path: "$conversation",
-                preserveNullAndEmptyArrays: true,
-              },
-            },
+              $project: {
+                _id: 1,
+                name: 1,
+                contactNo: 1,
+                designation: 1,
+                email: 1,
+                isDeleted: 1,
+                createdBy: 1,
+                user: {
+                  _id: 1,
+                  username: 1,
+                  email: 1
+                }
+              }
+            }
           ],
         },
       },
@@ -198,93 +182,56 @@ export const getTeamsWithMembersAndConversations = async (
               },
             },
             { $limit: 1 },
-            // Lookup last message
-            {
-              $lookup: {
-                from: "messages",
-                localField: "lastMessage",
-                foreignField: "_id",
-                as: "lastMessage",
-              },
-            },
-            {
-              $unwind: {
-                path: "$lastMessage",
-                preserveNullAndEmptyArrays: true,
-              },
-            },
           ],
         },
       },
       { $unwind: { path: "$conversation", preserveNullAndEmptyArrays: true } },
-      // Project the final structure
+      // Project final team structure
       {
         $project: {
+          _id: 1,
           name: 1,
-          members: {
-            _id: 1,
-            name: 1,
-            contactNo: 1,
-            designation: 1,
-            email: 1,
-            createdBy: 1,
-            isDeleted: 1,
-            conversation: {
-              twilioSid: 1,
-              type: 1,
-              identity: 1,
-              identityId: 1,
-              name: 1,
-              participants: 1,
-              createdBy: 1,
-              attributes: 1,
-              lastMessage: {
-                twilioSid: 1,
-                author: 1,
-                conversationSid: 1,
-                messageSid: 1,
-                body: 1,
-                type: 1,
-                mediaUrl: 1,
-                readBy: 1,
-                attributes: 1,
-                createdAt: 1,
-                updatedAt: 1,
-              },
-              isActive: 1,
-            },
-          },
+          members: 1,
           isDeleted: 1,
           createdBy: 1,
-          conversation: {
-            twilioSid: 1,
-            type: 1,
-            identity: 1,
-            identityId: 1,
-            name: 1,
-            participants: 1,
-            createdBy: 1,
-            attributes: 1,
-            lastMessage: {
-              twilioSid: 1,
-              author: 1,
-              conversationSid: 1,
-              messageSid: 1,
-              body: 1,
-              type: 1,
-              mediaUrl: 1,
-              readBy: 1,
-              attributes: 1,
-              createdAt: 1,
-              updatedAt: 1,
-            },
-            isActive: 1,
-          },
-        },
-      },
+          conversation: 1
+        }
+      }
     ];
-    const data = await TeamModel.aggregate(pipeline);
-    return res.status(200).json({ success: true, data, message: "Teams fetched successfully" });
+    
+    // Execute the aggregation pipeline to get teams with members
+    const teams = await TeamModel.aggregate(pipeline);
+    
+    // For each team member, find the direct conversation with current user
+    for (const team of teams) {
+      if (team.members && team.members.length > 0) {
+        // Process each member
+        for (const member of team.members) {
+          if (member.user && member.user._id) {
+            // Find direct conversation between member and current user
+            const memberConversation = await ConversationModel.findOne({
+              type: ConversationType.SINGLE,
+              isActive: true,
+              "participants.user": {
+                $all: [
+                  member.user._id,
+                  currentUser.id
+                ]
+              }
+            }).lean();
+            
+            // Attach conversation to member
+            member.conversation = memberConversation || null;
+          }
+        }
+      }
+    }
+
+    return res.status(200).json({ 
+      success: true, 
+      data: teams, 
+      message: "Teams fetched successfully" 
+    });
   } catch (error) {
     console.error("Error getting teams with members and conversations:", error);
     return res
