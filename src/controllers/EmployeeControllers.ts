@@ -11,6 +11,11 @@ import {
   generateUniqueUsername,
 } from "../helper/UserFunctions";
 import conversationService from "../services/conversation.service";
+import {
+  ConversationIdentity,
+  ConversationType,
+} from "../models/ConversationModel";
+import TeamModel from "../models/TeamModel";
 
 // Create a new employee
 export const createEmployee = async (req: Request, res: Response) => {
@@ -92,22 +97,25 @@ export const createEmployee = async (req: Request, res: Response) => {
     }
     await user.save({ session });
 
-    const friendlyName = `conversation: ${currentUser.id} ${user._id}`;
+    const friendlyName = `conversation-${currentUser.id}-${user._id}`;
     const conversation = await conversationService.createConversation(
       friendlyName,
-      currentUser.id
+      currentUser.id,
+      ConversationIdentity.EMPLOYEE,
+      ConversationType.SINGLE
     );
+
     const conversationId = (conversation as { _id: string })._id;
     await conversationService.addParticipant(
       conversationId.toString(),
       currentUser.id,
-      currentUser.email || currentUser.id
+      currentUser.id
     );
 
     await conversationService.addParticipant(
       conversationId.toString(),
       user._id!.toString(),
-      user.email || user?._id as string
+      user?._id as string
     );
 
     await session.commitTransaction();
@@ -302,6 +310,43 @@ export const deleteEmployee = async (req: Request, res: Response) => {
       success: false,
       error: req.i18n.t(
         "employeeValidationMessages.response.deleteEmployeeById.server"
+      ),
+    });
+  }
+};
+
+export const employeesNotinAnyTeam = async (req: Request, res: Response) => {
+  try {
+    const allTeams = await TeamModel.find({ isDeleted: false }).select(
+      "members"
+    );
+
+    const employeeIdsInTeams = new Set<mongoose.Types.ObjectId>();
+    allTeams.forEach((team) => {
+      team.members.forEach((memberId) => {
+        employeeIdsInTeams.add(memberId);
+      });
+    });
+
+    const employeesNotInTeams = await EmployeeModel.find({
+      _id: { $nin: Array.from(employeeIdsInTeams) },
+      isDeleted: false,
+    }).select("name email contactNo designation");
+
+    return res.status(200).json({
+      success: true,
+      data: employeesNotInTeams,
+      count: employeesNotInTeams.length,
+      message: req.i18n.t(
+        "employeeValidationMessages.response.getAllEmployees.success"
+      ),
+    });
+  } catch (error) {
+    console.error("Error fetching employees not in any team:", error);
+    return res.status(500).json({
+      success: false,
+      error: req.i18n.t(
+        "employeeValidationMessages.response.getAllEmployees.server"
       ),
     });
   }

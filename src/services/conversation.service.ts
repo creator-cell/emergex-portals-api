@@ -1,6 +1,6 @@
 import { conversationsClient } from "../config/twilioClient";
 import ConversationModel, {
-  ConversationSection,
+  ConversationIdentity,
   ConversationType,
   IConversation,
   IParticipant,
@@ -15,7 +15,9 @@ class ConversationService {
   async createConversation(
     friendlyName: string,
     createdBy: string,
-    incident?: string
+    identity: ConversationIdentity,
+    type: ConversationType = ConversationType.SINGLE,
+    identityId?: mongoose.Types.ObjectId
   ): Promise<IConversation> {
     try {
       // Create conversation in Twilio
@@ -29,14 +31,12 @@ class ConversationService {
       // Create conversation in our database
       const conversation = new ConversationModel({
         twilioSid: twilioConversation.sid,
-        friendlyName,
+        name: friendlyName,
         createdBy,
         participants: [],
-        type: ConversationType.SINGLE,
-        incident: incident ? new mongoose.Types.ObjectId(incident) : undefined,
-        section: incident
-          ? ConversationSection.INCIDENT
-          : ConversationSection.SUPERADMIN,
+        type: type || ConversationType.SINGLE,
+        identity,
+        identityId
       });
 
       await conversation.save();
@@ -207,6 +207,7 @@ class ConversationService {
           "participants.user": new mongoose.Types.ObjectId(userId),
         })
           .populate("lastMessage")
+          .populate("participants.user", "firstName lastName email")
           .sort({ updatedAt: -1 });
         return conversations;
       }

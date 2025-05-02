@@ -12,6 +12,11 @@ import IncidentHistoryModel from "../models/IncidentHistoryModel";
 import IncidentStatusHistoryModel from "../models/IncidentStatusHistoryModel";
 import ProjectRoleModel from "../models/ProjectRoleModel";
 import WorksiteModel from "../models/WorksiteModel";
+import conversationService from "../services/conversation.service";
+import {
+  ConversationIdentity,
+  ConversationType,
+} from "../models/ConversationModel";
 
 export const createIncident = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
@@ -122,6 +127,26 @@ export const createIncident = async (req: Request, res: Response) => {
     });
 
     const savedIncident = await newIncident.save();
+
+    const friendlyName = `conversation-${savedIncident._id}`;
+
+    const conversation = await conversationService.createConversation(
+      friendlyName,
+      currentUser.id,
+      ConversationIdentity.INCIDENT,
+      ConversationType.GROUP,
+      savedIncident._id as mongoose.Types.ObjectId
+    );
+
+    const conversationId = (conversation as { _id: string })._id;
+
+    // Add the creator as the first participant
+    await conversationService.addParticipant(
+      conversationId.toString(),
+      currentUser.id,
+      currentUser.email || currentUser.id
+    );
+
     return res.status(201).json({
       success: true,
       message: req.i18n.t(
@@ -186,8 +211,8 @@ export const updateIncidentById = async (req: Request, res: Response) => {
 
     // Track changes
     const changes: { field: string; oldValue: any; newValue: any }[] = [];
-    let statusChanged:boolean = false;
-    let oldStatus:string = "";
+    let statusChanged: boolean = false;
+    let oldStatus: string = "";
 
     // Compare and update fields
     if (level && existingIncident.level !== level) {
@@ -261,22 +286,29 @@ export const updateIncidentById = async (req: Request, res: Response) => {
       existingIncident.countOfTotalPeople = countOfTotalPeople;
     }
 
-    if (location && existingIncident.location.toString() !== location.toString()) {
+    if (
+      location &&
+      existingIncident.location.toString() !== location.toString()
+    ) {
       let oldLocation = await WorksiteModel.findById(existingIncident.location);
       let newLocation = await WorksiteModel.findById(location);
 
-      if(!oldLocation){
+      if (!oldLocation) {
         return res.status(200).json({
-          success:false,
-          error:req.i18n.t("locationValidationMessages.response.oldLocationNotFound")
-        })
+          success: false,
+          error: req.i18n.t(
+            "locationValidationMessages.response.oldLocationNotFound"
+          ),
+        });
       }
 
-      if(!newLocation){
+      if (!newLocation) {
         return res.status(200).json({
-          success:false,
-          error:req.i18n.t("locationValidationMessages.response.newLocationNotFound")
-        })
+          success: false,
+          error: req.i18n.t(
+            "locationValidationMessages.response.newLocationNotFound"
+          ),
+        });
       }
 
       changes.push({
@@ -290,12 +322,15 @@ export const updateIncidentById = async (req: Request, res: Response) => {
     if (
       damageAssets &&
       Array.isArray(damageAssets) &&
-      !damageAssets.every((item: string, index: number) => item === existingIncident.damageAssets[index])
+      !damageAssets.every(
+        (item: string, index: number) =>
+          item === existingIncident.damageAssets[index]
+      )
     ) {
       changes.push({
-      field: "Damage Assets",
-      oldValue: "old damage assets value",
-      newValue: "new damage assets value",
+        field: "Damage Assets",
+        oldValue: "old damage assets value",
+        newValue: "new damage assets value",
       });
       existingIncident.damageAssets = damageAssets;
     }
@@ -311,7 +346,8 @@ export const updateIncidentById = async (req: Request, res: Response) => {
 
     if (
       utilityAffected &&
-      JSON.stringify(existingIncident.utilityAffected) !== JSON.stringify(utilityAffected)
+      JSON.stringify(existingIncident.utilityAffected) !==
+        JSON.stringify(utilityAffected)
     ) {
       changes.push({
         field: "Utility Affected",
@@ -407,10 +443,10 @@ export const updateIncidentById = async (req: Request, res: Response) => {
     // Save the updated incident
     const updatedIncident = await existingIncident.save();
 
-    const employee = await EmployeeModel.findOne({user:currentUser.id});
+    const employee = await EmployeeModel.findOne({ user: currentUser.id });
     const role = await ProjectRoleModel.findOne({
       employee: employee?._id,
-      project: existingIncident.project
+      project: existingIncident.project,
     });
 
     // Log changes to IncidentHistoryModel
@@ -424,7 +460,7 @@ export const updateIncidentById = async (req: Request, res: Response) => {
       await IncidentHistoryModel.insertMany(historyEntries);
     }
 
-    if(statusChanged && oldStatus!==status){
+    if (statusChanged && oldStatus !== status) {
       await IncidentStatusHistoryModel.create({
         incident: existingIncident._id,
         role: role?._id,
@@ -432,7 +468,6 @@ export const updateIncidentById = async (req: Request, res: Response) => {
         status,
       });
     }
-
 
     // Return success response
     return res.status(200).json({
@@ -567,11 +602,12 @@ export const getIncidentById = async (req: Request, res: Response) => {
       .populate({
         path: "project",
         model: "Project",
-      }).populate({
-        path:'location',
-        model:'Worksite',
-        select:'name'
       })
+      .populate({
+        path: "location",
+        model: "Worksite",
+        select: "name",
+      });
 
     if (!incident) {
       return res.status(200).json({
@@ -618,11 +654,11 @@ export const updateIncidentStatus = async (req: Request, res: Response) => {
     incident.status = status;
     await incident.save();
 
-    const employee = await EmployeeModel.findOne({user:currentUser.id});
-    
+    const employee = await EmployeeModel.findOne({ user: currentUser.id });
+
     const role = await ProjectRoleModel.findOne({
       employee: employee?._id,
-      project: incident.project
+      project: incident.project,
     });
 
     await IncidentStatusHistoryModel.create({
@@ -639,7 +675,7 @@ export const updateIncidentStatus = async (req: Request, res: Response) => {
       ),
     });
   } catch (error) {
-    console.log("error: ",error)
+    console.log("error: ", error);
     return res.status(500).json({
       success: false,
       message: req.i18n.t(
@@ -768,4 +804,3 @@ export const getIncidentStatistics = async (req: Request, res: Response) => {
     });
   }
 };
-

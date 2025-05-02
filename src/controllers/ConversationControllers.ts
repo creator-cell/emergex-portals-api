@@ -3,12 +3,14 @@ import conversationService from "../services/conversation.service";
 import { ICustomRequest } from "../types/express";
 import IncidentModel, { IIncident } from "../models/IncidentModel";
 import UserModel, { IUser } from "../models/UserModel";
+import { ConversationIdentity, ConversationType } from "../models/ConversationModel";
+import { GlobalAdminRoles } from "../config/global-enum";
 
 export const createConversation = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
   try {
-    const { incidentId, participant } = req.body;
+    const { participant } = req.body;
     const userId = currentUser.id;
 
     if (!participant) {
@@ -24,22 +26,13 @@ export const createConversation = async (req: Request, res: Response) => {
         .json({ success: false, message: "Participant not found" });
     }
 
-    const friendlyName = `conversation: ${currentUser.id} ${user._id}`;
-
-    let incident: IIncident | null = null;
-    if (incidentId && incidentId.match(/^[0-9a-fA-F]{24}$/)) {
-      incident = await IncidentModel.findById(incidentId);
-      if (!incident) {
-        return res
-          .status(400)
-          .json({ success: false, message: "Incident not found" });
-      }
-    }
+    const friendlyName = `conversation-${currentUser.id}-${user._id}`;
 
     const conversation = await conversationService.createConversation(
       friendlyName,
       userId,
-      incident ? (incident._id as string) : undefined
+      currentUser.role===GlobalAdminRoles.SuperAdmin?ConversationIdentity.SUPERADMIN : ConversationIdentity.EMPLOYEE,
+      ConversationType.SINGLE
     );
 
     // Ensure conversation has a known type
@@ -52,13 +45,14 @@ export const createConversation = async (req: Request, res: Response) => {
       currentUser.email || currentUser.id
     );
 
-    const participantId = user?._id!.toString();
-
-    await conversationService.addParticipant(
-      conversationId.toString(),
-      participantId,
-      user.email || (user?._id as string)
-    );
+    if (participant) {
+      const participantId = user?._id!.toString();
+      await conversationService.addParticipant(
+        conversationId.toString(),
+        participantId,
+        user.email || (user?._id as string)
+      );
+    }
 
     return res.status(201).json({
       success: true,

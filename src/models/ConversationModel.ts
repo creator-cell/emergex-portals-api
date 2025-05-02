@@ -4,10 +4,12 @@ export enum ConversationType {
   SINGLE = "single",
   GROUP = "group",
 }
-
-export enum ConversationSection {
-  SUPERADMIN = "superadmin",
-  INCIDENT = "incident",
+export enum ConversationIdentity {
+  TEAM = "Team",
+  INCIDENT = "Incident",
+  PROJECT = "Project",
+  SUPERADMIN = "Super-Admin",
+  EMPLOYEE = "Employee",
 }
 
 export interface IParticipant extends Document {
@@ -25,13 +27,13 @@ const ParticipantSchema: Schema = new Schema({
 export interface IConversation extends Document {
   twilioSid: string;
   type: ConversationType;
-  section: ConversationSection;
-  name?: string;
+  identity: ConversationIdentity;
+  identityId?: mongoose.Types.ObjectId;
+  name: string;
   participants: IParticipant[];
   createdBy: mongoose.Types.ObjectId;
   attributes: Record<string, any>;
   lastMessage?: mongoose.Types.ObjectId;
-  incident?: mongoose.Types.ObjectId;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -49,25 +51,41 @@ const conversationSchema = new Schema<IConversation>(
       enum: Object.values(ConversationType),
       required: true,
     },
-    section: {
+    identity: {
       type: String,
-      enum: Object.values(ConversationSection),
+      enum: Object.values(ConversationIdentity),
       required: true,
+    },
+    identityId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: function () {
+        switch (this.identity) {
+          case ConversationIdentity.TEAM:
+            return "Team";
+          case ConversationIdentity.INCIDENT:
+            return "Incident";
+          case ConversationIdentity.PROJECT:
+            return "Project";
+          case ConversationIdentity.SUPERADMIN:
+            return "Super-Admin";
+          case ConversationIdentity.EMPLOYEE:
+            return "Employee";
+          default:
+            return null;
+        }
+      },
     },
     name: {
       type: String,
       trim: true,
+      unique: true,
+      required: true,
     },
     participants: [ParticipantSchema],
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-    },
-    incident: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Incident",
-      required: false,
     },
     isActive: {
       type: Boolean,

@@ -4,6 +4,11 @@ import EmployeeModel from "../models/EmployeeModel";
 import mongoose from "mongoose";
 import { getPaginationOptions, paginate } from "../helper/pagination";
 import { ICustomRequest } from "../types/express";
+import conversationService from "../services/conversation.service";
+import ConversationModel, {
+  ConversationIdentity,
+  ConversationType,
+} from "../models/ConversationModel";
 
 // Create a new Team
 export const createTeam = async (req: Request, res: Response) => {
@@ -25,6 +30,25 @@ export const createTeam = async (req: Request, res: Response) => {
 
     const newTeam = new TeamModel({ name, createdBy: currentUser.id });
     const savedTeam = await newTeam.save();
+
+    const friendlyName = `conversation-${savedTeam._id}`;
+
+    const conversation = await conversationService.createConversation(
+      friendlyName,
+      currentUser.id,
+      ConversationIdentity.TEAM,
+      ConversationType.GROUP,
+      savedTeam._id as mongoose.Types.ObjectId
+    );
+
+    const conversationId = (conversation as { _id: string })._id;
+
+    // Add the creator as the first participant
+    await conversationService.addParticipant(
+      conversationId.toString(),
+      currentUser.id,
+      currentUser.email || currentUser.id
+    );
 
     return res.status(201).json({
       success: true,
@@ -119,6 +143,31 @@ export const addNewMemberToTeam = async (req: Request, res: Response) => {
     team.members.push(...employeeMongoIds);
     await team.save();
 
+    const employees = await EmployeeModel.find({
+      _id: { $in: employeeMongoIds },
+      isDeleted: false,
+    })
+
+    const userIds = employees.map((employee) => employee.user);
+
+    // Add the new members to the conversation
+    const conversation = await ConversationModel.findOne({
+      identity: ConversationIdentity.TEAM,
+      identityId: team._id,
+    });
+
+    if (conversation) {
+      await Promise.all(
+        userIds.map(async (userId) => {
+          await conversationService.addParticipant(
+            (conversation._id as mongoose.Types.ObjectId).toString(),
+            (userId as mongoose.Types.ObjectId).toString(),
+            (userId as mongoose.Types.ObjectId).toString()
+          );
+        })
+      );
+    }
+
     return res.status(201).json({
       success: true,
       message: req.i18n.t(
@@ -175,6 +224,18 @@ export const removeMemberFromTeam = async (req: Request, res: Response) => {
       (member) => !member._id.equals(employeeId)
     );
     await team.save();
+
+    const conversation = await ConversationModel.findOne({
+      identity: ConversationIdentity.TEAM,
+      identityId: team._id,
+    });
+
+    if (conversation) {
+      await conversationService.removeParticipant(
+        (conversation._id as mongoose.Types.ObjectId).toString(),
+        (employeeId as mongoose.Types.ObjectId).toString()
+      );
+    }
 
     return res.status(201).json({
       success: true,
@@ -266,34 +327,26 @@ export const getTeamNames = async (req: Request, res: Response) => {
     }).select("name");
 
     if (!teams.length) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message: req.i18n.t(
-            "teamValidationMessages.response.getTeamNames.notFound"
-          ),
-        });
+      return res.status(404).json({
+        success: false,
+        message: req.i18n.t(
+          "teamValidationMessages.response.getTeamNames.notFound"
+        ),
+      });
     }
 
-    return res
-      .status(200)
-      .json({
-        success: true,
-        data: teams,
-        message: req.i18n.t(
-          "teamValidationMessages.response.getTeamNames.success"
-        ),
-      });
+    return res.status(200).json({
+      success: true,
+      data: teams,
+      message: req.i18n.t(
+        "teamValidationMessages.response.getTeamNames.success"
+      ),
+    });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        error: req.i18n.t(
-          "teamValidationMessages.response.getTeamNames.server"
-        ),
-      });
+    return res.status(500).json({
+      success: false,
+      error: req.i18n.t("teamValidationMessages.response.getTeamNames.server"),
+    });
   }
 };
 
@@ -307,33 +360,27 @@ export const getTeamEmployees = async (req: Request, res: Response) => {
     );
 
     if (!team) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message: req.i18n.t(
-            "teamValidationMessages.response.getTeamEmployees.notFound"
-          ),
-        });
+      return res.status(404).json({
+        success: false,
+        message: req.i18n.t(
+          "teamValidationMessages.response.getTeamEmployees.notFound"
+        ),
+      });
     }
 
-    return res
-      .status(200)
-      .json({
-        success: true,
-        employees: team.members,
-        message: req.i18n.t(
-          "teamValidationMessages.response.getTeamEmployees.success"
-        ),
-      });
+    return res.status(200).json({
+      success: true,
+      employees: team.members,
+      message: req.i18n.t(
+        "teamValidationMessages.response.getTeamEmployees.success"
+      ),
+    });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        error: req.i18n.t(
-          "teamValidationMessages.response.getTeamEmployees.server"
-        ),
-      });
+    return res.status(500).json({
+      success: false,
+      error: req.i18n.t(
+        "teamValidationMessages.response.getTeamEmployees.server"
+      ),
+    });
   }
 };
