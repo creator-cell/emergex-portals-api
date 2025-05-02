@@ -117,13 +117,13 @@ export const getTeamsWithMembersAndConversations = async (
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
   const { teamId } = req.query;
-
+  console.log("in: ","hello")
   try {
     const pipeline: mongoose.PipelineStage[] = [
       {
         $match: {
           isDeleted: false,
-          ...(teamId ? { _id: new mongoose.Types.ObjectId(teamId as string) } : {}),
+          ...(teamId ? { _id: teamId } : {}),
         },
       },
       // Lookup team members (employees)
@@ -146,24 +146,15 @@ export const getTeamsWithMembersAndConversations = async (
               },
             },
             { $unwind: { path: "$user", preserveNullAndEmptyArrays: true } },
-            // Lookup conversation where both member and current user are participants
+            // Lookup conversation for each employee (user)
             {
               $lookup: {
                 from: "conversations",
-                let: { memberUserId: "$user._id" },
+                localField: "user._id",
+                foreignField: "participants.user",
+                as: "conversation",
                 pipeline: [
-                  {
-                    $match: {
-                      $expr: {
-                        $and: [
-                          { $eq: ["$isActive", true] },
-                          { $in: [currentUser.id, "$participants.user"] },
-                          { $in: ["$$memberUserId", "$participants.user"] },
-                          { $eq: ["$type", ConversationType.SINGLE] }
-                        ]
-                      }
-                    }
-                  },
+                  { $match: { isActive: true } },
                   { $limit: 1 },
                   // Lookup last message
                   {
@@ -181,7 +172,6 @@ export const getTeamsWithMembersAndConversations = async (
                     },
                   },
                 ],
-                as: "conversation",
               },
             },
             {
@@ -193,23 +183,19 @@ export const getTeamsWithMembersAndConversations = async (
           ],
         },
       },
-      // Lookup team conversation (where current user is participant)
+      // Lookup team conversation
       {
         $lookup: {
           from: "conversations",
-          let: { teamId: "$_id" },
+          localField: "_id",
+          foreignField: "identityId",
+          as: "conversation",
           pipeline: [
             {
               $match: {
-                $expr: {
-                  $and: [
-                    { $eq: ["$isActive", true] },
-                    { $eq: ["$identity", ConversationIdentity.TEAM] },
-                    { $eq: ["$identityId", "$$teamId"] },
-                    { $in: [currentUser.id, "$participants.user"] }
-                  ]
-                }
-              }
+                isActive: true,
+                identity: ConversationIdentity.TEAM,
+              },
             },
             { $limit: 1 },
             // Lookup last message
@@ -228,7 +214,6 @@ export const getTeamsWithMembersAndConversations = async (
               },
             },
           ],
-          as: "conversation",
         },
       },
       { $unwind: { path: "$conversation", preserveNullAndEmptyArrays: true } },
@@ -242,7 +227,6 @@ export const getTeamsWithMembersAndConversations = async (
             contactNo: 1,
             designation: 1,
             email: 1,
-            user: 1,
             createdBy: 1,
             isDeleted: 1,
             conversation: {
@@ -299,19 +283,16 @@ export const getTeamsWithMembersAndConversations = async (
         },
       },
     ];
-
     const data = await TeamModel.aggregate(pipeline);
-    return res.status(200).json({ 
-      success: true, 
-      data, 
-      message: "Teams fetched successfully" 
-    });
+    return res.status(200).json({ success: true, data, message: "Teams fetched successfully" });
   } catch (error) {
     console.error("Error getting teams with members and conversations:", error);
-    return res.status(500).json({
-      success: false,
-      error: "Server error in getting teams with members and conversations",
-    });
+    return res
+      .status(500)
+      .json({
+        success: false,
+        error: "server error in getting teams with members and conversations",
+      });
   }
 };
 
