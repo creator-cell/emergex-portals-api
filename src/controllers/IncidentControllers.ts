@@ -144,7 +144,7 @@ export const createIncident = async (req: Request, res: Response) => {
     await conversationService.addParticipant(
       conversationId.toString(),
       currentUser.id,
-      currentUser.email || currentUser.id
+      currentUser.id
     );
 
     return res.status(201).json({

@@ -97,6 +97,9 @@ export const createEmployee = async (req: Request, res: Response) => {
     }
     await user.save({ session });
 
+    console.log("user: ", user);
+    console.log("currentUser: ", currentUser);
+
     const friendlyName = `conversation-${currentUser.id}-${user._id}`;
     const conversation = await conversationService.createConversation(
       friendlyName,
@@ -115,7 +118,7 @@ export const createEmployee = async (req: Request, res: Response) => {
     await conversationService.addParticipant(
       conversationId.toString(),
       user._id!.toString(),
-      user?._id as string
+      user._id!.toString()
     );
 
     await session.commitTransaction();

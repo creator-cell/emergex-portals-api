@@ -3,8 +3,14 @@ import conversationService from "../services/conversation.service";
 import { ICustomRequest } from "../types/express";
 import IncidentModel, { IIncident } from "../models/IncidentModel";
 import UserModel, { IUser } from "../models/UserModel";
-import { ConversationIdentity, ConversationType } from "../models/ConversationModel";
+import {
+  ConversationIdentity,
+  ConversationType,
+} from "../models/ConversationModel";
 import { GlobalAdminRoles } from "../config/global-enum";
+import EmployeeModel from "../models/EmployeeModel";
+import mongoose, { mongo } from "mongoose";
+import TeamModel from "../models/TeamModel";
 
 export const createConversation = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
@@ -19,19 +25,21 @@ export const createConversation = async (req: Request, res: Response) => {
         .json({ success: false, message: "Participant is required" });
     }
 
-    const user = await UserModel.findById(participant);
-    if (!user) {
+    const employee = await EmployeeModel.findById(participant);
+    if (!employee) {
       return res
         .status(400)
         .json({ success: false, message: "Participant not found" });
     }
 
-    const friendlyName = `conversation-${currentUser.id}-${user._id}`;
+    const friendlyName = `conversation-${currentUser.id}-${employee.user}`;
 
     const conversation = await conversationService.createConversation(
       friendlyName,
       userId,
-      currentUser.role===GlobalAdminRoles.SuperAdmin?ConversationIdentity.SUPERADMIN : ConversationIdentity.EMPLOYEE,
+      currentUser.role === GlobalAdminRoles.SuperAdmin
+        ? ConversationIdentity.SUPERADMIN
+        : ConversationIdentity.EMPLOYEE,
       ConversationType.SINGLE
     );
 
@@ -42,15 +50,15 @@ export const createConversation = async (req: Request, res: Response) => {
     await conversationService.addParticipant(
       conversationId.toString(),
       userId,
-      currentUser.email || currentUser.id
+      currentUser.id
     );
 
     if (participant) {
-      const participantId = user?._id!.toString();
+      const participantId = employee?.user!.toString();
       await conversationService.addParticipant(
         conversationId.toString(),
         participantId,
-        user.email || (user?._id as string)
+        (employee.user as mongoose.Types.ObjectId).toString()
       );
     }
 
@@ -99,6 +107,211 @@ export const getUserConversations = async (req: Request, res: Response) => {
     return res
       .status(500)
       .json({ message: error.message || "An error occurred" });
+  }
+};
+
+export const getTeamsWithMembersAndConversations = async (
+  req: Request,
+  res: Response
+) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+  const { teamId } = req.query;
+
+  try {
+    const pipeline: mongoose.PipelineStage[] = [
+      {
+        $match: {
+          isDeleted: false,
+          ...(teamId ? { _id: new mongoose.Types.ObjectId(teamId as string) } : {}),
+        },
+      },
+      // Lookup team members (employees)
+      {
+        $lookup: {
+          from: "employees",
+          localField: "members",
+          foreignField: "_id",
+          as: "members",
+          pipeline: [
+            { $match: { isDeleted: false } },
+            // Lookup user for each employee
+            {
+              $lookup: {
+                from: "users",
+                localField: "user",
+                foreignField: "_id",
+                as: "user",
+                pipeline: [{ $match: { isTrash: false } }, { $limit: 1 }],
+              },
+            },
+            { $unwind: { path: "$user", preserveNullAndEmptyArrays: true } },
+            // Lookup conversation where both member and current user are participants
+            {
+              $lookup: {
+                from: "conversations",
+                let: { memberUserId: "$user._id" },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $and: [
+                          { $eq: ["$isActive", true] },
+                          { $in: [currentUser.id, "$participants.user"] },
+                          { $in: ["$$memberUserId", "$participants.user"] },
+                          { $eq: ["$type", ConversationType.SINGLE] }
+                        ]
+                      }
+                    }
+                  },
+                  { $limit: 1 },
+                  // Lookup last message
+                  {
+                    $lookup: {
+                      from: "messages",
+                      localField: "lastMessage",
+                      foreignField: "_id",
+                      as: "lastMessage",
+                    },
+                  },
+                  {
+                    $unwind: {
+                      path: "$lastMessage",
+                      preserveNullAndEmptyArrays: true,
+                    },
+                  },
+                ],
+                as: "conversation",
+              },
+            },
+            {
+              $unwind: {
+                path: "$conversation",
+                preserveNullAndEmptyArrays: true,
+              },
+            },
+          ],
+        },
+      },
+      // Lookup team conversation (where current user is participant)
+      {
+        $lookup: {
+          from: "conversations",
+          let: { teamId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$isActive", true] },
+                    { $eq: ["$identity", ConversationIdentity.TEAM] },
+                    { $eq: ["$identityId", "$$teamId"] },
+                    { $in: [currentUser.id, "$participants.user"] }
+                  ]
+                }
+              }
+            },
+            { $limit: 1 },
+            // Lookup last message
+            {
+              $lookup: {
+                from: "messages",
+                localField: "lastMessage",
+                foreignField: "_id",
+                as: "lastMessage",
+              },
+            },
+            {
+              $unwind: {
+                path: "$lastMessage",
+                preserveNullAndEmptyArrays: true,
+              },
+            },
+          ],
+          as: "conversation",
+        },
+      },
+      { $unwind: { path: "$conversation", preserveNullAndEmptyArrays: true } },
+      // Project the final structure
+      {
+        $project: {
+          name: 1,
+          members: {
+            _id: 1,
+            name: 1,
+            contactNo: 1,
+            designation: 1,
+            email: 1,
+            user: 1,
+            createdBy: 1,
+            isDeleted: 1,
+            conversation: {
+              twilioSid: 1,
+              type: 1,
+              identity: 1,
+              identityId: 1,
+              name: 1,
+              participants: 1,
+              createdBy: 1,
+              attributes: 1,
+              lastMessage: {
+                twilioSid: 1,
+                author: 1,
+                conversationSid: 1,
+                messageSid: 1,
+                body: 1,
+                type: 1,
+                mediaUrl: 1,
+                readBy: 1,
+                attributes: 1,
+                createdAt: 1,
+                updatedAt: 1,
+              },
+              isActive: 1,
+            },
+          },
+          isDeleted: 1,
+          createdBy: 1,
+          conversation: {
+            twilioSid: 1,
+            type: 1,
+            identity: 1,
+            identityId: 1,
+            name: 1,
+            participants: 1,
+            createdBy: 1,
+            attributes: 1,
+            lastMessage: {
+              twilioSid: 1,
+              author: 1,
+              conversationSid: 1,
+              messageSid: 1,
+              body: 1,
+              type: 1,
+              mediaUrl: 1,
+              readBy: 1,
+              attributes: 1,
+              createdAt: 1,
+              updatedAt: 1,
+            },
+            isActive: 1,
+          },
+        },
+      },
+    ];
+
+    const data = await TeamModel.aggregate(pipeline);
+    return res.status(200).json({ 
+      success: true, 
+      data, 
+      message: "Teams fetched successfully" 
+    });
+  } catch (error) {
+    console.error("Error getting teams with members and conversations:", error);
+    return res.status(500).json({
+      success: false,
+      error: "Server error in getting teams with members and conversations",
+    });
   }
 };
 

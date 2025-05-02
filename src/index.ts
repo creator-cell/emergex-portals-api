@@ -57,10 +57,10 @@ app.get("/", (_req: Request, res: Response) => {
   return res.status(200).send("Hello World! with typescript");
 });
 
-// app.use((req,res,next)=>{
-//     console.log(req.method,req.url)
-//     next()
-// })
+app.use((req,res,next)=>{
+    console.log(req.method,req.url)
+    next()
+})
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);

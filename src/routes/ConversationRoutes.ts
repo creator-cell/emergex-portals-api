@@ -10,6 +10,7 @@ import {
   updateConversation,
   deleteConversation,
   generateToken,
+  getTeamsWithMembersAndConversations,
 } from "../controllers/ConversationControllers";
 import {
   createConversationValidation,
@@ -45,5 +46,7 @@ router.post("/:id/messages", sendMessageValidation, sendMessage);
 router.put("/:id", updateConversationValidation, updateConversation);
 router.delete("/:id", conversationIdValidation, deleteConversation);
 router.get("/token/generate", generateToken);
+
+router.get('/team-and-members/get-list', getTeamsWithMembersAndConversations);
 
 export default router;
