@@ -675,7 +675,7 @@ export const getCurrentConversationDetails = async (
 
     let currentChatUser:any;
     if(currentConversation.identity===ConversationIdentity.TEAM){
-      currentChatUser = await TeamModel.findById(currentConversation.identityId)
+      currentChatUser = await TeamModel.findById(currentConversation.identityId).select("name")
     }else  if(currentConversation.identity===ConversationIdentity.INCIDENT){
       currentChatUser = await IncidentModel.findById(currentConversation.identityId)
     }else{
@@ -685,7 +685,7 @@ export const getCurrentConversationDetails = async (
       let notCurrentUser=notCurrentUserArray[0];
       currentChatUser = await EmployeeModel.findOne({
         user:notCurrentUser.user._id
-      })
+      }).select("name designation")
     }
 
     return res.status(200).json({
