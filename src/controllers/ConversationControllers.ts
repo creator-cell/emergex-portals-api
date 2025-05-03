@@ -7,9 +7,9 @@ import ConversationModel, {
   ConversationType,
 } from "../models/ConversationModel";
 import { GlobalAdminRoles } from "../config/global-enum";
-import EmployeeModel from "../models/EmployeeModel";
+import EmployeeModel, { IEmployee } from "../models/EmployeeModel";
 import mongoose from "mongoose";
-import TeamModel from "../models/TeamModel";
+import TeamModel, { ITeam } from "../models/TeamModel";
 import { IUser } from "../models/UserModel";
 
 export const createConversation = async (req: Request, res: Response) => {
@@ -632,6 +632,8 @@ export const getCurrentConversationDetails = async (
   req: Request,
   res: Response
 ) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
   const { sid } = req.query;
   try {
     const conversation = await ConversationModel.find({
@@ -660,10 +662,37 @@ export const getCurrentConversationDetails = async (
       });
     }
 
+    const currentConversation = conversation[0];
+
+    if(!currentConversation){
+      return res.status(200).json({
+        success: false,
+        message: "No Conversation found",
+      });
+    }
+
+    // console.log("current User: ",currentUser)
+
+    let currentChatUser:any;
+    if(currentConversation.identity===ConversationIdentity.TEAM){
+      currentChatUser = await TeamModel.findById(currentConversation.identityId)
+    }else  if(currentConversation.identity===ConversationIdentity.INCIDENT){
+      currentChatUser = await IncidentModel.findById(currentConversation.identityId)
+    }else{
+      let notCurrentUserArray = currentConversation.participants.filter((user)=>{
+        return user.user._id.toString()!==currentUser.id.toString()
+      })
+      let notCurrentUser=notCurrentUserArray[0];
+      currentChatUser = await EmployeeModel.findOne({
+        user:notCurrentUser.user._id
+      })
+    }
+
     return res.status(200).json({
       success: true,
       data: conversation[0],
       message: "Conversation details fetched successfully",
+      currentChatUser,
     });
   } catch (error: any) {
     return res.status(500).json({
