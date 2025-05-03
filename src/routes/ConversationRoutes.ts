@@ -11,6 +11,8 @@ import {
   deleteConversation,
   generateToken,
   getTeamsWithMembersAndConversations,
+  getAvailableConversations,
+  getCurrentConversationDetails,
 } from "../controllers/ConversationControllers";
 import {
   createConversationValidation,
@@ -48,5 +50,7 @@ router.delete("/:id", conversationIdValidation, deleteConversation);
 router.get("/token/generate", generateToken);
 
 router.get('/team-and-members/get-list', getTeamsWithMembersAndConversations);
+router.get('/available-chats/get-list', getAvailableConversations);
+router.get('/current-conversation/details', getCurrentConversationDetails);
 
 export default router;

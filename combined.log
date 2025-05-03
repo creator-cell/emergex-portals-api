@@ -181,3 +181,10 @@
 {"level":"info","message":"User connected: 3gjOrGp83M96zNy1AAAB","service":"chat-app","timestamp":"2025-05-02T13:31:41.251Z"}
 {"level":"info","message":"User connected: M-2eNexjO2Q6d-naAAAB","service":"chat-app","timestamp":"2025-05-02T13:31:56.254Z"}
 {"level":"info","message":"User connected: HUH9hGoEmEAimTT8AAAB","service":"chat-app","timestamp":"2025-05-02T13:33:25.266Z"}
+{"level":"info","message":"User connected: jXE2XxXl_A-xk0NyAAAC","service":"chat-app","timestamp":"2025-05-03T04:33:40.673Z"}
+{"level":"info","message":"User disconnected: jXE2XxXl_A-xk0NyAAAC","service":"chat-app","timestamp":"2025-05-03T04:34:47.262Z"}
+{"level":"info","message":"User connected: zdUyMMvse8NL4cGcAAAF","service":"chat-app","timestamp":"2025-05-03T04:34:47.929Z"}
+{"level":"info","message":"User connected: IEOLQVjDq-9TsRhSAAAI","service":"chat-app","timestamp":"2025-05-03T04:36:26.151Z"}
+{"level":"info","message":"User disconnected: zdUyMMvse8NL4cGcAAAF","service":"chat-app","timestamp":"2025-05-03T04:36:27.384Z"}
+{"level":"info","message":"User disconnected: IEOLQVjDq-9TsRhSAAAI","service":"chat-app","timestamp":"2025-05-03T04:36:50.842Z"}
+{"level":"info","message":"User connected: 7vH-k-2tsVcto3nAAAAL","service":"chat-app","timestamp":"2025-05-03T04:36:51.701Z"}
