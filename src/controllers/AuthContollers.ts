@@ -119,16 +119,15 @@ export const register = async (
       createdBy: user._id
     }, { session })
 
-    await employee.save({session});
+    await employee.save({ session });
     await session.commitTransaction();
 
     return res.status(201).json({
       success: true,
-      message: `${
-        role === GlobalAdminRoles.SuperAdmin
-          ? GlobalAdminRoles.SuperAdmin
-          : GlobalAdminRoles.ClientAdmin
-      } ${req.i18n.t("authValidationMessages.response.register.success")}`,
+      message: `${role === GlobalAdminRoles.SuperAdmin
+        ? GlobalAdminRoles.SuperAdmin
+        : GlobalAdminRoles.ClientAdmin
+        } ${req.i18n.t("authValidationMessages.response.register.success")}`,
     });
   } catch (error: any) {
     console.log("error in register client admin: ", error);
@@ -139,6 +138,106 @@ export const register = async (
     });
   }
 };
+
+// export const login = async (req: Request, res: Response): Promise<Response> => {
+//   try {
+//     const { email, password } = req.body;
+
+//     const user = await UserModel.findOne({ email });
+//     if (!user) {
+//       return res.status(200).json({
+//         success: false,
+//         error: req.i18n.t("authValidationMessages.response.login.notFound"),
+//       });
+//     }
+
+//     const isMatch = await user.comparePassword(password);
+//     if (!isMatch) {
+//       return res.status(401).json({
+//         success: false,
+//         error: req.i18n.t(
+//           "authValidationMessages.response.login.invalidCredentials"
+//         ),
+//       });
+//     }
+
+//     await SessionModel.updateMany({ userId: user._id },{
+//       $set:{
+//         isActive:false
+//       }
+//     });
+
+//     const ip = req.ip || req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown";
+//     const userAgent = req.headers["user-agent"] || "unknown";
+
+//     // Parse browser and OS from the user agent string
+//     const { browser, os } = parseUserAgent(userAgent);
+
+//     // Create a new session
+//     const session = await SessionModel.create({
+//       userId: user._id,
+//       ip: ip,
+//       browser: browser,
+//       os: os,
+//       device: getDeviceType(req), // Determine device type (mobile, desktop, etc.)
+//       expiryAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day expiry
+//       role: user.role,
+//     });
+
+//     const token = jwt.sign(
+//       { id: user._id, role: user.role, os: session.os, device: session.device },
+//       config.jwtSecret,
+//       { expiresIn: "1d" }
+//     );
+
+//     const date = new Date();
+//     date.setDate(date.getDate() + 30);
+
+//     res.cookie('auth_emergex', token, { 
+//       path: '/', 
+//       expires: date, 
+//       domain: process.env.NODE_ENV === 'production' 
+//       ? process.env.PROD_AUTHORIZED_DOMAIN 
+//       : process.env.DEV_AUTHORIZED_DOMAIN || 'localhost' 
+//     });
+
+//     return res.status(200).json({
+//       success: true,
+//       message: req.i18n.t("authValidationMessages.response.login.success"),
+//       admin: {
+//         _id: user._id,
+//         username: user.username,
+//         firstName: user.firstName,
+//         lastName: user.lastName,
+//         email: user.email,
+//         phoneNumber: user.phoneNumber,
+//         role: user.role,
+//         image: user.image,
+//       },
+//       token,
+//     });
+//   } catch (error: any) {
+//     return res.status(500).json({
+//       success: false,
+//       error: req.i18n.t("authValidationMessages.response.login.server"),
+//     });
+//   }
+// };
+
+// export const refreshTwilioToken = async (req: Request, res: Response): Promise<void> => {
+//   const customReq = req as ICustomRequest;
+//   const currentUser = customReq.user;
+//   try {
+//     const userId = currentUser.id.toString();
+//     const twilioToken = generateTwilioToken(userId);
+
+//     res.status(200).json({ twilioToken });
+//   } catch (error) {
+//     logger.error('Refresh Twilio token error:', error);
+//     res.status(500).json({ message: 'Server error', error });
+//   }
+// };
+
 
 export const login = async (req: Request, res: Response): Promise<Response> => {
   try {
@@ -156,32 +255,24 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
     if (!isMatch) {
       return res.status(401).json({
         success: false,
-        error: req.i18n.t(
-          "authValidationMessages.response.login.invalidCredentials"
-        ),
+        error: req.i18n.t("authValidationMessages.response.login.invalidCredentials"),
       });
     }
 
-    await SessionModel.updateMany({ userId: user._id },{
-      $set:{
-        isActive:false
-      }
-    });
+    await SessionModel.updateMany({ userId: user._id }, { $set: { isActive: false } });
 
     const ip = req.ip || req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown";
     const userAgent = req.headers["user-agent"] || "unknown";
-
-    // Parse browser and OS from the user agent string
     const { browser, os } = parseUserAgent(userAgent);
+    const device = getDeviceType(req);
 
-    // Create a new session
     const session = await SessionModel.create({
       userId: user._id,
-      ip: ip,
-      browser: browser,
-      os: os,
-      device: getDeviceType(req), // Determine device type (mobile, desktop, etc.)
-      expiryAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day expiry
+      ip,
+      browser,
+      os,
+      device,
+      expiryAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
       role: user.role,
     });
 
@@ -191,50 +282,26 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
       { expiresIn: "1d" }
     );
 
-    const date = new Date();
-    date.setDate(date.getDate() + 30);
- 
-    res.cookie('auth_emergex', token, { 
-      path: '/', 
-      expires: date, 
-      domain: process.env.NODE_ENV === 'production' 
-      ? process.env.PROD_AUTHORIZED_DOMAIN 
-      : process.env.DEV_AUTHORIZED_DOMAIN || 'localhost' 
-    });
+
+    let redirectUrl = "/";
+    if (user.role === "super-admin") {
+      redirectUrl = "/admin";
+    } else if (user.role === "client-admin") {
+      redirectUrl = "/";
+    }
 
     return res.status(200).json({
       success: true,
       message: req.i18n.t("authValidationMessages.response.login.success"),
-      admin: {
-        _id: user._id,
-        username: user.username,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        phoneNumber: user.phoneNumber,
-        role: user.role,
-        image: user.image,
-      },
       token,
+      redirectUrl,
+      admin: user
     });
   } catch (error: any) {
+    console.log("Login error:", error);
     return res.status(500).json({
       success: false,
       error: req.i18n.t("authValidationMessages.response.login.server"),
     });
   }
 };
-
-// export const refreshTwilioToken = async (req: Request, res: Response): Promise<void> => {
-//   const customReq = req as ICustomRequest;
-//   const currentUser = customReq.user;
-//   try {
-//     const userId = currentUser.id.toString();
-//     const twilioToken = generateTwilioToken(userId);
-    
-//     res.status(200).json({ twilioToken });
-//   } catch (error) {
-//     logger.error('Refresh Twilio token error:', error);
-//     res.status(500).json({ message: 'Server error', error });
-//   }
-// };
