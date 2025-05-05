@@ -1,0 +1,29 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const ConversationControllers_1 = require("../controllers/ConversationControllers");
+const conversationValidators_1 = require("../validations/conversationValidators");
+const authMiddleware_1 = require("../middlewares/authMiddleware");
+const roleMiddleware_1 = require("../middlewares/roleMiddleware");
+const global_enum_1 = require("../config/global-enum");
+const router = express_1.default.Router();
+router.use(authMiddleware_1.authenticate, (0, roleMiddleware_1.authorizeRoles)(global_enum_1.GlobalAdminRoles.SuperAdmin, global_enum_1.GlobalAdminRoles.ClientAdmin));
+// Conversation routes
+router.post("/", conversationValidators_1.createConversationValidation, ConversationControllers_1.createConversation);
+router.get("/", conversationValidators_1.getUserConversationsValidation, ConversationControllers_1.getUserConversations);
+router.get("/:id", conversationValidators_1.conversationIdValidation, ConversationControllers_1.getConversation);
+router.get("/:id/messages", conversationValidators_1.conversationIdValidation, ConversationControllers_1.getConversationMessages);
+router.post("/:id/  ", conversationValidators_1.addParticipantValidation, ConversationControllers_1.addParticipant);
+router.delete("/:id/participants/:participantId", conversationValidators_1.removeParticipantValidation, ConversationControllers_1.removeParticipant);
+router.post("/:id/messages", conversationValidators_1.sendMessageValidation, ConversationControllers_1.sendMessage);
+router.put("/:id", conversationValidators_1.updateConversationValidation, ConversationControllers_1.updateConversation);
+router.delete("/:id", conversationValidators_1.conversationIdValidation, ConversationControllers_1.deleteConversation);
+router.get("/token/generate", ConversationControllers_1.generateToken);
+router.get('/team-and-members/get-list', ConversationControllers_1.getTeamsWithMembersAndConversations);
+router.get('/available-chats/get-list', ConversationControllers_1.getAvailableConversations);
+router.get('/available-chats/client-admin', ConversationControllers_1.getClientAdminChats);
+router.get('/current-conversation/details', ConversationControllers_1.getCurrentConversationDetails);
+exports.default = router;

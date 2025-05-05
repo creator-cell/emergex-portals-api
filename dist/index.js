@@ -47,44 +47,56 @@ const RegionRoutes_1 = __importDefault(require("./routes/RegionRoutes"));
 const WorksiteRoutes_1 = __importDefault(require("./routes/WorksiteRoutes"));
 const IncidentRoutes_1 = __importDefault(require("./routes/IncidentRoutes"));
 const IncidentHistoryRoutes_1 = __importDefault(require("./routes/IncidentHistoryRoutes"));
+const transcriptionRoutes_1 = __importDefault(require("./routes/transcriptionRoutes"));
+const ChatRoutes_1 = __importDefault(require("./routes/ChatRoutes"));
+const ConversationRoutes_1 = __importDefault(require("./routes/ConversationRoutes"));
+const webhookRoutes_1 = __importDefault(require("./routes/webhookRoutes"));
+// import messageRoutes from "./routes/MessageRoutes";
 const path_1 = __importDefault(require("path"));
-const socket_1 = __importDefault(require("./socket"));
+const socket_1 = require("./socket");
+const webhookAuthMiddleware_1 = require("./middlewares/webhookAuthMiddleware");
 // import locationRoutes from './routes/LocationRoutes'
 const app = (0, express_1.default)();
 const server = (0, http_1.createServer)(app);
 const port = config_1.config.port;
 app.use((0, cors_1.default)({
-    origin: '*',
+    origin: "*",
     credentials: true,
 }));
-app.use(express_1.default.json({ limit: '10mb' }));
-app.use(express_1.default.urlencoded({ limit: '10mb', extended: true }));
+app.use(express_1.default.json({ limit: "10mb" }));
+app.use(express_1.default.urlencoded({ limit: "10mb", extended: true }));
 app.use((0, cookie_parser_1.default)());
 app.use(i18next_http_middleware_1.default.handle(i18n_1.default));
 app.use(i18n_1.setLanguageMiddleware);
-const uploads = path_1.default.join(__dirname, '../uploads/');
-app.use('/uploads', express_1.default.static(uploads));
-app.get('/', (_req, res) => {
+const uploads = path_1.default.join(__dirname, "../uploads/");
+app.use("/uploads", express_1.default.static(uploads));
+// health check route
+app.get("/", (_req, res) => {
     return res.status(200).send("Hello World! with typescript");
 });
-// app.use((req,res,next)=>{
-//     console.log(req.method,req.url)
-//     next()
-// })
-app.use('/api/auth', AuthRoutes_1.default);
-app.use('/api/users', UsersRoute_1.default);
-app.use('/api/employees', EmployeeRoutes_1.default);
-app.use('/api/teams', TeamRoutes_1.default);
-app.use('/api/roles', RoleRoutes_1.default);
-app.use('/api/projects', ProjectRoutes_1.default);
-app.use('/api/announcements', AnnouncementRoutes_1.default);
-app.use('/api/countries', CountryRoutes_1.default);
-app.use('/api/regions', RegionRoutes_1.default);
-app.use('/api/worksites', WorksiteRoutes_1.default);
-app.use('/api/incidents', IncidentRoutes_1.default);
-app.use('/api/incidents-history', IncidentHistoryRoutes_1.default);
-(0, socket_1.default)(server);
+app.use((req, res, next) => {
+    console.log(req.method, req.url);
+    next();
+});
+app.use("/api/auth", AuthRoutes_1.default);
+app.use("/api/users", UsersRoute_1.default);
+app.use("/api/employees", EmployeeRoutes_1.default);
+app.use("/api/teams", TeamRoutes_1.default);
+app.use("/api/roles", RoleRoutes_1.default);
+app.use("/api/projects", ProjectRoutes_1.default);
+app.use("/api/announcements", AnnouncementRoutes_1.default);
+app.use("/api/countries", CountryRoutes_1.default);
+app.use("/api/regions", RegionRoutes_1.default);
+app.use("/api/worksites", WorksiteRoutes_1.default);
+app.use("/api/incidents", IncidentRoutes_1.default);
+app.use("/api/incidents-history", IncidentHistoryRoutes_1.default);
+app.use("/api/transcription", transcriptionRoutes_1.default);
+app.use("/api/chats", ChatRoutes_1.default);
+app.use('/api/conversations', ConversationRoutes_1.default);
+app.use('/api/webhook', webhookAuthMiddleware_1.validateTwilioWebhook, webhookRoutes_1.default);
+// app.use("/api/messages", messageRoutes);
+(0, socket_1.setupSocketServer)(server);
 server.listen(port, () => {
-    console.log('Server is running @ ' + port);
+    console.log("Server is running @ " + port);
 });
 exports.default = app;

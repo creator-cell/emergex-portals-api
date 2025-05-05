@@ -75,7 +75,7 @@ const IncidentSchema = new mongoose_1.Schema({
         required: true,
     },
     finance: {
-        type: Number,
+        type: String,
         required: true,
     },
     utilityAffected: {

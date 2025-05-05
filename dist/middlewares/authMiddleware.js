@@ -1,4 +1,8 @@
 "use strict";
+// import { Request, Response, NextFunction } from "express";
+// import jwt, { JwtPayload } from "jsonwebtoken";
+// import { z } from "zod";
+// import { config } from "../config";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -13,8 +17,21 @@ const authHeaderSchema = zod_1.z
 const authenticate = (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;
-        const validatedHeader = authHeaderSchema.parse(authHeader);
-        const token = validatedHeader.split(" ")[1];
+        const cookieToken = req.cookies[""];
+        let token;
+        if (authHeader) {
+            const validatedHeader = authHeaderSchema.parse(authHeader);
+            token = validatedHeader.split(" ")[1];
+        }
+        else if (cookieToken) {
+            token = cookieToken;
+        }
+        if (!token) {
+            return res.status(401).json({
+                success: false,
+                error: req.i18n.t("authorization.jwt.missingToken"),
+            });
+        }
         const decoded = jsonwebtoken_1.default.verify(token, config_1.config.jwtSecret);
         req.user = {
             id: decoded.id,
@@ -28,6 +45,12 @@ const authenticate = (req, res, next) => {
             return res.status(400).json({
                 success: false,
                 error: req.i18n.t("authorization.jwt.invalidFormat"),
+            });
+        }
+        if (err instanceof jsonwebtoken_1.default.TokenExpiredError) {
+            return res.status(401).json({
+                success: false,
+                error: req.i18n.t("authorization.jwt.expired"),
             });
         }
         if (err instanceof jsonwebtoken_1.default.JsonWebTokenError) {

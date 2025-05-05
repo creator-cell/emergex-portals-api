@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteEmployee = exports.updateEmployee = exports.getEmployeeById = exports.getEmployees = exports.createEmployee = void 0;
+exports.employeesNotinAnyTeam = exports.deleteEmployee = exports.updateEmployee = exports.getEmployeeById = exports.getEmployees = exports.createEmployee = void 0;
 const EmployeeModel_1 = __importDefault(require("../models/EmployeeModel"));
 const pagination_1 = require("../helper/pagination");
 const UserModel_1 = __importDefault(require("../models/UserModel"));
@@ -11,6 +11,9 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const AccountModel_1 = __importDefault(require("../models/AccountModel"));
 const global_enum_1 = require("../config/global-enum");
 const UserFunctions_1 = require("../helper/UserFunctions");
+const conversation_service_1 = __importDefault(require("../services/conversation.service"));
+const ConversationModel_1 = require("../models/ConversationModel");
+const TeamModel_1 = __importDefault(require("../models/TeamModel"));
 // Create a new employee
 const createEmployee = async (req, res) => {
     const { name, email, designation, contactNo } = req.body;
@@ -47,14 +50,17 @@ const createEmployee = async (req, res) => {
         // const password = generatePassword();
         const password = name + "123";
         // console.log("password: ",password)
+        const [firstName, lastName] = name.split(" ");
         const user = new UserModel_1.default({
             username,
+            firstName,
+            lastName,
             email,
             password,
             phoneNumber: contactNo,
             role: global_enum_1.GlobalAdminRoles.ClientAdmin,
             accounts: [],
-            createdBy: currentUser.id
+            createdBy: currentUser.id,
         });
         await user.save({ session });
         savedEmployee.user = user._id;
@@ -74,6 +80,13 @@ const createEmployee = async (req, res) => {
             user.accounts.push(account._id);
         }
         await user.save({ session });
+        console.log("user: ", user);
+        console.log("currentUser: ", currentUser);
+        const friendlyName = `conversation-${currentUser.id}-${user._id}`;
+        const conversation = await conversation_service_1.default.createConversation(friendlyName, currentUser.id, ConversationModel_1.ConversationIdentity.EMPLOYEE, ConversationModel_1.ConversationType.SINGLE);
+        const conversationId = conversation._id;
+        await conversation_service_1.default.addParticipant(conversationId.toString(), currentUser.id, currentUser.id);
+        await conversation_service_1.default.addParticipant(conversationId.toString(), user._id.toString(), user._id.toString());
         await session.commitTransaction();
         session.endSession();
         return res.status(201).json({
@@ -109,7 +122,7 @@ const getEmployees = async (req, res) => {
                 isDeleted: false,
                 createdBy: new mongoose_1.default.Types.ObjectId(user),
             },
-            limit: 20
+            limit: 20,
         });
         const result = await (0, pagination_1.paginate)(EmployeeModel_1.default, options);
         return res.status(200).json({
@@ -227,3 +240,32 @@ const deleteEmployee = async (req, res) => {
     }
 };
 exports.deleteEmployee = deleteEmployee;
+const employeesNotinAnyTeam = async (req, res) => {
+    try {
+        const allTeams = await TeamModel_1.default.find({ isDeleted: false }).select("members");
+        const employeeIdsInTeams = new Set();
+        allTeams.forEach((team) => {
+            team.members.forEach((memberId) => {
+                employeeIdsInTeams.add(memberId);
+            });
+        });
+        const employeesNotInTeams = await EmployeeModel_1.default.find({
+            _id: { $nin: Array.from(employeeIdsInTeams) },
+            isDeleted: false,
+        }).select("name email contactNo designation");
+        return res.status(200).json({
+            success: true,
+            data: employeesNotInTeams,
+            count: employeesNotInTeams.length,
+            message: req.i18n.t("employeeValidationMessages.response.getAllEmployees.success"),
+        });
+    }
+    catch (error) {
+        console.error("Error fetching employees not in any team:", error);
+        return res.status(500).json({
+            success: false,
+            error: req.i18n.t("employeeValidationMessages.response.getAllEmployees.server"),
+        });
+    }
+};
+exports.employeesNotinAnyTeam = employeesNotinAnyTeam;

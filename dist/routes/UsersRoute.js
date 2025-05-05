@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const authMiddleware_1 = require("../middlewares/authMiddleware");
 const roleMiddleware_1 = require("../middlewares/roleMiddleware");
 const global_enum_1 = require("../config/global-enum");
+const UserControllers_1 = require("../controllers/UserControllers");
 const router = express_1.default.Router();
 router.get('/super-admin', authMiddleware_1.authenticate, (0, roleMiddleware_1.authorizeRoles)(global_enum_1.GlobalAdminRoles.SuperAdmin), (req, res) => {
     res.status(200).json({ message: 'Welcome, Super Admin!' });
@@ -17,4 +18,5 @@ router.get('/client-admin', authMiddleware_1.authenticate, (0, roleMiddleware_1.
 router.get('/viewer', authMiddleware_1.authenticate, (req, res) => {
     res.status(200).json({ message: 'Welcome, Viewer!' });
 });
+router.route('/verify-token').get(authMiddleware_1.authenticate, UserControllers_1.verifyToken);
 exports.default = router;

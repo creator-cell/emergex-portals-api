@@ -16,6 +16,8 @@ const IncidentHistoryModel_1 = __importDefault(require("../models/IncidentHistor
 const IncidentStatusHistoryModel_1 = __importDefault(require("../models/IncidentStatusHistoryModel"));
 const ProjectRoleModel_1 = __importDefault(require("../models/ProjectRoleModel"));
 const WorksiteModel_1 = __importDefault(require("../models/WorksiteModel"));
+const conversation_service_1 = __importDefault(require("../services/conversation.service"));
+const ConversationModel_1 = require("../models/ConversationModel");
 const createIncident = async (req, res) => {
     const customReq = req;
     const currentUser = customReq.user;
@@ -93,6 +95,11 @@ const createIncident = async (req, res) => {
             createdBy: currentUser.id,
         });
         const savedIncident = await newIncident.save();
+        const friendlyName = `conversation-${savedIncident._id}`;
+        const conversation = await conversation_service_1.default.createConversation(friendlyName, currentUser.id, ConversationModel_1.ConversationIdentity.INCIDENT, ConversationModel_1.ConversationType.GROUP, savedIncident._id);
+        const conversationId = conversation._id;
+        // Add the creator as the first participant
+        await conversation_service_1.default.addParticipant(conversationId.toString(), currentUser.id, currentUser.id);
         return res.status(201).json({
             success: true,
             message: req.i18n.t("incidentValidationMessages.response.createIncident.success"),
@@ -199,19 +206,20 @@ const updateIncidentById = async (req, res) => {
             });
             existingIncident.countOfTotalPeople = countOfTotalPeople;
         }
-        if (location && existingIncident.location.toString() !== location.toString()) {
+        if (location &&
+            existingIncident.location.toString() !== location.toString()) {
             let oldLocation = await WorksiteModel_1.default.findById(existingIncident.location);
             let newLocation = await WorksiteModel_1.default.findById(location);
             if (!oldLocation) {
                 return res.status(200).json({
                     success: false,
-                    error: req.i18n.t("locationValidationMessages.response.oldLocationNotFound")
+                    error: req.i18n.t("locationValidationMessages.response.oldLocationNotFound"),
                 });
             }
             if (!newLocation) {
                 return res.status(200).json({
                     success: false,
-                    error: req.i18n.t("locationValidationMessages.response.newLocationNotFound")
+                    error: req.i18n.t("locationValidationMessages.response.newLocationNotFound"),
                 });
             }
             changes.push({
@@ -240,7 +248,8 @@ const updateIncidentById = async (req, res) => {
             existingIncident.finance = finance;
         }
         if (utilityAffected &&
-            JSON.stringify(existingIncident.utilityAffected) !== JSON.stringify(utilityAffected)) {
+            JSON.stringify(existingIncident.utilityAffected) !==
+                JSON.stringify(utilityAffected)) {
             changes.push({
                 field: "Utility Affected",
                 oldValue: existingIncident.utilityAffected,
@@ -318,7 +327,7 @@ const updateIncidentById = async (req, res) => {
         const employee = await EmployeeModel_1.default.findOne({ user: currentUser.id });
         const role = await ProjectRoleModel_1.default.findOne({
             employee: employee?._id,
-            project: existingIncident.project
+            project: existingIncident.project,
         });
         // Log changes to IncidentHistoryModel
         if (changes.length > 0) {
@@ -451,10 +460,11 @@ const getIncidentById = async (req, res) => {
             .populate({
             path: "project",
             model: "Project",
-        }).populate({
-            path: 'location',
-            model: 'Worksite',
-            select: 'name'
+        })
+            .populate({
+            path: "location",
+            model: "Worksite",
+            select: "name",
         });
         if (!incident) {
             return res.status(200).json({
@@ -495,7 +505,7 @@ const updateIncidentStatus = async (req, res) => {
         const employee = await EmployeeModel_1.default.findOne({ user: currentUser.id });
         const role = await ProjectRoleModel_1.default.findOne({
             employee: employee?._id,
-            project: incident.project
+            project: incident.project,
         });
         await IncidentStatusHistoryModel_1.default.create({
             incident: id,

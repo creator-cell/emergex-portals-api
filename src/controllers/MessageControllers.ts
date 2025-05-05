@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import MessageModel from "../models/MessageModel";
 import ChatModel from "../models/ChatModel";
-import { publisher } from "../config/redis";
+// import { publisher } from "../config/redis";
 import { ICustomRequest } from "../types/express";
 import { logger } from "../config/logger";
 
@@ -40,13 +40,13 @@ export const sendMessage = async (req: Request, res: Response) => {
     await ChatModel.findByIdAndUpdate(chatId, { latestMessage: message });
 
     // Publish message to Redis channel for the specific chat
-    await publisher.publish(
-      `chat:${chatId}`,
-      JSON.stringify({
-        event: 'new_message',
-        data: message,
-      })
-    );
+    // await publisher.publish(
+    //   `chat:${chatId}`,
+    //   JSON.stringify({
+    //     event: 'new_message',
+    //     data: message,
+    //   })
+    // );
 
     return res
       .status(200)
@@ -83,35 +83,35 @@ export const fetchMessages = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteMessage = async (req: Request, res: Response) => {
-    const customReq = req as ICustomRequest;
-    const currentUser = customReq.user;
+// export const deleteMessage = async (req: Request, res: Response) => {
+//     const customReq = req as ICustomRequest;
+//     const currentUser = customReq.user;
   
-    try {
-      const message = await MessageModel.findById(req.params.messageId);
+//     try {
+//       const message = await MessageModel.findById(req.params.messageId);
   
-      if (!message) {
-        return res.status(404).json({ message: 'Message not found' });
-      }
+//       if (!message) {
+//         return res.status(404).json({ message: 'Message not found' });
+//       }
   
-      // Only sender can delete the message
-      if (message.sender.toString() !== currentUser.id.toString()) {
-        return res.status(403).json({ success:false,message: 'Not authorized to delete this message' });
-      }
+//       // Only sender can delete the message
+//       if (message.sender.toString() !== currentUser.id.toString()) {
+//         return res.status(403).json({ success:false,message: 'Not authorized to delete this message' });
+//       }
   
-      // Soft delete
-      message.isDeleted = true;
-      await message.save();
+//       // Soft delete
+//       // message.isDeleted = true;
+//       await message.save();
   
-      // Publish to Redis for other instances
-      await publisher.publish('chat_messages', JSON.stringify({
-        event: 'message_deleted',
-        data: message,
-      }));
+//       // Publish to Redis for other instances
+//       // await publisher.publish('chat_messages', JSON.stringify({
+//       //   event: 'message_deleted',
+//       //   data: message,
+//       // }));
   
-      return res.status(200).json({success:true, message: 'Message deleted successfully' });
-    } catch (error) {
-      logger.error('Error deleting message:', error);
-      return res.status(500).json({ success:false,message: 'Server Error' });
-    }
-  };
+//       return res.status(200).json({success:true, message: 'Message deleted successfully' });
+//     } catch (error) {
+//       logger.error('Error deleting message:', error);
+//       return res.status(500).json({ success:false,message: 'Server Error' });
+//     }
+//   };

@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -8,6 +31,8 @@ const TeamModel_1 = __importDefault(require("../models/TeamModel"));
 const EmployeeModel_1 = __importDefault(require("../models/EmployeeModel"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const pagination_1 = require("../helper/pagination");
+const conversation_service_1 = __importDefault(require("../services/conversation.service"));
+const ConversationModel_1 = __importStar(require("../models/ConversationModel"));
 // Create a new Team
 const createTeam = async (req, res) => {
     const customReq = req;
@@ -26,6 +51,11 @@ const createTeam = async (req, res) => {
         }
         const newTeam = new TeamModel_1.default({ name, createdBy: currentUser.id });
         const savedTeam = await newTeam.save();
+        const friendlyName = `conversation-${savedTeam._id}`;
+        const conversation = await conversation_service_1.default.createConversation(friendlyName, currentUser.id, ConversationModel_1.ConversationIdentity.TEAM, ConversationModel_1.ConversationType.GROUP, savedTeam._id);
+        const conversationId = conversation._id;
+        // Add the creator as the first participant
+        await conversation_service_1.default.addParticipant(conversationId.toString(), currentUser.id, currentUser.id);
         return res.status(201).json({
             success: true,
             message: req.i18n.t("teamValidationMessages.response.createTeam.success"),
@@ -100,6 +130,21 @@ const addNewMemberToTeam = async (req, res) => {
         }));
         team.members.push(...employeeMongoIds);
         await team.save();
+        const employees = await EmployeeModel_1.default.find({
+            _id: { $in: employeeMongoIds },
+            isDeleted: false,
+        });
+        const userIds = employees.map((employee) => employee.user);
+        // Add the new members to the conversation
+        const conversation = await ConversationModel_1.default.findOne({
+            identity: ConversationModel_1.ConversationIdentity.TEAM,
+            identityId: team._id,
+        });
+        if (conversation) {
+            await Promise.all(userIds.map(async (userId) => {
+                await conversation_service_1.default.addParticipant(conversation._id.toString(), userId.toString(), userId.toString());
+            }));
+        }
         return res.status(201).json({
             success: true,
             message: req.i18n.t("teamValidationMessages.response.addMemberToTeam.success"),
@@ -141,6 +186,13 @@ const removeMemberFromTeam = async (req, res) => {
         }
         team.members = team.members.filter((member) => !member._id.equals(employeeId));
         await team.save();
+        const conversation = await ConversationModel_1.default.findOne({
+            identity: ConversationModel_1.ConversationIdentity.TEAM,
+            identityId: team._id,
+        });
+        if (conversation) {
+            await conversation_service_1.default.removeParticipant(conversation._id.toString(), employeeId.toString());
+        }
         return res.status(201).json({
             success: true,
             message: req.i18n.t("teamValidationMessages.response.removeMemberFromTeam.success"),
@@ -215,25 +267,19 @@ const getTeamNames = async (req, res) => {
             isDeleted: false,
         }).select("name");
         if (!teams.length) {
-            return res
-                .status(404)
-                .json({
+            return res.status(404).json({
                 success: false,
                 message: req.i18n.t("teamValidationMessages.response.getTeamNames.notFound"),
             });
         }
-        return res
-            .status(200)
-            .json({
+        return res.status(200).json({
             success: true,
             data: teams,
             message: req.i18n.t("teamValidationMessages.response.getTeamNames.success"),
         });
     }
     catch (error) {
-        return res
-            .status(500)
-            .json({
+        return res.status(500).json({
             success: false,
             error: req.i18n.t("teamValidationMessages.response.getTeamNames.server"),
         });
@@ -246,25 +292,19 @@ const getTeamEmployees = async (req, res) => {
         const { id } = req.params;
         const team = await TeamModel_1.default.findById(id).populate("members", "name contactNo designation email");
         if (!team) {
-            return res
-                .status(404)
-                .json({
+            return res.status(404).json({
                 success: false,
                 message: req.i18n.t("teamValidationMessages.response.getTeamEmployees.notFound"),
             });
         }
-        return res
-            .status(200)
-            .json({
+        return res.status(200).json({
             success: true,
             employees: team.members,
             message: req.i18n.t("teamValidationMessages.response.getTeamEmployees.success"),
         });
     }
     catch (error) {
-        return res
-            .status(500)
-            .json({
+        return res.status(500).json({
             success: false,
             error: req.i18n.t("teamValidationMessages.response.getTeamEmployees.server"),
         });

@@ -6,3 +6,4 @@ uploads
 api-list.txt
 combined.log
 error.log
+/dist

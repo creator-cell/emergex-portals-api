@@ -29,6 +29,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const global_enum_1 = require("../config/global-enum");
+const AccessToken_1 = __importStar(require("twilio/lib/jwt/AccessToken"));
 const userSchema = new mongoose_1.Schema({
     username: {
         type: String,
@@ -98,6 +99,18 @@ userSchema.pre("save", async function (next) {
 });
 userSchema.methods.comparePassword = async function (password) {
     return bcrypt_1.default.compare(password, this.password);
+};
+userSchema.methods.generateChatToken = async (identity) => {
+    if (typeof identity !== 'string') {
+        return 'Missing or invalid identity';
+    }
+    const token = new AccessToken_1.default(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_API_KEY, process.env.TWILIO_API_SECRET, { identity });
+    const chatGrant = new AccessToken_1.ChatGrant({
+        serviceSid: process.env.TWILIO_CHAT_SERVICE_SID,
+    });
+    token.addGrant(chatGrant);
+    const twilioToken = token.toJwt();
+    return twilioToken;
 };
 const UserModel = mongoose_1.default.model("User", userSchema);
 exports.default = UserModel;

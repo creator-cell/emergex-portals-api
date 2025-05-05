@@ -63,8 +63,13 @@ exports.incidentValidationRules = [
     (0, express_validator_1.body)("finance")
         .notEmpty()
         .withMessage((_, { req }) => req.i18n.t("incidentValidationMessages.incidentValidationRules.finance.empty"))
-        .isFloat({ min: 0 })
-        .withMessage((_, { req }) => req.i18n.t("incidentValidationMessages.incidentValidationRules.finance.int")),
+    // .isFloat({ min: 0 })
+    // .withMessage((_, { req }) =>
+    //   req.i18n.t(
+    //     "incidentValidationMessages.incidentValidationRules.finance.int"
+    //   )
+    // )
+    ,
     (0, express_validator_1.body)("utilityAffected")
         .notEmpty()
         .withMessage((_, { req }) => req.i18n.t("incidentValidationMessages.incidentValidationRules.utilityAffected.empty"))
