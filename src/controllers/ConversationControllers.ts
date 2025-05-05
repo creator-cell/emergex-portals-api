@@ -10,7 +10,7 @@ import { GlobalAdminRoles } from "../config/global-enum";
 import EmployeeModel, { IEmployee } from "../models/EmployeeModel";
 import mongoose from "mongoose";
 import TeamModel, { ITeam } from "../models/TeamModel";
-import { IUser } from "../models/UserModel";
+import UserModel, { IUser } from "../models/UserModel";
 
 export const createConversation = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
@@ -127,6 +127,7 @@ export const getUserConversations = async (req: Request, res: Response) => {
   }
 };
 
+// Chat for super-admin
 export const getTeamsWithMembersAndConversations = async (
   req: Request,
   res: Response
@@ -698,6 +699,198 @@ export const getCurrentConversationDetails = async (
     return res.status(500).json({
       success: false,
       error: error.message || "An error occurred in getting details",
+    });
+  }
+};
+
+export const getClientAdminChats = async (
+  req: Request,
+  res: Response
+) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+  try {
+    if(currentUser.role !== GlobalAdminRoles.ClientAdmin) {
+      return res.status(200).json({
+        success: false,
+        message: "Please login as client admin to get conversation"
+      });
+    }
+
+    const clientAdmin = await UserModel.findById(currentUser.id);
+
+    if(!clientAdmin) {
+      return res.status(200).json({
+        success: false,
+        message: "Invalid Client Admin"
+      });
+    }
+
+    const superAdmin = await UserModel.findOne({
+      role: GlobalAdminRoles.SuperAdmin,
+      _id: clientAdmin.createdBy
+    });
+
+    if(!superAdmin) {
+      return res.status(200).json({
+        success: false,
+        message: "No super admin found for this client admin"
+      });
+    }
+    
+    // Get all teams where the client admin is a member
+    const teams = await TeamModel.find({
+      createdBy: superAdmin._id,
+      isDeleted: false
+    }).lean();
+    
+    // Get all employees created by this super admin
+    const allEmployees = await EmployeeModel.find({
+      createdBy: superAdmin._id,
+      isDeleted: false
+    }).populate('user').lean();
+    
+    // Find current user's employee record
+    const currentUserEmployee = allEmployees.find(emp => 
+      emp.user && emp.user._id.toString() === (clientAdmin._id as mongoose.ObjectId).toString()
+    );
+    
+    // Find super admin employee
+    const superAdminEmployee = allEmployees.find(emp => 
+      emp.user && emp.user._id.toString() === (superAdmin._id as mongoose.ObjectId).toString()
+    );
+    
+    // Get conversation between current user and super admin
+    let superAdminConversation = null;
+    if (superAdminEmployee) {
+      superAdminConversation = await ConversationModel.findOne({
+        type: ConversationType.SINGLE,
+        participants: {
+          $elemMatch: { user: clientAdmin._id }
+        },
+        'participants.user': superAdmin._id
+      }).populate({
+        path: 'lastMessage',
+        model: 'Message'
+      }).lean();
+    }
+    
+    // Prepare result array with super admin section
+    const result = [];
+    
+    // Add Super-Admin section
+    result.push({
+      team: "Super-Admin",
+      members: superAdminEmployee ? [{
+        ...superAdminEmployee,
+        conversation: superAdminConversation
+      }] : []
+    });
+    
+    // Create a set of employees to exclude from teams and others
+    const excludedEmployeeIds = new Set();
+    
+    // Add super admin and current user to excluded list
+    if (superAdminEmployee) {
+      excludedEmployeeIds.add(superAdminEmployee._id.toString());
+    }
+    
+    if (currentUserEmployee) {
+      excludedEmployeeIds.add(currentUserEmployee._id.toString());
+    }
+    
+    // Process each team
+    for (const team of teams) {
+      // Get team members with their users
+      const teamMembers = [];
+      for (const memberId of team.members) {
+        const member = allEmployees.find(emp => emp._id.toString() === memberId.toString());
+        
+        // Skip if member is super admin or current user
+        if (member && member.user && !excludedEmployeeIds.has(member._id.toString())) {
+          // Find conversation between client admin and this member
+          const conversation = await ConversationModel.findOne({
+            type: ConversationType.SINGLE,
+            participants: {
+              $elemMatch: { user: clientAdmin._id }
+            },
+            'participants.user': member.user._id
+          }).populate({
+            path: 'lastMessage',
+            model: 'Message'
+          }).lean();
+          
+          teamMembers.push({
+            ...member,
+            conversation: conversation
+          });
+          
+          // Add to excluded list to prevent duplication in Others
+          excludedEmployeeIds.add(member._id.toString());
+        }
+      }
+      
+      // Find team conversation if exists
+      const teamConversation = await ConversationModel.findOne({
+        identity: ConversationIdentity.TEAM,
+        identityId: team._id,
+        participants: {
+          $elemMatch: { user: clientAdmin._id }
+        }
+      }).populate({
+        path: 'lastMessage',
+        model: 'Message'
+      }).lean();
+      
+      result.push({
+        team: team.name,
+        members: teamMembers,
+        conversation: teamConversation
+      });
+    }
+    
+    // Find non-team employees (Others)
+    const otherMembers = [];
+    
+    // Find employees who are not in any team, not super admin, and not current user
+    for (const employee of allEmployees) {
+      if (!excludedEmployeeIds.has(employee._id.toString()) && employee.user) {
+        // Find conversation between client admin and this employee
+        const conversation = await ConversationModel.findOne({
+          type: ConversationType.SINGLE,
+          participants: {
+            $elemMatch: { user: clientAdmin._id }
+          },
+          'participants.user': employee.user._id
+        }).populate({
+          path: 'lastMessage',
+          model: 'Message'
+        }).lean();
+        
+        otherMembers.push({
+          ...employee,
+          conversation: conversation
+        });
+      }
+    }
+    
+    // Add Others section
+    result.push({
+      team: "Others",
+      members: otherMembers,
+      conversation: null
+    });
+    
+    return res.status(200).json({
+      success: true,
+      data: result
+    });
+
+  } catch (error) {
+    console.error("Error in getting client admin conversations:", error);
+    return res.status(500).json({
+      success: false,
+      error: "server error in getting client admin conversations",
     });
   }
 };

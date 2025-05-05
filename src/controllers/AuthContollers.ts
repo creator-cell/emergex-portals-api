@@ -85,6 +85,7 @@ export const register = async (
       [
         {
           username,
+          firstName:username,
           email,
           provider: AccountProviderType.Local,
           providerId: providerId || user._id,
@@ -114,6 +115,7 @@ export const register = async (
       user: user._id,
       name: username,
       email,
+      isDeleted:false,
       contactNo: phoneNumber,
       designation: role,
       createdBy: user._id
@@ -283,10 +285,10 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
     );
 
 
-    let redirectUrl = "/";
-    if (user.role === "super-admin") {
+    let redirectUrl:"/"|"/admin" = "/";
+    if (user.role === GlobalAdminRoles.SuperAdmin) {
       redirectUrl = "/admin";
-    } else if (user.role === "client-admin") {
+    } else if (user.role === GlobalAdminRoles.ClientAdmin) {
       redirectUrl = "/";
     }
 
@@ -297,6 +299,7 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
       redirectUrl,
       admin: user
     });
+    
   } catch (error: any) {
     console.log("Login error:", error);
     return res.status(500).json({

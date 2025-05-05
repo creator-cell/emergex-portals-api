@@ -13,6 +13,7 @@ import {
   getTeamsWithMembersAndConversations,
   getAvailableConversations,
   getCurrentConversationDetails,
+  getClientAdminChats,
 } from "../controllers/ConversationControllers";
 import {
   createConversationValidation,
@@ -51,6 +52,7 @@ router.get("/token/generate", generateToken);
 
 router.get('/team-and-members/get-list', getTeamsWithMembersAndConversations);
 router.get('/available-chats/get-list', getAvailableConversations);
+router.get('/available-chats/client-admin', getClientAdminChats);
 router.get('/current-conversation/details', getCurrentConversationDetails);
 
 export default router;
