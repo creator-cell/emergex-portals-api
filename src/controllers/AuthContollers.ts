@@ -285,7 +285,7 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
     );
 
 
-    let redirectUrl:"/"|"/admin" = "/";
+    let redirectUrl: "/"|"/admin" = "/";
     if (user.role === GlobalAdminRoles.SuperAdmin) {
       redirectUrl = "/admin";
     } else if (user.role === GlobalAdminRoles.ClientAdmin) {

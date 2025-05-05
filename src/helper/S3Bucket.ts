@@ -1,9 +1,6 @@
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { config } from '../config';
 
-// if (!process.env.ACCESS_KEY || !process.env.SECRET_KEY) {
-//     throw new Error("AWS credentials are not defined");
-
 const s3Config = {
     region: config.aws_region as string,
     credentials: {
@@ -15,70 +12,16 @@ const s3Config = {
 
 const S3 = new S3Client(s3Config);
 
-// console.log(s3Config)
-
-// interface UploadFileParams {
-//     Bucket: string;
-//     Key: string;
-//     Body: any;
-//     ContentType: string;
-// }
-
-// interface UploadFileResponse {
-//     Success: boolean;
-//     Error?: any;
-//     ImageURl?: string;
-// }
-
-// const getContentType = (fileName: string): string => {
-//     const ext = fileName.toLowerCase().split('.').pop();
-//     switch (ext) {
-//         case 'jpg':
-//         case 'jpeg':
-//             return 'image/jpeg';
-//         case 'png':
-//             return 'image/png';
-//         case 'ico':
-//             return 'image/x-icon';
-//         default:
-//             return 'application/octet-stream';
-//     }
-// };
-
-// const UploadFile = async (File:any, FileName: string): Promise<UploadFileResponse> => {
-//     // console.log(File,FileName)
-//     try {
-//         if (!File || !FileName) {
-//             return { Error: "file and fileName not found", Success: false };
-//         }
-
-//         const uniqueFileName = `${Date.now()}-${FileName.replace(/[^a-zA-Z0-9.-]/g, '')}`;
-//         const Params: UploadFileParams = {
-//             Bucket: config.aws_bucket_name as string,
-//             Key: uniqueFileName,
-//             Body: File,
-//             ContentType: getContentType(FileName)
-//         };
-
-//         const Command = new PutObjectCommand(Params);
-//         console.log("com: ",Command);
-//         const Response = await S3.send(Command);
-//         console.log("Response: ", Response);
-//         if (Response.$metadata.httpStatusCode !== 200) {
-//             return { Error: Response.$metadata, Success: false };
-//         }
-//         const ImageURl = `https://${config.aws_bucket_name}.${config.aws_region}.s3.amazonaws.com/${Params.Key}`;
-//         return { Success: true, ImageURl: ImageURl };
-//     } catch (Err) {
-//         console.log("error in uploading img: ",Err);
-//         return { Success: false, Error: Err };
-//     }
-// }
-
 interface UploadFileResponse {
     Success: boolean;
     Error?: any;
     ImageURl?: string;
+}
+
+interface UploadFileParams {
+    file: Buffer | Uint8Array | Blob | string;
+    fileName: string;
+    contentType?: string;
 }
 
 const getContentTypeFromBase64 = (base64String: string): string => {
@@ -122,6 +65,67 @@ const UploadBase64File = async (base64String: string, fileName: string): Promise
             Key: fileName,
             Body: buffer,
             ContentType: contentType
+        };
+
+        const Command = new PutObjectCommand(Params);
+        const Response = await S3.send(Command);
+
+        if (Response.$metadata.httpStatusCode !== 200) {
+            return { Error: Response.$metadata, Success: false };
+        }
+
+        const ImageURl = `https://${config.aws_bucket_name}.s3.${config.aws_region}.amazonaws.com/${Params.Key}`;
+        return { Success: true, ImageURl: ImageURl };
+    } catch (Err) {
+        console.log(Err);
+        return { Error: Err, Success: false };
+    }
+};
+
+const getContentTypeFromFileName = (fileName: string): string => {
+    const extension = fileName.split('.').pop()?.toLowerCase();
+    switch (extension) {
+        case 'jpg':
+        case 'jpeg':
+            return 'image/jpeg';
+        case 'png':
+            return 'image/png';
+        case 'gif':
+            return 'image/gif';
+        case 'webp':
+            return 'image/webp';
+        case 'pdf':
+            return 'application/pdf';
+        case 'doc':
+            return 'application/msword';
+        case 'docx':
+            return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        case 'mp3':
+            return 'audio/mpeg';
+        case 'wav':
+            return 'audio/wav';
+        case 'mp4':
+            return 'video/mp4';
+        case 'mov':
+            return 'video/quicktime';
+        case 'avi':
+            return 'video/x-msvideo';
+        default:
+            return 'application/octet-stream';
+    }
+};
+
+const UploadFile = async ({ file, fileName, contentType }: UploadFileParams): Promise<UploadFileResponse> => {
+    try {
+        if (!file || !fileName) {
+            return { Error: "file and fileName are required", Success: false };
+        }
+
+        const Params = {
+            Bucket: config.aws_bucket_name as string,
+            Key: fileName,
+            Body: file,
+            ContentType: contentType || getContentTypeFromFileName(fileName)
         };
 
         const Command = new PutObjectCommand(Params);
@@ -203,5 +207,6 @@ const DeleteFile = async (FileName: string): Promise<DeleteFileResponse> => {
 export {
     UploadBase64File,
     DeleteFile,
+    UploadFile,
     GetFile
 }

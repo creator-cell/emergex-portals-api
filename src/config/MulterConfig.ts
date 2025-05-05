@@ -26,6 +26,12 @@ const fileFilter = (
   }
 };
 
+const upload = multer({ storage: multer.memoryStorage() });
+
+// Middleware to handle multiple files
+export const handleMediaUpload = upload.array('media'); // 'media' should match your form-data field name
+
+
 export const multerConfig = {
   storage,
   fileFilter,

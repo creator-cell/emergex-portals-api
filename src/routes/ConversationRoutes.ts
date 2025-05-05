@@ -27,6 +27,7 @@ import {
 import { authenticate } from "../middlewares/authMiddleware";
 import { authorizeRoles } from "../middlewares/roleMiddleware";
 import { GlobalAdminRoles } from "../config/global-enum";
+import { handleMediaUpload } from "../config/MulterConfig";
 
 const router = express.Router();
 router.use(
@@ -45,7 +46,7 @@ router.delete(
   removeParticipantValidation,
   removeParticipant
 );
-router.post("/:id/messages", sendMessageValidation, sendMessage);
+router.post("/:id/messages", sendMessageValidation,handleMediaUpload, sendMessage);
 router.put("/:id", updateConversationValidation, updateConversation);
 router.delete("/:id", conversationIdValidation, deleteConversation);
 router.get("/token/generate", generateToken);
