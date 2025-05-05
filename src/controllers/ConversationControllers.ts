@@ -532,7 +532,6 @@ export const sendMessage = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { body, media } = req.body;
     const userId = currentUser.id;
-    console.log("body: ", req.body);
 
     if (!body && (!media || media.length === 0)) {
       return res
@@ -948,7 +947,7 @@ export const getClientAdminChats = async (req: Request, res: Response) => {
     result.push({
       team: "Others",
       members: otherMembers,
-      conversation: null,
+      // conversation: null,
     });
 
     return res.status(200).json({
@@ -961,5 +960,39 @@ export const getClientAdminChats = async (req: Request, res: Response) => {
       success: false,
       error: "server error in getting client admin conversations",
     });
+  }
+};
+
+export const uploadMediaToSend = async (req: Request, res: Response) => {
+  try {
+
+    let mediaPaths: string[] = [];
+    if (req.files) {
+      const files = Array.isArray(req.files) ? req.files : Object.values(req.files).flat();
+      for (const file of files) {
+        const fileName = `uploads/${Date.now()}-${file.originalname}`;
+        const uploadResult = await UploadFile({
+          file: file.buffer, 
+          fileName: fileName,
+          contentType: file.mimetype,
+        });
+
+        if (uploadResult.Success && uploadResult.ImageURl) {
+          mediaPaths.push(uploadResult.ImageURl);
+        } else {
+          console.error("Failed to upload file:", uploadResult.Error);
+        }
+      }
+    }
+
+    return res.status(201).json({
+      success: true,
+      data: mediaPaths,
+      message: "Media Uploaded Successfully",
+    });
+  } catch (error: any) {
+    return res
+      .status(500)
+      .json({ success: false, message: error.message || "Server error in uploading media" });
   }
 };

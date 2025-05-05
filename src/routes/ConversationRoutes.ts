@@ -14,6 +14,7 @@ import {
   getAvailableConversations,
   getCurrentConversationDetails,
   getClientAdminChats,
+  uploadMediaToSend,
 } from "../controllers/ConversationControllers";
 import {
   createConversationValidation,
@@ -55,5 +56,6 @@ router.get('/team-and-members/get-list', getTeamsWithMembersAndConversations);
 router.get('/available-chats/get-list', getAvailableConversations);
 router.get('/available-chats/client-admin', getClientAdminChats);
 router.get('/current-conversation/details', getCurrentConversationDetails);
+router.post("/upload-media",handleMediaUpload, uploadMediaToSend);
 
 export default router;
