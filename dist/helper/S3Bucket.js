@@ -1,10 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GetFile = exports.DeleteFile = exports.UploadBase64File = void 0;
+exports.GetFile = exports.UploadFile = exports.DeleteFile = exports.UploadBase64File = void 0;
 const client_s3_1 = require("@aws-sdk/client-s3");
 const config_1 = require("../config");
-// if (!process.env.ACCESS_KEY || !process.env.SECRET_KEY) {
-//     throw new Error("AWS credentials are not defined");
 const s3Config = {
     region: config_1.config.aws_region,
     credentials: {
@@ -65,6 +63,63 @@ const UploadBase64File = async (base64String, fileName) => {
     }
 };
 exports.UploadBase64File = UploadBase64File;
+const getContentTypeFromFileName = (fileName) => {
+    const extension = fileName.split('.').pop()?.toLowerCase();
+    switch (extension) {
+        case 'jpg':
+        case 'jpeg':
+            return 'image/jpeg';
+        case 'png':
+            return 'image/png';
+        case 'gif':
+            return 'image/gif';
+        case 'webp':
+            return 'image/webp';
+        case 'pdf':
+            return 'application/pdf';
+        case 'doc':
+            return 'application/msword';
+        case 'docx':
+            return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        case 'mp3':
+            return 'audio/mpeg';
+        case 'wav':
+            return 'audio/wav';
+        case 'mp4':
+            return 'video/mp4';
+        case 'mov':
+            return 'video/quicktime';
+        case 'avi':
+            return 'video/x-msvideo';
+        default:
+            return 'application/octet-stream';
+    }
+};
+const UploadFile = async ({ file, fileName, contentType }) => {
+    try {
+        if (!file || !fileName) {
+            return { Error: "file and fileName are required", Success: false };
+        }
+        const Params = {
+            Bucket: config_1.config.aws_bucket_name,
+            Key: fileName,
+            Body: file,
+            ContentType: contentType || getContentTypeFromFileName(fileName)
+        };
+        const Command = new client_s3_1.PutObjectCommand(Params);
+        const Response = await S3.send(Command);
+        if (Response.$metadata.httpStatusCode !== 200) {
+            return { Error: Response.$metadata, Success: false };
+        }
+        const ImageURl = `https://${config_1.config.aws_bucket_name}.s3.${config_1.config.aws_region}.amazonaws.com/${Params.Key}`;
+        return { Success: true, ImageURl: ImageURl };
+    }
+    catch (Err) {
+        console.log(Err);
+        return { Error: Err, Success: false };
+    }
+};
+exports.UploadFile = UploadFile;
 const GetFile = async (FileName) => {
     try {
         if (!FileName) {

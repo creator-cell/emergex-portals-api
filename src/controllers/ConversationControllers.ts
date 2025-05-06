@@ -12,6 +12,7 @@ import mongoose from "mongoose";
 import TeamModel, { ITeam } from "../models/TeamModel";
 import UserModel, { IUser } from "../models/UserModel";
 import { UploadFile } from "../helper/S3Bucket";
+import ProjectRoleModel from "../models/ProjectRoleModel";
 
 export const createConversation = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
@@ -541,11 +542,13 @@ export const sendMessage = async (req: Request, res: Response) => {
 
     let mediaPaths: string[] = [];
     if (req.files) {
-      const files = Array.isArray(req.files) ? req.files : Object.values(req.files).flat();
+      const files = Array.isArray(req.files)
+        ? req.files
+        : Object.values(req.files).flat();
       for (const file of files) {
         const fileName = `uploads/${Date.now()}-${file.originalname}`;
         const uploadResult = await UploadFile({
-          file: file.buffer, 
+          file: file.buffer,
           fileName: fileName,
           contentType: file.mimetype,
         });
@@ -786,14 +789,16 @@ export const getClientAdminChats = async (req: Request, res: Response) => {
     const currentUserEmployee = allEmployees.find(
       (emp) =>
         emp.user &&
-        emp.user._id.toString() === (clientAdmin._id as mongoose.ObjectId).toString()
+        emp.user._id.toString() ===
+          (clientAdmin._id as mongoose.ObjectId).toString()
     );
 
     // Find super admin employee
     const superAdminEmployee = allEmployees.find(
       (emp) =>
         emp.user &&
-        emp.user._id.toString() === (superAdmin._id as mongoose.ObjectId).toString()
+        emp.user._id.toString() ===
+          (superAdmin._id as mongoose.ObjectId).toString()
     );
 
     // Get conversation between current user and super admin
@@ -855,7 +860,7 @@ export const getClientAdminChats = async (req: Request, res: Response) => {
       .lean();
 
     // Get team IDs where current user is a participant
-    const teamIds = teamConversations.map(conv => conv.identityId);
+    const teamIds = teamConversations.map((conv) => conv.identityId);
 
     // Get team details for these teams
     const userTeams = await TeamModel.find({
@@ -867,7 +872,8 @@ export const getClientAdminChats = async (req: Request, res: Response) => {
     for (const team of userTeams) {
       // Get team conversation
       const teamConversation = teamConversations.find(
-        conv => conv.identityId && conv.identityId.toString() === team._id.toString()
+        (conv) =>
+          conv.identityId && conv.identityId.toString() === team._id.toString()
       );
 
       if (teamConversation) {
@@ -965,14 +971,15 @@ export const getClientAdminChats = async (req: Request, res: Response) => {
 
 export const uploadMediaToSend = async (req: Request, res: Response) => {
   try {
-
     let mediaPaths: string[] = [];
     if (req.files) {
-      const files = Array.isArray(req.files) ? req.files : Object.values(req.files).flat();
+      const files = Array.isArray(req.files)
+        ? req.files
+        : Object.values(req.files).flat();
       for (const file of files) {
         const fileName = `uploads/${Date.now()}-${file.originalname}`;
         const uploadResult = await UploadFile({
-          file: file.buffer, 
+          file: file.buffer,
           fileName: fileName,
           contentType: file.mimetype,
         });
@@ -991,8 +998,97 @@ export const uploadMediaToSend = async (req: Request, res: Response) => {
       message: "Media Uploaded Successfully",
     });
   } catch (error: any) {
-    return res
-      .status(500)
-      .json({ success: false, message: error.message || "Server error in uploading media" });
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Server error in uploading media",
+    });
+  }
+};
+
+export const getIncidentChats = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+  const { id } = req.query;
+  try {
+    // Find the incident by ID
+    const incident = await IncidentModel.findById(id);
+    if (!incident) {
+      return res.status(200).json({
+        success: false,
+        message: "Incident not found",
+      });
+    }
+
+    // Find project roles for the incident's project
+    const projectRoles = await ProjectRoleModel.find({
+      project: incident.project,
+    });
+
+    // Get all employee IDs in the project
+    const projectEmployeesIds = projectRoles.map((role) => role.employee);
+
+    // Get all employees in the project
+    const projectEmployees = await EmployeeModel.find({
+      _id: {
+        $in: projectEmployeesIds
+      },
+      isDeleted: false
+    });
+
+    // Get all user IDs of the project employees (except current user)
+    const projectUserIds = projectEmployees
+      .map((emp) => emp.user)
+      .filter((id) => id && id.toString() !== currentUser.id);
+
+    // Find the incident conversation
+    const incidentConversation = await ConversationModel.findOne({
+      identity: ConversationIdentity.INCIDENT,
+      identityId: incident._id,
+      isActive: true
+    }).populate('lastMessage');
+
+    // Find one-on-one conversations between current user and each project employee
+    const employeeConversations = await ConversationModel.find({
+      type: ConversationType.SINGLE,
+      isActive: true,
+      $and: [
+        { 'participants.user': currentUser.id },
+        { 'participants.user': { $in: projectUserIds } }
+      ]
+    }).populate('lastMessage');
+
+    // Map conversations to their respective employee users
+    const employeesWithConversations = await Promise.all(
+      projectEmployees
+        .filter(emp => emp.user && emp.user.toString() !== currentUser.id)
+        .map(async (employee) => {
+          // Find the conversation between current user and this employee
+          const conversation = employeeConversations.find(conv => 
+            conv.participants.some(p => p.user.toString() === employee.user.toString())
+          );
+          
+          return {
+            ...employee.toObject(),
+            conversation: conversation || null
+          };
+        })
+    );
+
+    // Return the complete response
+    return res.status(200).json({
+      success: true,
+      data: {
+        ...incident.toObject(),
+        conversation: incidentConversation || null,
+        employees: employeesWithConversations
+      }
+    });
+
+  } catch (error) {
+    console.error("Error in getIncidentChats:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error in getting incident's conversations",
+    });
   }
 };

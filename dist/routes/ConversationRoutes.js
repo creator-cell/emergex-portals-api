@@ -9,6 +9,7 @@ const conversationValidators_1 = require("../validations/conversationValidators"
 const authMiddleware_1 = require("../middlewares/authMiddleware");
 const roleMiddleware_1 = require("../middlewares/roleMiddleware");
 const global_enum_1 = require("../config/global-enum");
+const MulterConfig_1 = require("../config/MulterConfig");
 const router = express_1.default.Router();
 router.use(authMiddleware_1.authenticate, (0, roleMiddleware_1.authorizeRoles)(global_enum_1.GlobalAdminRoles.SuperAdmin, global_enum_1.GlobalAdminRoles.ClientAdmin));
 // Conversation routes
@@ -18,7 +19,7 @@ router.get("/:id", conversationValidators_1.conversationIdValidation, Conversati
 router.get("/:id/messages", conversationValidators_1.conversationIdValidation, ConversationControllers_1.getConversationMessages);
 router.post("/:id/  ", conversationValidators_1.addParticipantValidation, ConversationControllers_1.addParticipant);
 router.delete("/:id/participants/:participantId", conversationValidators_1.removeParticipantValidation, ConversationControllers_1.removeParticipant);
-router.post("/:id/messages", conversationValidators_1.sendMessageValidation, ConversationControllers_1.sendMessage);
+router.post("/:id/messages", conversationValidators_1.sendMessageValidation, MulterConfig_1.handleMediaUpload, ConversationControllers_1.sendMessage);
 router.put("/:id", conversationValidators_1.updateConversationValidation, ConversationControllers_1.updateConversation);
 router.delete("/:id", conversationValidators_1.conversationIdValidation, ConversationControllers_1.deleteConversation);
 router.get("/token/generate", ConversationControllers_1.generateToken);
@@ -26,4 +27,5 @@ router.get('/team-and-members/get-list', ConversationControllers_1.getTeamsWithM
 router.get('/available-chats/get-list', ConversationControllers_1.getAvailableConversations);
 router.get('/available-chats/client-admin', ConversationControllers_1.getClientAdminChats);
 router.get('/current-conversation/details', ConversationControllers_1.getCurrentConversationDetails);
+router.post("/upload-media", MulterConfig_1.handleMediaUpload, ConversationControllers_1.uploadMediaToSend);
 exports.default = router;

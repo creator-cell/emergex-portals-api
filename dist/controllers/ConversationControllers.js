@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getClientAdminChats = exports.getCurrentConversationDetails = exports.generateToken = exports.deleteConversation = exports.updateConversation = exports.sendMessage = exports.removeParticipant = exports.addParticipant = exports.getConversationMessages = exports.getConversation = exports.getAvailableConversations = exports.getTeamsWithMembersAndConversations = exports.getUserConversations = exports.createConversation = void 0;
+exports.uploadMediaToSend = exports.getClientAdminChats = exports.getCurrentConversationDetails = exports.generateToken = exports.deleteConversation = exports.updateConversation = exports.sendMessage = exports.removeParticipant = exports.addParticipant = exports.getConversationMessages = exports.getConversation = exports.getAvailableConversations = exports.getTeamsWithMembersAndConversations = exports.getUserConversations = exports.createConversation = void 0;
 const conversation_service_1 = __importDefault(require("../services/conversation.service"));
 const IncidentModel_1 = __importDefault(require("../models/IncidentModel"));
 const ConversationModel_1 = __importStar(require("../models/ConversationModel"));
@@ -35,6 +35,7 @@ const EmployeeModel_1 = __importDefault(require("../models/EmployeeModel"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const TeamModel_1 = __importDefault(require("../models/TeamModel"));
 const UserModel_1 = __importDefault(require("../models/UserModel"));
+const S3Bucket_1 = require("../helper/S3Bucket");
 const createConversation = async (req, res) => {
     const customReq = req;
     const currentUser = customReq.user;
@@ -222,9 +223,13 @@ const getTeamsWithMembersAndConversations = async (req, res) => {
                         teamEmployeeIds.add(member._id.toString());
                     }
                 });
-                const currentUserEmployee = team.members.find((member) => member.user && member.user._id && member.user._id.toString() === currentUser.id.toString());
+                const currentUserEmployee = team.members.find((member) => member.user &&
+                    member.user._id &&
+                    member.user._id.toString() === currentUser.id.toString());
                 // Filter out the current user's employee from members array
-                team.members = team.members.filter((member) => !(member.user && member.user._id && member.user._id.toString() === currentUser.id.toString()));
+                team.members = team.members.filter((member) => !(member.user &&
+                    member.user._id &&
+                    member.user._id.toString() === currentUser.id.toString()));
                 // Process each member
                 for (const member of team.members) {
                     if (member.user && member.user._id) {
@@ -273,9 +278,10 @@ const getTeamsWithMembersAndConversations = async (req, res) => {
         ]);
         // Filter employees not part of any team and not the current user
         const nonTeamEmployees = allEmployeesResult.filter((employee) => {
-            return !teamEmployeeIds.has(employee._id.toString()) &&
-                !(employee.user && employee.user._id &&
-                    employee.user._id.toString() === currentUser.id.toString());
+            return (!teamEmployeeIds.has(employee._id.toString()) &&
+                !(employee.user &&
+                    employee.user._id &&
+                    employee.user._id.toString() === currentUser.id.toString()));
         });
         // Create conversations for non-team employees with current user
         for (const employee of nonTeamEmployees) {
@@ -459,16 +465,38 @@ const sendMessage = async (req, res) => {
         const { id } = req.params;
         const { body, media } = req.body;
         const userId = currentUser.id;
-        console.log("user id: ", userId);
         if (!body && (!media || media.length === 0)) {
             return res
                 .status(400)
                 .json({ message: "Message body or media is required" });
         }
-        const message = await conversation_service_1.default.sendMessage(id, userId, body, media);
+        let mediaPaths = [];
+        if (req.files) {
+            const files = Array.isArray(req.files) ? req.files : Object.values(req.files).flat();
+            for (const file of files) {
+                const fileName = `uploads/${Date.now()}-${file.originalname}`;
+                const uploadResult = await (0, S3Bucket_1.UploadFile)({
+                    file: file.buffer,
+                    fileName: fileName,
+                    contentType: file.mimetype,
+                });
+                if (uploadResult.Success && uploadResult.ImageURl) {
+                    mediaPaths.push(uploadResult.ImageURl);
+                }
+                else {
+                    console.error("Failed to upload file:", uploadResult.Error);
+                }
+            }
+        }
+        // const message = await conversationService.sendMessage(
+        //   id,
+        //   userId,
+        //   body,
+        //   media
+        // );
         return res.status(201).json({
             success: true,
-            data: message,
+            data: mediaPaths,
             message: "Messages Send Successfully",
         });
     }
@@ -604,7 +632,7 @@ const getCurrentConversationDetails = async (req, res) => {
             });
             let notCurrentUser = notCurrentUserArray[0];
             currentChatUser = await EmployeeModel_1.default.findOne({
-                user: notCurrentUser.user._id
+                user: notCurrentUser.user._id,
             }).select("name designation");
         }
         return res.status(200).json({
@@ -629,65 +657,70 @@ const getClientAdminChats = async (req, res) => {
         if (currentUser.role !== global_enum_1.GlobalAdminRoles.ClientAdmin) {
             return res.status(200).json({
                 success: false,
-                message: "Please login as client admin to get conversation"
+                message: "Please login as client admin to get conversation",
             });
         }
         const clientAdmin = await UserModel_1.default.findById(currentUser.id);
         if (!clientAdmin) {
             return res.status(200).json({
                 success: false,
-                message: "Invalid Client Admin"
+                message: "Invalid Client Admin",
             });
         }
         const superAdmin = await UserModel_1.default.findOne({
             role: global_enum_1.GlobalAdminRoles.SuperAdmin,
-            _id: clientAdmin.createdBy
+            _id: clientAdmin.createdBy,
         });
         if (!superAdmin) {
             return res.status(200).json({
                 success: false,
-                message: "No super admin found for this client admin"
+                message: "No super admin found for this client admin",
             });
         }
-        // Get all teams where the client admin is a member
-        const teams = await TeamModel_1.default.find({
-            createdBy: superAdmin._id,
-            isDeleted: false
-        }).lean();
         // Get all employees created by this super admin
         const allEmployees = await EmployeeModel_1.default.find({
             createdBy: superAdmin._id,
-            isDeleted: false
-        }).populate('user').lean();
+            isDeleted: false,
+        })
+            .populate("user")
+            .lean();
         // Find current user's employee record
-        const currentUserEmployee = allEmployees.find(emp => emp.user && emp.user._id.toString() === clientAdmin._id.toString());
+        const currentUserEmployee = allEmployees.find((emp) => emp.user &&
+            emp.user._id.toString() === clientAdmin._id.toString());
         // Find super admin employee
-        const superAdminEmployee = allEmployees.find(emp => emp.user && emp.user._id.toString() === superAdmin._id.toString());
+        const superAdminEmployee = allEmployees.find((emp) => emp.user &&
+            emp.user._id.toString() === superAdmin._id.toString());
         // Get conversation between current user and super admin
         let superAdminConversation = null;
         if (superAdminEmployee) {
             superAdminConversation = await ConversationModel_1.default.findOne({
                 type: ConversationModel_1.ConversationType.SINGLE,
                 participants: {
-                    $elemMatch: { user: clientAdmin._id }
+                    $elemMatch: { user: clientAdmin._id },
                 },
-                'participants.user': superAdmin._id
-            }).populate({
-                path: 'lastMessage',
-                model: 'Message'
-            }).lean();
+                "participants.user": superAdmin._id,
+            })
+                .populate({
+                path: "lastMessage",
+                model: "Message",
+            })
+                .lean();
         }
         // Prepare result array with super admin section
         const result = [];
         // Add Super-Admin section
         result.push({
             team: "Super-Admin",
-            members: superAdminEmployee ? [{
-                    ...superAdminEmployee,
-                    conversation: superAdminConversation
-                }] : []
+            members: superAdminEmployee
+                ? [
+                    {
+                        ...superAdminEmployee,
+                        conversation: superAdminConversation,
+                    },
+                ]
+                : [],
         });
-        // Create a set of employees to exclude from teams and others
+        // Create a set of employees to exclude from others
         const excludedEmployeeIds = new Set();
         // Add super admin and current user to excluded list
         if (superAdminEmployee) {
@@ -696,69 +729,87 @@ const getClientAdminChats = async (req, res) => {
         if (currentUserEmployee) {
             excludedEmployeeIds.add(currentUserEmployee._id.toString());
         }
-        // Process each team
-        for (const team of teams) {
-            // Get team members with their users
-            const teamMembers = [];
-            for (const memberId of team.members) {
-                const member = allEmployees.find(emp => emp._id.toString() === memberId.toString());
-                // Skip if member is super admin or current user
-                if (member && member.user && !excludedEmployeeIds.has(member._id.toString())) {
-                    // Find conversation between client admin and this member
-                    const conversation = await ConversationModel_1.default.findOne({
-                        type: ConversationModel_1.ConversationType.SINGLE,
-                        participants: {
-                            $elemMatch: { user: clientAdmin._id }
-                        },
-                        'participants.user': member.user._id
-                    }).populate({
-                        path: 'lastMessage',
-                        model: 'Message'
-                    }).lean();
-                    teamMembers.push({
-                        ...member,
-                        conversation: conversation
-                    });
-                    // Add to excluded list to prevent duplication in Others
-                    excludedEmployeeIds.add(member._id.toString());
+        // Find all team conversations where current user is a participant
+        const teamConversations = await ConversationModel_1.default.find({
+            identity: ConversationModel_1.ConversationIdentity.TEAM,
+            participants: {
+                $elemMatch: { user: clientAdmin._id },
+            },
+        })
+            .populate({
+            path: "lastMessage",
+            model: "Message",
+        })
+            .lean();
+        // Get team IDs where current user is a participant
+        const teamIds = teamConversations.map(conv => conv.identityId);
+        // Get team details for these teams
+        const userTeams = await TeamModel_1.default.find({
+            _id: { $in: teamIds },
+            isDeleted: false,
+        }).lean();
+        // Process each team where the current user is a participant
+        for (const team of userTeams) {
+            // Get team conversation
+            const teamConversation = teamConversations.find(conv => conv.identityId && conv.identityId.toString() === team._id.toString());
+            if (teamConversation) {
+                // Get team members with their users
+                const teamMembers = [];
+                for (const memberId of team.members) {
+                    const member = allEmployees.find((emp) => emp._id.toString() === memberId.toString());
+                    // Skip if member is super admin or current user
+                    if (member &&
+                        member.user &&
+                        !excludedEmployeeIds.has(member._id.toString())) {
+                        // Find conversation between client admin and this member
+                        const conversation = await ConversationModel_1.default.findOne({
+                            type: ConversationModel_1.ConversationType.SINGLE,
+                            participants: {
+                                $elemMatch: { user: clientAdmin._id },
+                            },
+                            "participants.user": member.user._id,
+                        })
+                            .populate({
+                            path: "lastMessage",
+                            model: "Message",
+                        })
+                            .lean();
+                        teamMembers.push({
+                            ...member,
+                            conversation: conversation,
+                        });
+                        // Add to excluded list to prevent duplication in Others
+                        excludedEmployeeIds.add(member._id.toString());
+                    }
                 }
+                result.push({
+                    team: team.name,
+                    members: teamMembers,
+                    conversation: teamConversation,
+                });
             }
-            // Find team conversation if exists
-            const teamConversation = await ConversationModel_1.default.findOne({
-                identity: ConversationModel_1.ConversationIdentity.TEAM,
-                identityId: team._id,
-                participants: {
-                    $elemMatch: { user: clientAdmin._id }
-                }
-            }).populate({
-                path: 'lastMessage',
-                model: 'Message'
-            }).lean();
-            result.push({
-                team: team.name,
-                members: teamMembers,
-                conversation: teamConversation
-            });
         }
         // Find non-team employees (Others)
         const otherMembers = [];
-        // Find employees who are not in any team, not super admin, and not current user
+        // Find employees who are not in any team where current user is participating, not super admin, and not current user
         for (const employee of allEmployees) {
             if (!excludedEmployeeIds.has(employee._id.toString()) && employee.user) {
                 // Find conversation between client admin and this employee
                 const conversation = await ConversationModel_1.default.findOne({
                     type: ConversationModel_1.ConversationType.SINGLE,
                     participants: {
-                        $elemMatch: { user: clientAdmin._id }
+                        $elemMatch: { user: clientAdmin._id },
                     },
-                    'participants.user': employee.user._id
-                }).populate({
-                    path: 'lastMessage',
-                    model: 'Message'
-                }).lean();
+                    "participants.user": employee.user._id,
+                })
+                    .populate({
+                    path: "lastMessage",
+                    model: "Message",
+                })
+                    .lean();
                 otherMembers.push({
                     ...employee,
-                    conversation: conversation
+                    conversation: conversation,
                 });
             }
         }
@@ -766,11 +817,11 @@ const getClientAdminChats = async (req, res) => {
         result.push({
             team: "Others",
             members: otherMembers,
-            conversation: null
+            // conversation: null,
         });
         return res.status(200).json({
             success: true,
-            data: result
+            data: result,
         });
     }
     catch (error) {
@@ -782,3 +833,36 @@ const getClientAdminChats = async (req, res) => {
     }
 };
 exports.getClientAdminChats = getClientAdminChats;
+const uploadMediaToSend = async (req, res) => {
+    try {
+        let mediaPaths = [];
+        if (req.files) {
+            const files = Array.isArray(req.files) ? req.files : Object.values(req.files).flat();
+            for (const file of files) {
+                const fileName = `uploads/${Date.now()}-${file.originalname}`;
+                const uploadResult = await (0, S3Bucket_1.UploadFile)({
+                    file: file.buffer,
+                    fileName: fileName,
+                    contentType: file.mimetype,
+                });
+                if (uploadResult.Success && uploadResult.ImageURl) {
+                    mediaPaths.push(uploadResult.ImageURl);
+                }
+                else {
+                    console.error("Failed to upload file:", uploadResult.Error);
+                }
+            }
+        }
+        return res.status(201).json({
+            success: true,
+            data: mediaPaths,
+            message: "Media Uploaded Successfully",
+        });
+    }
+    catch (error) {
+        return res
+            .status(500)
+            .json({ success: false, message: error.message || "Server error in uploading media" });
+    }
+};
+exports.uploadMediaToSend = uploadMediaToSend;
