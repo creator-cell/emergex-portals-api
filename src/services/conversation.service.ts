@@ -411,6 +411,7 @@ class ConversationService {
       throw error;
     }
   }
+  
 }
 
 export default new ConversationService();

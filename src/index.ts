@@ -25,6 +25,7 @@ import transcriptionRoutes from "./routes/transcriptionRoutes";
 import chatRoutes from "./routes/ChatRoutes";
 import conversationRoutes from "./routes/ConversationRoutes";
 import webhookRoutes from "./routes/webhookRoutes";
+import callRoutes from './routes/CallRoutes'; // Import the new call routes
 // import messageRoutes from "./routes/MessageRoutes";
 
 import path from "path";
@@ -77,6 +78,7 @@ app.use("/api/incidents-history", incidentHistoryRoutes);
 app.use("/api/transcription", transcriptionRoutes);
 app.use("/api/chats", chatRoutes);
 app.use('/api/conversations', conversationRoutes);
+app.use('/api/calls', callRoutes);
 app.use('/api/webhook', validateTwilioWebhook, webhookRoutes);
 // app.use("/api/messages", messageRoutes);
 
