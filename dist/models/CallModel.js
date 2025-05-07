@@ -27,67 +27,80 @@ exports.CallStatus = exports.CallType = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 var CallType;
 (function (CallType) {
-    CallType["AUDIO"] = "audio";
+    CallType["VOICE"] = "voice";
     CallType["VIDEO"] = "video";
-    CallType["SCREEN_SHARE"] = "screen_share";
 })(CallType || (exports.CallType = CallType = {}));
 var CallStatus;
 (function (CallStatus) {
     CallStatus["INITIATED"] = "initiated";
     CallStatus["RINGING"] = "ringing";
-    CallStatus["ONGOING"] = "ongoing";
+    CallStatus["IN_PROGRESS"] = "in-progress";
     CallStatus["COMPLETED"] = "completed";
-    CallStatus["MISSED"] = "missed";
-    CallStatus["REJECTED"] = "rejected";
     CallStatus["FAILED"] = "failed";
+    CallStatus["BUSY"] = "busy";
+    CallStatus["NO_ANSWER"] = "no-answer";
+    CallStatus["CANCELED"] = "canceled";
 })(CallStatus || (exports.CallStatus = CallStatus = {}));
 const callSchema = new mongoose_1.Schema({
     twilioSid: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
     },
-    roomName: {
+    token: {
         type: String,
-        required: true
+        unique: true,
+    },
+    roomId: {
+        type: String,
+        unique: true,
     },
     type: {
         type: String,
         enum: Object.values(CallType),
-        required: true
+        required: true,
     },
     status: {
         type: String,
         enum: Object.values(CallStatus),
-        default: CallStatus.INITIATED
+        required: true,
+        default: CallStatus.INITIATED,
     },
-    initiator: {
+    from: {
         type: mongoose_1.default.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+        ref: "User",
+        required: true,
     },
-    participants: [{
-            type: mongoose_1.default.Schema.Types.ObjectId,
-            ref: 'User',
-            required: true
-        }],
-    startTime: {
-        type: Date,
-        default: Date.now
+    to: {
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
     },
-    endTime: {
-        type: Date
+    conversationId: {
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        ref: "Conversation",
     },
     duration: {
-        type: Number
+        type: Number,
     },
-    attributes: {
-        type: mongoose_1.Schema.Types.Mixed
-    }
+    startTime: {
+        type: Date,
+    },
+    endTime: {
+        type: Date,
+    },
+    recordingUrl: {
+        type: String,
+    },
+    recordingSid: {
+        type: String,
+    },
+    roomName: {
+        type: String,
+    },
 }, { timestamps: true });
-// Add indexes for faster queries
-callSchema.index({ participants: 1 });
-callSchema.index({ initiator: 1 });
-callSchema.index({ startTime: -1 });
-const CallModel = mongoose_1.default.model('Call', callSchema);
+callSchema.index({ from: 1 });
+callSchema.index({ to: 1 });
+callSchema.index({ conversationId: 1 });
+const CallModel = mongoose_1.default.model("Call", callSchema);
 exports.default = CallModel;

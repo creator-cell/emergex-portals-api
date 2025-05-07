@@ -40,12 +40,6 @@ export const generateVideoCallToken = async (req: Request, res: Response) => {
   try {
     const { roomName } = req.query;
 
-    const room = await twilioClient.video.v1.rooms.create({
-      uniqueName: roomName as string,
-      type: "group",
-      recordParticipantsOnConnect: false,
-    });
-
     const token = await callService.generateVideoToken(
       currentUser.id,
       roomName as string
@@ -54,7 +48,6 @@ export const generateVideoCallToken = async (req: Request, res: Response) => {
     return res.status(200).json({ 
       success: true, 
       token, 
-      room,
       message: "Video Call token generated successfully" 
     });
 

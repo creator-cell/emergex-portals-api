@@ -51,6 +51,7 @@ const transcriptionRoutes_1 = __importDefault(require("./routes/transcriptionRou
 const ChatRoutes_1 = __importDefault(require("./routes/ChatRoutes"));
 const ConversationRoutes_1 = __importDefault(require("./routes/ConversationRoutes"));
 const webhookRoutes_1 = __importDefault(require("./routes/webhookRoutes"));
+const CallRoutes_1 = __importDefault(require("./routes/CallRoutes")); // Import the new call routes
 // import messageRoutes from "./routes/MessageRoutes";
 const path_1 = __importDefault(require("path"));
 const socket_1 = require("./socket");
@@ -93,6 +94,7 @@ app.use("/api/incidents-history", IncidentHistoryRoutes_1.default);
 app.use("/api/transcription", transcriptionRoutes_1.default);
 app.use("/api/chats", ChatRoutes_1.default);
 app.use('/api/conversations', ConversationRoutes_1.default);
+app.use('/api/calls', CallRoutes_1.default);
 app.use('/api/webhook', webhookAuthMiddleware_1.validateTwilioWebhook, webhookRoutes_1.default);
 // app.use("/api/messages", messageRoutes);
 (0, socket_1.setupSocketServer)(server);

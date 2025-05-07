@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.uploadMediaToSend = exports.getClientAdminChats = exports.getCurrentConversationDetails = exports.generateToken = exports.deleteConversation = exports.updateConversation = exports.sendMessage = exports.removeParticipant = exports.addParticipant = exports.getConversationMessages = exports.getConversation = exports.getAvailableConversations = exports.getTeamsWithMembersAndConversations = exports.getUserConversations = exports.createConversation = void 0;
+exports.getIncidentChats = exports.uploadMediaToSend = exports.getClientAdminChats = exports.getCurrentConversationDetails = exports.generateToken = exports.deleteConversation = exports.updateConversation = exports.sendMessage = exports.removeParticipant = exports.addParticipant = exports.getConversationMessages = exports.getConversation = exports.getAvailableConversations = exports.getTeamsWithMembersAndConversations = exports.getUserConversations = exports.createConversation = void 0;
 const conversation_service_1 = __importDefault(require("../services/conversation.service"));
 const IncidentModel_1 = __importDefault(require("../models/IncidentModel"));
 const ConversationModel_1 = __importStar(require("../models/ConversationModel"));
@@ -36,6 +36,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const TeamModel_1 = __importDefault(require("../models/TeamModel"));
 const UserModel_1 = __importDefault(require("../models/UserModel"));
 const S3Bucket_1 = require("../helper/S3Bucket");
+const ProjectRoleModel_1 = __importDefault(require("../models/ProjectRoleModel"));
 const createConversation = async (req, res) => {
     const customReq = req;
     const currentUser = customReq.user;
@@ -472,7 +473,9 @@ const sendMessage = async (req, res) => {
         }
         let mediaPaths = [];
         if (req.files) {
-            const files = Array.isArray(req.files) ? req.files : Object.values(req.files).flat();
+            const files = Array.isArray(req.files)
+                ? req.files
+                : Object.values(req.files).flat();
             for (const file of files) {
                 const fileName = `uploads/${Date.now()}-${file.originalname}`;
                 const uploadResult = await (0, S3Bucket_1.UploadFile)({
@@ -686,10 +689,12 @@ const getClientAdminChats = async (req, res) => {
             .lean();
         // Find current user's employee record
         const currentUserEmployee = allEmployees.find((emp) => emp.user &&
-            emp.user._id.toString() === clientAdmin._id.toString());
+            emp.user._id.toString() ===
+                clientAdmin._id.toString());
         // Find super admin employee
         const superAdminEmployee = allEmployees.find((emp) => emp.user &&
-            emp.user._id.toString() === superAdmin._id.toString());
+            emp.user._id.toString() ===
+                superAdmin._id.toString());
         // Get conversation between current user and super admin
         let superAdminConversation = null;
         if (superAdminEmployee) {
@@ -742,7 +747,7 @@ const getClientAdminChats = async (req, res) => {
         })
             .lean();
         // Get team IDs where current user is a participant
-        const teamIds = teamConversations.map(conv => conv.identityId);
+        const teamIds = teamConversations.map((conv) => conv.identityId);
         // Get team details for these teams
         const userTeams = await TeamModel_1.default.find({
             _id: { $in: teamIds },
@@ -751,7 +756,7 @@ const getClientAdminChats = async (req, res) => {
         // Process each team where the current user is a participant
         for (const team of userTeams) {
             // Get team conversation
-            const teamConversation = teamConversations.find(conv => conv.identityId && conv.identityId.toString() === team._id.toString());
+            const teamConversation = teamConversations.find((conv) => conv.identityId && conv.identityId.toString() === team._id.toString());
             if (teamConversation) {
                 // Get team members with their users
                 const teamMembers = [];
@@ -837,7 +842,9 @@ const uploadMediaToSend = async (req, res) => {
     try {
         let mediaPaths = [];
         if (req.files) {
-            const files = Array.isArray(req.files) ? req.files : Object.values(req.files).flat();
+            const files = Array.isArray(req.files)
+                ? req.files
+                : Object.values(req.files).flat();
             for (const file of files) {
                 const fileName = `uploads/${Date.now()}-${file.originalname}`;
                 const uploadResult = await (0, S3Bucket_1.UploadFile)({
@@ -860,9 +867,85 @@ const uploadMediaToSend = async (req, res) => {
         });
     }
     catch (error) {
-        return res
-            .status(500)
-            .json({ success: false, message: error.message || "Server error in uploading media" });
+        return res.status(500).json({
+            success: false,
+            message: error.message || "Server error in uploading media",
+        });
     }
 };
 exports.uploadMediaToSend = uploadMediaToSend;
+const getIncidentChats = async (req, res) => {
+    const customReq = req;
+    const currentUser = customReq.user;
+    const { id } = req.query;
+    try {
+        // Find the incident by ID
+        const incident = await IncidentModel_1.default.findById(id);
+        if (!incident) {
+            return res.status(200).json({
+                success: false,
+                message: "Incident not found",
+            });
+        }
+        // Find project roles for the incident's project
+        const projectRoles = await ProjectRoleModel_1.default.find({
+            project: incident.project,
+        });
+        // Get all employee IDs in the project
+        const projectEmployeesIds = projectRoles.map((role) => role.employee);
+        // Get all employees in the project
+        const projectEmployees = await EmployeeModel_1.default.find({
+            _id: {
+                $in: projectEmployeesIds
+            },
+            isDeleted: false
+        });
+        // Get all user IDs of the project employees (except current user)
+        const projectUserIds = projectEmployees
+            .map((emp) => emp.user)
+            .filter((id) => id && id.toString() !== currentUser.id);
+        // Find the incident conversation
+        const incidentConversation = await ConversationModel_1.default.findOne({
+            identity: ConversationModel_1.ConversationIdentity.INCIDENT,
+            identityId: incident._id,
+            isActive: true
+        }).populate('lastMessage');
+        // Find one-on-one conversations between current user and each project employee
+        const employeeConversations = await ConversationModel_1.default.find({
+            type: ConversationModel_1.ConversationType.SINGLE,
+            isActive: true,
+            $and: [
+                { 'participants.user': currentUser.id },
+                { 'participants.user': { $in: projectUserIds } }
+            ]
+        }).populate('lastMessage');
+        // Map conversations to their respective employee users
+        const employeesWithConversations = await Promise.all(projectEmployees
+            .filter(emp => emp.user && emp.user.toString() !== currentUser.id)
+            .map(async (employee) => {
+            // Find the conversation between current user and this employee
+            const conversation = employeeConversations.find(conv => conv.participants.some(p => p.user.toString() === employee.user.toString()));
+            return {
+                ...employee.toObject(),
+                conversation: conversation || null
+            };
+        }));
+        // Return the complete response
+        return res.status(200).json({
+            success: true,
+            data: {
+                ...incident.toObject(),
+                conversation: incidentConversation || null,
+                employees: employeesWithConversations
+            }
+        });
+    }
+    catch (error) {
+        console.error("Error in getIncidentChats:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Error in getting incident's conversations",
+        });
+    }
+};
+exports.getIncidentChats = getIncidentChats;

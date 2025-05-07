@@ -26,6 +26,7 @@ router.get("/token/generate", ConversationControllers_1.generateToken);
 router.get('/team-and-members/get-list', ConversationControllers_1.getTeamsWithMembersAndConversations);
 router.get('/available-chats/get-list', ConversationControllers_1.getAvailableConversations);
 router.get('/available-chats/client-admin', ConversationControllers_1.getClientAdminChats);
+router.get('/available-chats/incident', ConversationControllers_1.getIncidentChats);
 router.get('/current-conversation/details', ConversationControllers_1.getCurrentConversationDetails);
 router.post("/upload-media", MulterConfig_1.handleMediaUpload, ConversationControllers_1.uploadMediaToSend);
 exports.default = router;
