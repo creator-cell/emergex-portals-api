@@ -38,11 +38,9 @@ export const generateVideoCallToken = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
   try {
-    const { roomName } = req.query;
 
     const token = await callService.generateVideoToken(
       currentUser.id,
-      roomName as string
     );
     
     return res.status(200).json({ 

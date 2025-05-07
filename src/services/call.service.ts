@@ -52,7 +52,7 @@ class CallService {
   /**
    * Generate a token for voice and video calls
    */
-  async generateVideoToken(userId: string, roomName: string): Promise<string> {
+  async generateVideoToken(userId: string): Promise<string> {
     try {
       const { AccessToken } = require("twilio").jwt;
       const { VoiceGrant, VideoGrant } = AccessToken;
@@ -65,9 +65,7 @@ class CallService {
         { identity: userId,ttl:12*3600 },
       );
 
-      const videoGrant = new VideoGrant({
-        room: roomName,
-      });
+      const videoGrant = new VideoGrant();
       
       token.addGrant(videoGrant);
 
