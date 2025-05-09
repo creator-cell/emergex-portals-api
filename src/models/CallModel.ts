@@ -44,7 +44,7 @@ const callSchema = new Schema<ICall>(
     },
     token: {
       type: String,
-      unique: true,
+      // unique: true,
     },
     roomId: {
       type: String,
