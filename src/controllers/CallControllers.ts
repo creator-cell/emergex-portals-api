@@ -152,12 +152,12 @@ export const initiateVideoCall = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
   try {
-    const { conversationId } = req.body;
+    const { conversationId } = req.query;
     const fromUserId = currentUser.id;
 
     const call = await callService.initiateVideoCall(
       fromUserId,
-      conversationId
+      conversationId as string
     );
 
     // Generate token for the current user to join the video room
