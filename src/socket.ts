@@ -4,6 +4,16 @@ import { logger } from './config/logger';
 
 export const userSocketMap: { [key: string]: string } = {};
 
+let socketIOInstance: Server | null = null;
+
+export const setSocketIOInstance = (io: Server) => {
+  socketIOInstance = io;
+};
+
+export const getSocketIO = (): Server | null => {
+  return socketIOInstance;
+};
+
 export const setupSocketServer = (server: any) => {
   const io = new Server(server, {
     cors: {
@@ -12,8 +22,7 @@ export const setupSocketServer = (server: any) => {
     },
   });
 
-  // Store connected users
-  const userSocketMap: { [key: string]: string } = {};
+  setSocketIOInstance(io);
 
   io.on('connection', (socket) => {
     logger.info(`User connected: ${socket.id}`);
@@ -159,14 +168,4 @@ export const setupSocketServer = (server: any) => {
   
 
   return io;
-};
-
-let socketIOInstance: Server | null = null;
-
-export const setSocketIOInstance = (io: Server) => {
-  socketIOInstance = io;
-};
-
-export const getSocketIO = (): Server | null => {
-  return socketIOInstance;
 };

@@ -7,3 +7,7 @@
 {"level":"error","message":"Socket.IO instance not available when trying to emit incoming_call","service":"chat-app","timestamp":"2025-05-09T12:25:04.533Z"}
 {"level":"error","message":"Socket.IO instance not available when trying to emit incoming_call","service":"chat-app","timestamp":"2025-05-09T12:36:42.984Z"}
 {"level":"error","message":"Socket.IO instance not available when trying to emit incoming_call","service":"chat-app","timestamp":"2025-05-09T12:36:42.992Z"}
+{"level":"error","message":" Not Found socket ID for user 68185da4be6afd5b96c533dd","service":"chat-app","timestamp":"2025-05-09T12:45:04.965Z"}
+{"level":"error","message":" Not Found socket ID for user 68185da4be6afd5b96c533e2","service":"chat-app","timestamp":"2025-05-09T12:45:04.976Z"}
+{"level":"error","message":" Not Found socket ID for user 68185da4be6afd5b96c533dd","service":"chat-app","timestamp":"2025-05-09T12:45:36.164Z"}
+{"level":"error","message":" Not Found socket ID for user 68185da4be6afd5b96c533e2","service":"chat-app","timestamp":"2025-05-09T12:45:36.167Z"}

@@ -333,9 +333,10 @@ class CallService {
         const socketId = userSocketMap[toUserId];
 
         if (!socketId) {
-          logger.info(`Found socket ID ${socketId} for user ${toUserId}`);
+          logger.error(` Not Found socket ID for user ${toUserId}`);
+          return;
         }
-        logger.error(` Not Found socket ID for user ${toUserId}`);
+        logger.info(`Found socket ID ${socketId} for user ${toUserId}`);
 
         logger.info(`Attempting to emit incoming_call to user ${toUserId}`, {
           callData,
