@@ -18,13 +18,12 @@ export const generateCallToken = async (req: Request, res: Response) => {
       identity,
       roomName as string | undefined
     );
-    
-    return res.status(200).json({ 
-      success: true, 
-      token, 
-      message: "Call token generated successfully" 
-    });
 
+    return res.status(200).json({
+      success: true,
+      token,
+      message: "Call token generated successfully",
+    });
   } catch (error: any) {
     console.error("Error generating call token:", error);
     return res.status(500).json({
@@ -44,13 +43,12 @@ export const generateVideoCallToken = async (req: Request, res: Response) => {
       currentUser.id,
       roomName as string
     );
-    
-    return res.status(200).json({ 
-      success: true, 
-      token, 
-      message: "Video Call token generated successfully" 
-    });
 
+    return res.status(200).json({
+      success: true,
+      token,
+      message: "Video Call token generated successfully",
+    });
   } catch (error: any) {
     console.error("Error generating call token:", error);
     return res.status(500).json({
@@ -70,20 +68,19 @@ export const initiateVoiceCall = async (req: Request, res: Response) => {
     // Validate toUserId
     const toUser = await UserModel.findById(toUserId);
     if (!toUser) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Recipient user not found" 
+      return res.status(400).json({
+        success: false,
+        message: "Recipient user not found",
       });
     }
 
     const call = await callService.initiateVoiceCall(fromUserId, toUserId);
-    
+
     return res.status(200).json({
       success: true,
       call,
       message: "Voice call initiated successfully",
     });
-    
   } catch (error: any) {
     console.error("Error initiating voice call:", error);
     return res.status(500).json({
@@ -96,45 +93,45 @@ export const initiateVoiceCall = async (req: Request, res: Response) => {
 export const handleVoiceWebhook = async (req: Request, res: Response) => {
   try {
     const { CallSid, CallStatus, CallDuration } = req.body;
-    
+
     if (CallSid && CallStatus) {
       // Map Twilio status to our status enum
       let status: CallStatus;
       switch (CallStatus) {
-        case 'in-progress':
+        case "in-progress":
           status = CallStatus.IN_PROGRESS;
           break;
-        case 'completed':
+        case "completed":
           status = CallStatus.COMPLETED;
           break;
-        case 'busy':
+        case "busy":
           status = CallStatus.BUSY;
           break;
-        case 'no-answer':
+        case "no-answer":
           status = CallStatus.NO_ANSWER;
           break;
-        case 'canceled':
+        case "canceled":
           status = CallStatus.CANCELED;
           break;
-        case 'failed':
+        case "failed":
           status = CallStatus.FAILED;
           break;
         default:
           status = CallStatus.INITIATED;
       }
-      
+
       // Update call status in database
       await callService.updateCallStatus(
-        CallSid, 
-        status, 
+        CallSid,
+        status,
         CallDuration ? parseInt(CallDuration) : undefined
       );
     }
-    
-    res.status(200).send('Webhook received');
+
+    res.status(200).send("Webhook received");
   } catch (error: any) {
     console.error("Error handling voice webhook:", error);
-    res.status(500).send('Error processing webhook');
+    res.status(500).send("Error processing webhook");
   }
 };
 
@@ -142,12 +139,12 @@ export const connectVoiceCall = async (req: Request, res: Response) => {
   try {
     const { toIdentity } = req.params;
     const twiml = callService.generateVoiceTwiML(toIdentity);
-    
-    res.type('text/xml');
+
+    res.type("text/xml");
     res.send(twiml);
   } catch (error: any) {
     console.error("Error connecting voice call:", error);
-    res.status(500).send('Error connecting call');
+    res.status(500).send("Error connecting call");
   }
 };
 
@@ -159,16 +156,16 @@ export const initiateVideoCall = async (req: Request, res: Response) => {
     const fromUserId = currentUser.id;
 
     const call = await callService.initiateVideoCall(
-      fromUserId, 
+      fromUserId,
       conversationId
     );
-    
+
     // Generate token for the current user to join the video room
     const token = await callService.generateVideoToken(
       fromUserId,
       call.roomName!
     );
-    
+
     return res.status(200).json({
       success: true,
       token,
@@ -179,7 +176,7 @@ export const initiateVideoCall = async (req: Request, res: Response) => {
     console.error("Error initiating video call:", error);
     return res.status(500).json({
       success: false,
-      error: error.message || "An error occurred initiating video call",
+      error: error.message ?? "An error occurred initiating video call",
     });
   }
 };
@@ -190,30 +187,27 @@ export const joinVideoCall = async (req: Request, res: Response) => {
   try {
     const { roomName } = req.params;
     const userId = currentUser.id;
-    
+
     // Check if the room exists and the call is valid
-    const call = await CallModel.findOne({ 
-      roomName, 
-      $or: [
-        { from: userId },
-        { to: userId }
-      ]
+    const call = await CallModel.findOne({
+      roomName,
+      $or: [{ from: userId }, { to: userId }],
     });
-    
+
     if (!call) {
-      return res.status(404).json({ 
-        success: false, 
-        message: "Video call not found or you don't have permission to join" 
+      return res.status(404).json({
+        success: false,
+        message: "Video call not found or you don't have permission to join",
       });
     }
-    
+
     // Generate token for the user to join the video room
     const token = await callService.generateToken(
       userId,
       currentUser.email || userId,
       roomName
     );
-    
+
     return res.status(200).json({
       success: true,
       token,
@@ -236,30 +230,32 @@ export const endCall = async (req: Request, res: Response) => {
   try {
     const { callId } = req.params;
     const userId = currentUser.id;
-    
+
     // Find the call and check permissions
     const call = await CallModel.findById(callId);
-    
+
     if (!call) {
-      return res.status(404).json({ 
-        success: false, 
-        message: "Call not found" 
+      return res.status(404).json({
+        success: false,
+        message: "Call not found",
       });
     }
-    
+
     // Check if the user is a participant in the call
     if (call.from.toString() !== userId && call.to.toString() !== userId) {
-      return res.status(403).json({ 
-        success: false, 
-        message: "You don't have permission to end this call" 
+      return res.status(403).json({
+        success: false,
+        message: "You don't have permission to end this call",
       });
     }
-    
+
     // End the call in Twilio
     if (call.type === CallType.VOICE) {
       try {
         // For voice calls, terminate via Twilio API
-        await twilioClient.calls(call.twilioSid).update({ status: 'completed' });
+        await twilioClient
+          .calls(call.twilioSid)
+          .update({ status: "completed" });
       } catch (twilioError) {
         console.error("Error ending Twilio call:", twilioError);
         // Continue with the local DB update even if Twilio API call fails
@@ -267,21 +263,25 @@ export const endCall = async (req: Request, res: Response) => {
     } else if (call.type === CallType.VIDEO && call.roomName) {
       try {
         // For video calls, close the room
-        await twilioClient.video.v1.rooms(call.roomName).update({ status: 'completed' });
+        await twilioClient.video.v1
+          .rooms(call.roomName)
+          .update({ status: "completed" });
       } catch (twilioError) {
         console.error("Error closing Twilio video room:", twilioError);
         // Continue with the local DB update even if Twilio API call fails
       }
     }
-    
+
     // Update call status in our database
     call.status = CallStatus.COMPLETED;
     call.endTime = new Date();
     if (call.startTime) {
-      call.duration = Math.round((new Date().getTime() - call.startTime.getTime()) / 1000);
+      call.duration = Math.round(
+        (new Date().getTime() - call.startTime.getTime()) / 1000
+      );
     }
     await call.save();
-    
+
     return res.status(200).json({
       success: true,
       message: "Call ended successfully",
@@ -302,9 +302,9 @@ export const getCallHistory = async (req: Request, res: Response) => {
     const userId = currentUser.id;
     const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
     const before = req.query.before as string;
-    
+
     const calls = await callService.getCallHistory(userId, limit, before);
-    
+
     return res.status(200).json({
       success: true,
       data: calls,
@@ -321,7 +321,7 @@ export const getCallHistory = async (req: Request, res: Response) => {
 
 export const createRoom = async (req: Request, res: Response) => {
   try {
-    const {roomName}=req.body;
+    const { roomName } = req.body;
     const room = await twilioClient.video.v1.rooms.create({
       uniqueName: roomName,
       type: "group",
@@ -329,8 +329,8 @@ export const createRoom = async (req: Request, res: Response) => {
     });
 
     return res.status(200).json({
-      success:true,
-      room
+      success: true,
+      room,
     });
   } catch (error: any) {
     return res.status(500).json({

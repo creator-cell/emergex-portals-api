@@ -51,7 +51,7 @@ class CallService {
   /**
    * Generate a token for voice and video calls
    */
-  async generateVideoToken(userId: string, roomName: string): Promise<string> {
+  async generateVideoToken(userId: string, roomName: string) {
     try {
       const { AccessToken } = require("twilio").jwt;
       const { VideoGrant } = AccessToken;
@@ -60,20 +60,19 @@ class CallService {
 
       const name = user?.lastName ? user.firstName + " " + user.lastName : user?.firstName;
 
-      const identityPayload = JSON.stringify({
-        id: userId,
-        name,
-        role: user?.role,
-      });
-
       // Create an access token
       const token = new AccessToken(
         process.env.TWILIO_ACCOUNT_SID as string,
         process.env.TWILIO_API_KEY as string,
         process.env.TWILIO_API_SECRET as string,
         { 
-          identity: Buffer.from(identityPayload).toString("base64"),
-          ttl:12*3600 
+          identity: userId,
+          ttl:12*3600 ,
+          claims: {
+            name: name,
+            email: user?.email,
+            role: user?.role,
+          }
         },
       );
 
@@ -152,12 +151,12 @@ class CallService {
    */
   async createVideoRoom(
     roomName: string,
-    type: "peer-to-peer" | "group" = "peer-to-peer"
+    type: "peer-to-peer" | "group" = "group"
   ): Promise<any> {
     try {
       const room = await twilioClient.video.v1.rooms.create({
         uniqueName: roomName,
-        type: type === "peer-to-peer" ? "peer-to-peer" : "group-small",
+        type,
         recordParticipantsOnConnect: false,
       });
 
