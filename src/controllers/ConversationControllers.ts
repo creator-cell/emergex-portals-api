@@ -7,10 +7,10 @@ import ConversationModel, {
   ConversationType,
 } from "../models/ConversationModel";
 import { GlobalAdminRoles } from "../config/global-enum";
-import EmployeeModel, { IEmployee } from "../models/EmployeeModel";
+import EmployeeModel from "../models/EmployeeModel";
 import mongoose from "mongoose";
-import TeamModel, { ITeam } from "../models/TeamModel";
-import UserModel, { IUser } from "../models/UserModel";
+import TeamModel from "../models/TeamModel";
+import UserModel from "../models/UserModel";
 import { UploadFile } from "../helper/S3Bucket";
 import ProjectRoleModel from "../models/ProjectRoleModel";
 
@@ -73,7 +73,7 @@ export const createConversation = async (req: Request, res: Response) => {
     );
 
     if (participant) {
-      const participantId = employee?.user!.toString();
+      const participantId = employee?.user.toString();
       await conversationService.addParticipant(
         conversationId.toString(),
         participantId,
@@ -81,16 +81,19 @@ export const createConversation = async (req: Request, res: Response) => {
       );
     }
 
+    const newConversation = await ConversationModel.findById(conversation._id);
+
+
     return res.status(201).json({
       success: true,
-      conversation,
+      conversation:newConversation,
       message: "Conversation created successfully",
     });
   } catch (error: any) {
     console.error("Error creating conversation:", error);
     return res
       .status(500)
-      .json({ message: error.message || "An error occurred" });
+      .json({ message: error.message ?? "An error occurred" });
   }
 };
 

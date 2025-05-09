@@ -288,33 +288,13 @@ export const updateIncidentById = async (req: Request, res: Response) => {
 
     if (
       location &&
-      existingIncident.location.toString() !== location.toString()
+      existingIncident.location !== location
     ) {
-      let oldLocation = await WorksiteModel.findById(existingIncident.location);
-      let newLocation = await WorksiteModel.findById(location);
-
-      if (!oldLocation) {
-        return res.status(200).json({
-          success: false,
-          error: req.i18n.t(
-            "locationValidationMessages.response.oldLocationNotFound"
-          ),
-        });
-      }
-
-      if (!newLocation) {
-        return res.status(200).json({
-          success: false,
-          error: req.i18n.t(
-            "locationValidationMessages.response.newLocationNotFound"
-          ),
-        });
-      }
 
       changes.push({
         field: "Location",
-        oldValue: oldLocation.name,
-        newValue: newLocation.name,
+        oldValue: existingIncident.location,
+        newValue: location,
       });
       existingIncident.location = location;
     }

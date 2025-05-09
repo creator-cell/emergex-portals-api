@@ -24968,13 +24968,13 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MGI5M2RkNGFhMmE4YTdhY2VmZDM0NiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoidW5rbm93biIsImRldmljZSI6ImRlc2t0b3AiLCJpYXQiOjE3NDYwOTA3NDMsImV4cCI6MTc0NjE3NzE0M30.cw-aTL8W9UewyjcZkygKIkstf_gXZyskGm9GgPgNnqM",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MTg1YzRjYWFlYmUxNjhkY2FiYWFhMyIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoidW5rbm93biIsImRldmljZSI6ImRlc2t0b3AiLCJpYXQiOjE3NDY2ODQ0NDIsImV4cCI6MTc0Njc3MDg0Mn0.JJ2x8AmzBAC6-_UT7lKgotgRfpRqytzMkFa6cHBbF0Y",
 								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"userId\":\"680b94df575a67ec0d461045\",\n    \"identity\":\"abhinav@gmail.com\"\n}",
+							"raw": "",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -25004,7 +25004,7 @@
 								"header": [
 									{
 										"key": "Authorization",
-										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MGI5M2RkNGFhMmE4YTdhY2VmZDM0NiIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoidW5rbm93biIsImRldmljZSI6ImRlc2t0b3AiLCJpYXQiOjE3NDYxODI0MDEsImV4cCI6MTc0NjI2ODgwMX0.z0HkazLMZNRM2s7UfpJBtDGZir-pvZ6YM1X93F4qDJ0",
+										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MTg1YzRjYWFlYmUxNjhkY2FiYWFhMyIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoidW5rbm93biIsImRldmljZSI6ImRlc2t0b3AiLCJpYXQiOjE3NDY2ODQ0NDIsImV4cCI6MTc0Njc3MDg0Mn0.JJ2x8AmzBAC6-_UT7lKgotgRfpRqytzMkFa6cHBbF0Y",
 										"type": "text"
 									}
 								],
@@ -25054,7 +25054,7 @@
 								},
 								{
 									"key": "Set-Cookie",
-									"value": "i18next=en; Path=/; Expires=Sat, 02 May 2026 10:40:21 GMT; SameSite=Strict"
+									"value": "i18next=en; Path=/; Expires=Fri, 08 May 2026 06:08:24 GMT; SameSite=Strict"
 								},
 								{
 									"key": "Content-Type",
@@ -25062,15 +25062,15 @@
 								},
 								{
 									"key": "Content-Length",
-									"value": "3013"
+									"value": "4796"
 								},
 								{
 									"key": "ETag",
-									"value": "W/\"bc5-J8KeKDS18JvirxCP/Od7B+syYbo\""
+									"value": "W/\"12bc-MA/xm9lSFqJTEU0HPfzTQOZDRIA\""
 								},
 								{
 									"key": "Date",
-									"value": "Fri, 02 May 2025 10:40:21 GMT"
+									"value": "Thu, 08 May 2025 06:08:24 GMT"
 								},
 								{
 									"key": "Connection",
@@ -25082,7 +25082,542 @@
 								}
 							],
 							"cookie": [],
-							"body": "{\n    \"success\": true,\n    \"data\": [\n        {\n            \"_id\": \"68147bc5b2937f71aa8a85d7\",\n            \"name\": \"Reponse Team\",\n            \"members\": [\n                {\n                    \"_id\": \"68147b98b2937f71aa8a85c1\",\n                    \"name\": \"Kavya\",\n                    \"contactNo\": \"9876678909\",\n                    \"designation\": \"HR\",\n                    \"email\": \"kavya@gmail.com\",\n                    \"isDeleted\": false,\n                    \"createdBy\": \"680b93dd4aa2a8a7acefd346\",\n                    \"user\": {\n                        \"_id\": \"68147b98b2937f71aa8a85c5\",\n                        \"username\": \"kavya20394\",\n                        \"email\": \"kavya@gmail.com\"\n                    },\n                    \"conversation\": {\n                        \"_id\": \"68147b9ab2937f71aa8a85cb\",\n                        \"twilioSid\": \"CH66bedc4bff114360830213063685a346\",\n                        \"type\": \"single\",\n                        \"identity\": \"Employee\",\n                        \"name\": \"conversation-680b93dd4aa2a8a7acefd346-68147b98b2937f71aa8a85c5\",\n                        \"participants\": [\n                            {\n                                \"user\": \"680b93dd4aa2a8a7acefd346\",\n                                \"participantSid\": \"MB5c672d7a7cb04b3299bbc66ca38f3407\",\n                                \"identity\": \"680b93dd4aa2a8a7acefd346\",\n                                \"_id\": \"68147b9ab2937f71aa8a85ce\"\n                            },\n                            {\n                                \"user\": \"68147b98b2937f71aa8a85c5\",\n                                \"participantSid\": \"MB5a10468bc2f44e9ca46e0c31046cb2ce\",\n                                \"identity\": \"68147b98b2937f71aa8a85c5\",\n                                \"_id\": \"68147b9bb2937f71aa8a85d3\"\n                            }\n                        ],\n                        \"createdBy\": \"680b93dd4aa2a8a7acefd346\",\n                        \"isActive\": true,\n                        \"createdAt\": \"2025-05-02T08:00:26.199Z\",\n                        \"updatedAt\": \"2025-05-02T08:00:27.696Z\",\n                        \"__v\": 2\n                    }\n                },\n                {\n                    \"_id\": \"6814814285739f5b94dd91fc\",\n                    \"name\": \"Varun\",\n                    \"contactNo\": \"9876678909\",\n                    \"designation\": \"Designer\",\n                    \"email\": \"varun@gmail.com\",\n                    \"isDeleted\": false,\n                    \"createdBy\": \"680b93dd4aa2a8a7acefd346\",\n                    \"user\": {\n                        \"_id\": \"6814814285739f5b94dd9200\",\n                        \"username\": \"varun89972\",\n                        \"email\": \"varun@gmail.com\"\n                    },\n                    \"conversation\": {\n                        \"_id\": \"6814814385739f5b94dd9206\",\n                        \"twilioSid\": \"CH4ffaa1a0323745b897ff675d9ba842ef\",\n                        \"type\": \"single\",\n                        \"identity\": \"Employee\",\n                        \"name\": \"conversation-680b93dd4aa2a8a7acefd346-6814814285739f5b94dd9200\",\n                        \"participants\": [\n                            {\n                                \"user\": \"680b93dd4aa2a8a7acefd346\",\n                                \"participantSid\": \"MBa95d1f28fca44bb4b496d280c761cbf8\",\n                                \"identity\": \"680b93dd4aa2a8a7acefd346\",\n                                \"_id\": \"6814814485739f5b94dd9209\"\n                            },\n                            {\n                                \"user\": \"6814814285739f5b94dd9200\",\n                                \"participantSid\": \"MB07f20c1d3101463987cadca8c8d66cfb\",\n                                \"identity\": \"6814814285739f5b94dd9200\",\n                                \"_id\": \"6814814585739f5b94dd920e\"\n                            }\n                        ],\n                        \"createdBy\": \"680b93dd4aa2a8a7acefd346\",\n                        \"isActive\": true,\n                        \"createdAt\": \"2025-05-02T08:24:35.678Z\",\n                        \"updatedAt\": \"2025-05-02T08:24:37.253Z\",\n                        \"__v\": 2\n                    }\n                }\n            ],\n            \"isDeleted\": false,\n            \"createdBy\": \"680b93dd4aa2a8a7acefd346\",\n            \"conversation\": {\n                \"_id\": \"68147bc6b2937f71aa8a85d9\",\n                \"twilioSid\": \"CH07c51cf8f5b546ceb5965786133fed43\",\n                \"type\": \"group\",\n                \"identity\": \"Team\",\n                \"identityId\": \"68147bc5b2937f71aa8a85d7\",\n                \"name\": \"conversation-68147bc5b2937f71aa8a85d7\",\n                \"participants\": [\n                    {\n                        \"user\": \"680b93dd4aa2a8a7acefd346\",\n                        \"participantSid\": \"MBd38101aa5be541a2a9f90f89ccccb35f\",\n                        \"identity\": \"680b93dd4aa2a8a7acefd346\",\n                        \"_id\": \"68147bc7b2937f71aa8a85dc\"\n                    },\n                    {\n                        \"user\": \"68147b98b2937f71aa8a85c5\",\n                        \"participantSid\": \"MBc5d8a595d5044299875b10e8b0c49ac0\",\n                        \"identity\": \"68147b98b2937f71aa8a85c5\",\n                        \"_id\": \"68147bfdb2937f71aa8a85e7\"\n                    },\n                    {\n                        \"user\": \"6814814285739f5b94dd9200\",\n                        \"participantSid\": \"MB9bf02ec37c64453fb6a560754f8d0d8c\",\n                        \"identity\": \"6814814285739f5b94dd9200\",\n                        \"_id\": \"6814816085739f5b94dd921c\"\n                    }\n                ],\n                \"createdBy\": \"680b93dd4aa2a8a7acefd346\",\n                \"isActive\": true,\n                \"createdAt\": \"2025-05-02T08:01:10.278Z\",\n                \"updatedAt\": \"2025-05-02T10:22:41.807Z\",\n                \"__v\": 3,\n                \"lastMessage\": \"68149cf1c3bd8de5aa388187\"\n            }\n        }\n    ],\n    \"message\": \"Teams fetched successfully\"\n}"
+							"body": "{\n    \"success\": true,\n    \"data\": [\n        {\n            \"_id\": \"68185fc2be6afd5b96c53477\",\n            \"name\": \"Developer\",\n            \"members\": [\n                {\n                    \"_id\": \"68185da1be6afd5b96c533d0\",\n                    \"name\": \"Mohnish Vishwakarma\",\n                    \"contactNo\": \"8965247859\",\n                    \"designation\": \"Software Developer\",\n                    \"email\": \"mohnsh201@gmail.com\",\n                    \"isDeleted\": false,\n                    \"createdBy\": \"68185c4caaebe168dcabaaa3\",\n                    \"user\": {\n                        \"_id\": \"68185da1be6afd5b96c533d4\",\n                        \"username\": \"mohnishvishwakarma29144\",\n                        \"email\": \"mohnish201@gmail.com\"\n                    },\n                    \"conversation\": {\n                        \"_id\": \"68185da3be6afd5b96c533da\",\n                        \"twilioSid\": \"CHfb7373cd97d441a696676f01edf8f58b\",\n                        \"type\": \"single\",\n                        \"identity\": \"Employee\",\n                        \"name\": \"conversation-68185c4caaebe168dcabaaa3-68185da1be6afd5b96c533d4\",\n                        \"participants\": [\n                            {\n                                \"user\": \"68185c4caaebe168dcabaaa3\",\n                                \"participantSid\": \"MB9f2fd055034d4fd385727a4860d91d68\",\n                                \"identity\": \"68185c4caaebe168dcabaaa3\",\n                                \"_id\": \"68185da4be6afd5b96c533dd\"\n                            },\n                            {\n                                \"user\": \"68185da1be6afd5b96c533d4\",\n                                \"participantSid\": \"MB78372be696a3444d9346205b17fbddf3\",\n                                \"identity\": \"68185da1be6afd5b96c533d4\",\n                                \"_id\": \"68185da4be6afd5b96c533e2\"\n                            }\n                        ],\n                        \"createdBy\": \"68185c4caaebe168dcabaaa3\",\n                        \"isActive\": true,\n                        \"createdAt\": \"2025-05-05T06:41:39.468Z\",\n                        \"updatedAt\": \"2025-05-05T06:41:40.835Z\",\n                        \"__v\": 2\n                    }\n                },\n                {\n                    \"_id\": \"6818b81b0f8a2e546860b6f9\",\n                    \"name\": \"Rishi\",\n                    \"contactNo\": \"7890987654\",\n                    \"designation\": \"QA\",\n                    \"email\": \"rishi@gmail.com\",\n                    \"isDeleted\": false,\n                    \"createdBy\": \"68185c4caaebe168dcabaaa3\",\n                    \"user\": {\n                        \"_id\": \"6818b81b0f8a2e546860b6fd\",\n                        \"username\": \"rishi46059\",\n                        \"email\": \"rishi@gmail.com\"\n                    },\n                    \"conversation\": {\n                        \"_id\": \"6818b81d0f8a2e546860b703\",\n                        \"twilioSid\": \"CHa757fd596dc74bb4aa5ff4d2017addfd\",\n                        \"type\": \"single\",\n                        \"identity\": \"Employee\",\n                        \"name\": \"conversation-68185c4caaebe168dcabaaa3-6818b81b0f8a2e546860b6fd\",\n                        \"participants\": [\n                            {\n                                \"user\": \"68185c4caaebe168dcabaaa3\",\n                                \"participantSid\": \"MBf0ff1bc9de20464da1f7de9929a8d9fc\",\n                                \"identity\": \"68185c4caaebe168dcabaaa3\",\n                                \"_id\": \"6818b81f0f8a2e546860b706\"\n                            },\n                            {\n                                \"user\": \"6818b81b0f8a2e546860b6fd\",\n                                \"participantSid\": \"MB1e923ad938f342d9953c756ff861e77f\",\n                                \"identity\": \"6818b81b0f8a2e546860b6fd\",\n                                \"_id\": \"6818b8200f8a2e546860b70b\"\n                            }\n                        ],\n                        \"createdBy\": \"68185c4caaebe168dcabaaa3\",\n                        \"isActive\": true,\n                        \"createdAt\": \"2025-05-05T13:07:41.936Z\",\n                        \"updatedAt\": \"2025-05-05T13:07:44.833Z\",\n                        \"__v\": 2\n                    }\n                }\n            ],\n            \"isDeleted\": false,\n            \"createdBy\": \"68185c4caaebe168dcabaaa3\",\n            \"conversation\": {\n                \"_id\": \"68185fc3be6afd5b96c53479\",\n                \"twilioSid\": \"CH0dd71c470f564d7f96f9c58c00b92ca2\",\n                \"type\": \"group\",\n                \"identity\": \"Team\",\n                \"identityId\": \"68185fc2be6afd5b96c53477\",\n                \"name\": \"conversation-68185fc2be6afd5b96c53477\",\n                \"participants\": [\n                    {\n                        \"user\": \"68185c4caaebe168dcabaaa3\",\n                        \"participantSid\": \"MB725cc400a55e40b5a8951889a90e52cb\",\n                        \"identity\": \"68185c4caaebe168dcabaaa3\",\n                        \"_id\": \"68185fc4be6afd5b96c5347c\"\n                    },\n                    {\n                        \"user\": \"68185da1be6afd5b96c533d4\",\n                        \"participantSid\": \"MB5cf50f0ecd864735a2b18aed7ddab303\",\n                        \"identity\": \"68185da1be6afd5b96c533d4\",\n                        \"_id\": \"68185fcabe6afd5b96c5348e\"\n                    },\n                    {\n                        \"user\": \"6818b81b0f8a2e546860b6fd\",\n                        \"participantSid\": \"MB881be0248c8e41a18668c3ac32c3937c\",\n                        \"identity\": \"6818b81b0f8a2e546860b6fd\",\n                        \"_id\": \"6818b8430f8a2e546860b71e\"\n                    }\n                ],\n                \"createdBy\": \"68185c4caaebe168dcabaaa3\",\n                \"isActive\": true,\n                \"createdAt\": \"2025-05-05T06:50:43.552Z\",\n                \"updatedAt\": \"2025-05-05T13:08:19.580Z\",\n                \"__v\": 3\n            }\n        },\n        {\n            \"_id\": \"68186ab13c54bf602953ed44\",\n            \"name\": \"Tester\",\n            \"members\": [\n                {\n                    \"_id\": \"6818697c3c54bf602953ecc5\",\n                    \"name\": \"Karan\",\n                    \"contactNo\": \"7890987654\",\n                    \"designation\": \"Tester\",\n                    \"email\": \"karan@gmail.com\",\n                    \"isDeleted\": false,\n                    \"createdBy\": \"68185c4caaebe168dcabaaa3\",\n                    \"user\": {\n                        \"_id\": \"6818697c3c54bf602953ecc9\",\n                        \"username\": \"karan50502\",\n                        \"email\": \"karan@gmail.com\"\n                    },\n                    \"conversation\": {\n                        \"_id\": \"6818697e3c54bf602953eccf\",\n                        \"twilioSid\": \"CHa6746fcd408e42908e916c92e1a0e66f\",\n                        \"type\": \"single\",\n                        \"identity\": \"Employee\",\n                        \"name\": \"conversation-68185c4caaebe168dcabaaa3-6818697c3c54bf602953ecc9\",\n                        \"participants\": [\n                            {\n                                \"user\": \"68185c4caaebe168dcabaaa3\",\n                                \"participantSid\": \"MBa9a12e2d8bfc44bcb320e918554bb664\",\n                                \"identity\": \"68185c4caaebe168dcabaaa3\",\n                                \"_id\": \"6818697f3c54bf602953ecd2\"\n                            },\n                            {\n                                \"user\": \"6818697c3c54bf602953ecc9\",\n                                \"participantSid\": \"MB473b76fc5435488d9fb96244a79be0e3\",\n                                \"identity\": \"6818697c3c54bf602953ecc9\",\n                                \"_id\": \"681869803c54bf602953ecd7\"\n                            }\n                        ],\n                        \"createdBy\": \"68185c4caaebe168dcabaaa3\",\n                        \"isActive\": true,\n                        \"createdAt\": \"2025-05-05T07:32:14.653Z\",\n                        \"updatedAt\": \"2025-05-05T07:32:16.919Z\",\n                        \"__v\": 2\n                    }\n                }\n            ],\n            \"isDeleted\": false,\n            \"createdBy\": \"68185c4caaebe168dcabaaa3\",\n            \"conversation\": {\n                \"_id\": \"68186ab23c54bf602953ed46\",\n                \"twilioSid\": \"CH6d35f35161e94fd680a8121ed3297c55\",\n                \"type\": \"group\",\n                \"identity\": \"Team\",\n                \"identityId\": \"68186ab13c54bf602953ed44\",\n                \"name\": \"conversation-68186ab13c54bf602953ed44\",\n                \"participants\": [\n                    {\n                        \"user\": \"68185c4caaebe168dcabaaa3\",\n                        \"participantSid\": \"MBa825c3172eb2433b9577d3c17bd4f681\",\n                        \"identity\": \"68185c4caaebe168dcabaaa3\",\n                        \"_id\": \"68186ab43c54bf602953ed49\"\n                    },\n                    {\n                        \"user\": \"6818697c3c54bf602953ecc9\",\n                        \"participantSid\": \"MB0f6800f9e9e44faea9aaac535978fc76\",\n                        \"identity\": \"6818697c3c54bf602953ecc9\",\n                        \"_id\": \"68186abd3c54bf602953ed57\"\n                    }\n                ],\n                \"createdBy\": \"68185c4caaebe168dcabaaa3\",\n                \"isActive\": true,\n                \"createdAt\": \"2025-05-05T07:37:22.983Z\",\n                \"updatedAt\": \"2025-05-05T07:37:33.101Z\",\n                \"__v\": 2\n            }\n        }\n    ],\n    \"message\": \"Teams fetched successfully\"\n}"
+						},
+						{
+							"name": "Unauthorized",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MTg1YzRjYWFlYmUxNjhkY2FiYWFhMyIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIsoidW5rbm93biIsImRldmljZSI6ImRlc2t0b3AiLCJpYXQiOjE3NDY2ODQ0NDIsImV4cCI6MTc0Njc3MDg0Mn0.JJ2x8AmzBAC6-_UT7lKgotgRfpRqytzMkFa6cHBbF0Y",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/conversations/team-and-members/get-list",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"conversations",
+										"team-and-members",
+										"get-list"
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Content-Language",
+									"value": "en"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "i18next=en; Path=/; Expires=Fri, 08 May 2026 06:09:23 GMT; SameSite=Strict"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "42"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"2a-Ga7dn+/YnQIEIQgaW0xVJkipti8\""
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 08 May 2025 06:09:23 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"error\": \"Access denied!\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get available chats Incident",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MTg2OTdjM2M1NGJmNjAyOTUzZWNjOSIsInJvbGUiOiJjbGllbnQtYWRtaW4iLCJvcyI6InVua25vd24iLCJkZXZpY2UiOiJkZXNrdG9wIiwiaWF0IjoxNzQ2Njg0NzIyLCJleHAiOjE3NDY3NzExMjJ9.dhfBiFRG2C1gpVngxRmg93t1DDdrBCuAKUXY72obnz4",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/conversations/available-chats/client-admin",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"conversations",
+								"available-chats",
+								"client-admin"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Unauthorized",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MTg2OTdjM3M1NGJmNjAyOTUzZWNjOSIsInJvbGUiOiJjbGllbnQtYWRtaW4iLCJvcyI6InVua25vd24iLCJkZXZpY2UiOiJkZXNrdG9wIiwiaWF0IjoxNzQ2Njg0NzIyLCJleHAiOjE3NDY3NzExMjJ9.dhfBiFRG2C1gpVngxRmg93t1DDdrBCuAKUXY72obnz4",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/conversations/available-chats/get-list",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"conversations",
+										"available-chats",
+										"get-list"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Content-Language",
+									"value": "en"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "i18next=en; Path=/; Expires=Fri, 08 May 2026 06:12:58 GMT; SameSite=Strict"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "42"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"2a-RfAMK1IuUhpKYLWUU4NqDP6L9Yw\""
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 08 May 2025 06:12:58 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"error\": \"Invalid token!\"\n}"
+						},
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MTg2OTdjM2M1NGJmNjAyOTUzZWNjOSIsInJvbGUiOiJjbGllbnQtYWRtaW4iLCJvcyI6InVua25vd24iLCJkZXZpY2UiOiJkZXNrdG9wIiwiaWF0IjoxNzQ2Njg0NzIyLCJleHAiOjE3NDY3NzExMjJ9.dhfBiFRG2C1gpVngxRmg93t1DDdrBCuAKUXY72obnz4",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/conversations/available-chats/client-admin",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"conversations",
+										"available-chats",
+										"client-admin"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Content-Language",
+									"value": "en"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "i18next=en; Path=/; Expires=Fri, 08 May 2026 06:20:35 GMT; SameSite=Strict"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "4978"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"1372-IlEjlap6EaJHgErQvrsRrvYu6L4\""
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 08 May 2025 06:20:36 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": [\n        {\n            \"team\": \"Super-Admin\",\n            \"members\": [\n                {\n                    \"_id\": \"68185c4caaebe168dcabaaa9\",\n                    \"name\": \"Gaurav\",\n                    \"contactNo\": \"1313121212\",\n                    \"designation\": \"super-admin\",\n                    \"email\": \"gaurav@gmail.com\",\n                    \"isDeleted\": false,\n                    \"user\": {\n                        \"_id\": \"68185c4caaebe168dcabaaa3\",\n                        \"username\": \"Gaurav\",\n                        \"email\": \"gaurav@gmail.com\",\n                        \"phoneNumber\": \"1313121212\",\n                        \"password\": \"$2b$10$DmGfGThOy8/ApkKNeq5wC.VdaxUVxw0i28KoRGtSaESbYm1zz0H1S\",\n                        \"role\": \"super-admin\",\n                        \"isTrash\": false,\n                        \"verified\": false,\n                        \"image\": \"\",\n                        \"accounts\": [\n                            \"68185c4caaebe168dcabaaa5\"\n                        ],\n                        \"createdAt\": \"2025-05-05T06:35:56.108Z\",\n                        \"updatedAt\": \"2025-05-05T06:35:56.307Z\",\n                        \"__v\": 1,\n                        \"firstName\": \"Gaurav\"\n                    },\n                    \"createdBy\": \"68185c4caaebe168dcabaaa3\",\n                    \"__v\": 0,\n                    \"conversation\": {\n                        \"_id\": \"6818697e3c54bf602953eccf\",\n                        \"twilioSid\": \"CHa6746fcd408e42908e916c92e1a0e66f\",\n                        \"type\": \"single\",\n                        \"identity\": \"Employee\",\n                        \"name\": \"conversation-68185c4caaebe168dcabaaa3-6818697c3c54bf602953ecc9\",\n                        \"participants\": [\n                            {\n                                \"user\": \"68185c4caaebe168dcabaaa3\",\n                                \"participantSid\": \"MBa9a12e2d8bfc44bcb320e918554bb664\",\n                                \"identity\": \"68185c4caaebe168dcabaaa3\",\n                                \"_id\": \"6818697f3c54bf602953ecd2\"\n                            },\n                            {\n                                \"user\": \"6818697c3c54bf602953ecc9\",\n                                \"participantSid\": \"MB473b76fc5435488d9fb96244a79be0e3\",\n                                \"identity\": \"6818697c3c54bf602953ecc9\",\n                                \"_id\": \"681869803c54bf602953ecd7\"\n                            }\n                        ],\n                        \"createdBy\": \"68185c4caaebe168dcabaaa3\",\n                        \"isActive\": true,\n                        \"createdAt\": \"2025-05-05T07:32:14.653Z\",\n                        \"updatedAt\": \"2025-05-05T07:32:16.919Z\",\n                        \"__v\": 2\n                    }\n                }\n            ]\n        },\n        {\n            \"team\": \"Tester\",\n            \"members\": [],\n            \"conversation\": {\n                \"_id\": \"68186ab23c54bf602953ed46\",\n                \"twilioSid\": \"CH6d35f35161e94fd680a8121ed3297c55\",\n                \"type\": \"group\",\n                \"identity\": \"Team\",\n                \"identityId\": \"68186ab13c54bf602953ed44\",\n                \"name\": \"conversation-68186ab13c54bf602953ed44\",\n                \"participants\": [\n                    {\n                        \"user\": \"68185c4caaebe168dcabaaa3\",\n                        \"participantSid\": \"MBa825c3172eb2433b9577d3c17bd4f681\",\n                        \"identity\": \"68185c4caaebe168dcabaaa3\",\n                        \"_id\": \"68186ab43c54bf602953ed49\"\n                    },\n                    {\n                        \"user\": \"6818697c3c54bf602953ecc9\",\n                        \"participantSid\": \"MB0f6800f9e9e44faea9aaac535978fc76\",\n                        \"identity\": \"6818697c3c54bf602953ecc9\",\n                        \"_id\": \"68186abd3c54bf602953ed57\"\n                    }\n                ],\n                \"createdBy\": \"68185c4caaebe168dcabaaa3\",\n                \"isActive\": true,\n                \"createdAt\": \"2025-05-05T07:37:22.983Z\",\n                \"updatedAt\": \"2025-05-05T07:37:33.101Z\",\n                \"__v\": 2\n            }\n        },\n        {\n            \"team\": \"Others\",\n            \"members\": [\n                {\n                    \"_id\": \"68185da1be6afd5b96c533d0\",\n                    \"name\": \"Mohnish Vishwakarma\",\n                    \"contactNo\": \"8965247859\",\n                    \"designation\": \"Software Developer\",\n                    \"email\": \"mohnsh201@gmail.com\",\n                    \"isDeleted\": false,\n                    \"createdBy\": \"68185c4caaebe168dcabaaa3\",\n                    \"createdAt\": \"2025-05-05T06:41:37.740Z\",\n                    \"updatedAt\": \"2025-05-05T06:41:37.904Z\",\n                    \"__v\": 0,\n                    \"user\": {\n                        \"_id\": \"68185da1be6afd5b96c533d4\",\n                        \"username\": \"mohnishvishwakarma29144\",\n                        \"firstName\": \"Mohnish\",\n                        \"lastName\": \"Vishwakarma\",\n                        \"email\": \"mohnish201@gmail.com\",\n                        \"phoneNumber\": \"8965247859\",\n                        \"password\": \"$2b$10$RQCZMb5qtSiODwvwHPElJutEsqieB3R7gAQkPTQdGIoq4eORVF9hC\",\n                        \"role\": \"client-admin\",\n                        \"isTrash\": false,\n                        \"verified\": false,\n                        \"image\": \"\",\n                        \"createdBy\": \"68185c4caaebe168dcabaaa3\",\n                        \"accounts\": [\n                            \"68185da1be6afd5b96c533d7\"\n                        ],\n                        \"createdAt\": \"2025-05-05T06:41:37.824Z\",\n                        \"updatedAt\": \"2025-05-05T06:41:37.959Z\",\n                        \"__v\": 1\n                    },\n                    \"conversation\": {\n                        \"_id\": \"68186c79be6afd5b96c535b8\",\n                        \"twilioSid\": \"CHb8d07b5fc05840b29480ff040c7cb071\",\n                        \"type\": \"single\",\n                        \"identity\": \"Employee\",\n                        \"name\": \"conversation-68185da1be6afd5b96c533d4-6818697c3c54bf602953ecc9\",\n                        \"participants\": [\n                            {\n                                \"user\": \"68185da1be6afd5b96c533d4\",\n                                \"participantSid\": \"MB346c5330acfe4df7a0e07b7f55dcc48c\",\n                                \"identity\": \"68185da1be6afd5b96c533d4\",\n                                \"_id\": \"68186c7abe6afd5b96c535bb\"\n                            },\n                            {\n                                \"user\": \"6818697c3c54bf602953ecc9\",\n                                \"participantSid\": \"MBdd3f32eeb1b94e22a153cbf9716b8482\",\n                                \"identity\": \"6818697c3c54bf602953ecc9\",\n                                \"_id\": \"68186c7bbe6afd5b96c535c0\"\n                            }\n                        ],\n                        \"createdBy\": \"68185da1be6afd5b96c533d4\",\n                        \"isActive\": true,\n                        \"createdAt\": \"2025-05-05T07:44:57.170Z\",\n                        \"updatedAt\": \"2025-05-05T07:44:59.062Z\",\n                        \"__v\": 2\n                    }\n                },\n                {\n                    \"_id\": \"6818b81b0f8a2e546860b6f9\",\n                    \"name\": \"Rishi\",\n                    \"contactNo\": \"7890987654\",\n                    \"designation\": \"QA\",\n                    \"email\": \"rishi@gmail.com\",\n                    \"isDeleted\": false,\n                    \"createdBy\": \"68185c4caaebe168dcabaaa3\",\n                    \"createdAt\": \"2025-05-05T13:07:39.501Z\",\n                    \"updatedAt\": \"2025-05-05T13:07:39.912Z\",\n                    \"__v\": 0,\n                    \"user\": {\n                        \"_id\": \"6818b81b0f8a2e546860b6fd\",\n                        \"username\": \"rishi46059\",\n                        \"firstName\": \"Rishi\",\n                        \"email\": \"rishi@gmail.com\",\n                        \"phoneNumber\": \"7890987654\",\n                        \"password\": \"$2b$10$OTVgfIC/tS.GvcOpl1ZqHO9bOmRLDv5gdwmeMSnhxD1sfo.XhMNhu\",\n                        \"role\": \"client-admin\",\n                        \"isTrash\": false,\n                        \"verified\": false,\n                        \"image\": \"\",\n                        \"createdBy\": \"68185c4caaebe168dcabaaa3\",\n                        \"accounts\": [\n                            \"6818b81c0f8a2e546860b700\"\n                        ],\n                        \"createdAt\": \"2025-05-05T13:07:39.749Z\",\n                        \"updatedAt\": \"2025-05-05T13:07:40.101Z\",\n                        \"__v\": 1\n                    },\n                    \"conversation\": {\n                        \"_id\": \"6819d419cb15665b78fcc20a\",\n                        \"twilioSid\": \"CHe8268a5e23d64a00b2c5be9a1d544074\",\n                        \"type\": \"single\",\n                        \"identity\": \"Employee\",\n                        \"name\": \"conversation-6818697c3c54bf602953ecc9-6818b81b0f8a2e546860b6fd\",\n                        \"participants\": [\n                            {\n                                \"user\": \"6818697c3c54bf602953ecc9\",\n                                \"participantSid\": \"MB583f9847741b4c6da209e91663676e02\",\n                                \"identity\": \"6818697c3c54bf602953ecc9\",\n                                \"_id\": \"6819d41acb15665b78fcc20d\"\n                            },\n                            {\n                                \"user\": \"6818b81b0f8a2e546860b6fd\",\n                                \"participantSid\": \"MB9dcf9e68718049b8b99d8db60ccde381\",\n                                \"identity\": \"6818b81b0f8a2e546860b6fd\",\n                                \"_id\": \"6819d41bcb15665b78fcc214\"\n                            }\n                        ],\n                        \"createdBy\": \"6818697c3c54bf602953ecc9\",\n                        \"isActive\": true,\n                        \"createdAt\": \"2025-05-06T09:19:21.991Z\",\n                        \"updatedAt\": \"2025-05-06T09:19:23.902Z\",\n                        \"__v\": 2\n                    }\n                }\n            ]\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Get available chats Incident Copy",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MTg2OTdjM2M1NGJmNjAyOTUzZWNjOSIsInJvbGUiOiJjbGllbnQtYWRtaW4iLCJvcyI6InVua25vd24iLCJkZXZpY2UiOiJkZXNrdG9wIiwiaWF0IjoxNzQ2Njg0NzIyLCJleHAiOjE3NDY3NzExMjJ9.dhfBiFRG2C1gpVngxRmg93t1DDdrBCuAKUXY72obnz4",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/conversations/available-chats/incident?id=681868923c54bf602953ebd3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"conversations",
+								"available-chats",
+								"incident"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "681868923c54bf602953ebd3"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MTg2OTdjM2M1NGJmNjAyOTUzZWNjOSIsInJvbGUiOiJjbGllbnQtYWRtaW4iLCJvcyI6InVua25vd24iLCJkZXZpY2UiOiJkZXNrdG9wIiwiaWF0IjoxNzQ2Njg0NzIyLCJleHAiOjE3NDY3NzExMjJ9.dhfBiFRG2C1gpVngxRmg93t1DDdrBCuAKUXY72obnz4",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/conversations/available-chats/incident?id=681868923c54bf602953ebd3",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"conversations",
+										"available-chats",
+										"incident"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "681868923c54bf602953ebd3"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Content-Language",
+									"value": "en"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "i18next=en; Path=/; Expires=Fri, 08 May 2026 06:15:57 GMT; SameSite=Strict"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "3907"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"f43-gwwCTSOYNEOw9Qcygn5vKZn7FNY\""
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 08 May 2025 06:15:58 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"_id\": \"681868923c54bf602953ebd3\",\n        \"id\": \"INCID-346807PX\",\n        \"level\": \"Level 3\",\n        \"type\": \"fire\",\n        \"description\": \"This is safe only if you're confident there are no critical dependency locks that must be preserved.\\n\\nDo you want help resolving the conflict manually or prefer to regenerate it entirely?\",\n        \"status\": \"In Progress\",\n        \"project\": \"681868333c54bf602953eba2\",\n        \"countOfInjuredPeople\": 20,\n        \"countOfTotalPeople\": 20,\n        \"location\": \"680b9511575a67ec0d461064\",\n        \"damageAssets\": [\n            \"asset 1\"\n        ],\n        \"finance\": \"5000\",\n        \"utilityAffected\": [\n            \"Water\",\n            \"Electricity\"\n        ],\n        \"image\": [\n            \"https://emerge-x-web.s3.us-east-1.amazonaws.com/incident_INCID-346807PX_image_0_1746430093644.jpg\",\n            \"https://emerge-x-web.s3.us-east-1.amazonaws.com/incident_INCID-346807PX_image_1_1746430093668.jpg\"\n        ],\n        \"signature\": \"https://emerge-x-web.s3.us-east-1.amazonaws.com/incident_INCID-346807PX_signature_image_1746430096674.jpg\",\n        \"informToTeam\": false,\n        \"termsAndConditions\": true,\n        \"createdBy\": \"68185c4caaebe168dcabaaa3\",\n        \"isStopped\": false,\n        \"isDeleted\": false,\n        \"createdAt\": \"2025-05-05T07:28:18.415Z\",\n        \"updatedAt\": \"2025-05-05T07:39:06.468Z\",\n        \"__v\": 0,\n        \"conversation\": {\n            \"_id\": \"681868943c54bf602953ebd5\",\n            \"twilioSid\": \"CH03d78e20a7dc42208e4591021ceb27c2\",\n            \"type\": \"group\",\n            \"identity\": \"Incident\",\n            \"identityId\": \"681868923c54bf602953ebd3\",\n            \"name\": \"conversation-681868923c54bf602953ebd3\",\n            \"participants\": [\n                {\n                    \"user\": \"68185c4caaebe168dcabaaa3\",\n                    \"participantSid\": \"MB3711ea9f58b24b43a1f7dceb5a28963d\",\n                    \"identity\": \"68185c4caaebe168dcabaaa3\",\n                    \"_id\": \"681868953c54bf602953ebd8\"\n                },\n                {\n                    \"user\": \"6818697c3c54bf602953ecc9\",\n                    \"participantSid\": \"MBbed4136c6e2f441189457277e7ae5988\",\n                    \"identity\": \"6818697c3c54bf602953ecc9\",\n                    \"_id\": \"68186adf3c54bf602953ed78\"\n                },\n                {\n                    \"user\": \"68185da1be6afd5b96c533d4\",\n                    \"participantSid\": \"MB7116dbbb3ae04ed49d01d0e4b22551d4\",\n                    \"identity\": \"68185da1be6afd5b96c533d4\",\n                    \"_id\": \"6819da60383791852ce0023b\"\n                }\n            ],\n            \"createdBy\": \"68185c4caaebe168dcabaaa3\",\n            \"isActive\": true,\n            \"createdAt\": \"2025-05-05T07:28:20.378Z\",\n            \"updatedAt\": \"2025-05-06T09:46:08.729Z\",\n            \"__v\": 3\n        },\n        \"employees\": [\n            {\n                \"_id\": \"68185c4caaebe168dcabaaa9\",\n                \"name\": \"Gaurav\",\n                \"contactNo\": \"1313121212\",\n                \"designation\": \"super-admin\",\n                \"email\": \"gaurav@gmail.com\",\n                \"isDeleted\": false,\n                \"user\": \"68185c4caaebe168dcabaaa3\",\n                \"createdBy\": \"68185c4caaebe168dcabaaa3\",\n                \"__v\": 0,\n                \"conversation\": {\n                    \"_id\": \"6818697e3c54bf602953eccf\",\n                    \"twilioSid\": \"CHa6746fcd408e42908e916c92e1a0e66f\",\n                    \"type\": \"single\",\n                    \"identity\": \"Employee\",\n                    \"name\": \"conversation-68185c4caaebe168dcabaaa3-6818697c3c54bf602953ecc9\",\n                    \"participants\": [\n                        {\n                            \"user\": \"68185c4caaebe168dcabaaa3\",\n                            \"participantSid\": \"MBa9a12e2d8bfc44bcb320e918554bb664\",\n                            \"identity\": \"68185c4caaebe168dcabaaa3\",\n                            \"_id\": \"6818697f3c54bf602953ecd2\"\n                        },\n                        {\n                            \"user\": \"6818697c3c54bf602953ecc9\",\n                            \"participantSid\": \"MB473b76fc5435488d9fb96244a79be0e3\",\n                            \"identity\": \"6818697c3c54bf602953ecc9\",\n                            \"_id\": \"681869803c54bf602953ecd7\"\n                        }\n                    ],\n                    \"createdBy\": \"68185c4caaebe168dcabaaa3\",\n                    \"isActive\": true,\n                    \"createdAt\": \"2025-05-05T07:32:14.653Z\",\n                    \"updatedAt\": \"2025-05-05T07:32:16.919Z\",\n                    \"__v\": 2\n                }\n            },\n            {\n                \"_id\": \"68185da1be6afd5b96c533d0\",\n                \"name\": \"Mohnish Vishwakarma\",\n                \"contactNo\": \"8965247859\",\n                \"designation\": \"Software Developer\",\n                \"email\": \"mohnsh201@gmail.com\",\n                \"isDeleted\": false,\n                \"createdBy\": \"68185c4caaebe168dcabaaa3\",\n                \"createdAt\": \"2025-05-05T06:41:37.740Z\",\n                \"updatedAt\": \"2025-05-05T06:41:37.904Z\",\n                \"__v\": 0,\n                \"user\": \"68185da1be6afd5b96c533d4\",\n                \"conversation\": {\n                    \"_id\": \"68186c79be6afd5b96c535b8\",\n                    \"twilioSid\": \"CHb8d07b5fc05840b29480ff040c7cb071\",\n                    \"type\": \"single\",\n                    \"identity\": \"Employee\",\n                    \"name\": \"conversation-68185da1be6afd5b96c533d4-6818697c3c54bf602953ecc9\",\n                    \"participants\": [\n                        {\n                            \"user\": \"68185da1be6afd5b96c533d4\",\n                            \"participantSid\": \"MB346c5330acfe4df7a0e07b7f55dcc48c\",\n                            \"identity\": \"68185da1be6afd5b96c533d4\",\n                            \"_id\": \"68186c7abe6afd5b96c535bb\"\n                        },\n                        {\n                            \"user\": \"6818697c3c54bf602953ecc9\",\n                            \"participantSid\": \"MBdd3f32eeb1b94e22a153cbf9716b8482\",\n                            \"identity\": \"6818697c3c54bf602953ecc9\",\n                            \"_id\": \"68186c7bbe6afd5b96c535c0\"\n                        }\n                    ],\n                    \"createdBy\": \"68185da1be6afd5b96c533d4\",\n                    \"isActive\": true,\n                    \"createdAt\": \"2025-05-05T07:44:57.170Z\",\n                    \"updatedAt\": \"2025-05-05T07:44:59.062Z\",\n                    \"__v\": 2\n                }\n            }\n        ]\n    }\n}"
+						},
+						{
+							"name": "Incident not found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MTg2OTdjM2M1NGJmNjAyOTUzZWNjOSIsInJvbGUiOiJjbGllbnQtYWRtaW4iLCJvcyI6InVua25vd24iLCJkZXZpY2UiOiJkZXNrdG9wIiwiaWF0IjoxNzQ2Njg0NzIyLCJleHAiOjE3NDY3NzExMjJ9.dhfBiFRG2C1gpVngxRmg93t1DDdrBCuAKUXY72obnz4",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/conversations/available-chats/incident?id=681868923c54bf602953ebd4",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"conversations",
+										"available-chats",
+										"incident"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "681868923c54bf602953ebd4"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Content-Language",
+									"value": "en"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "i18next=en; Path=/; Expires=Fri, 08 May 2026 06:16:27 GMT; SameSite=Strict"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "48"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"30-pY0diiP+FzuaJi2Gt2PPKSKhPtE\""
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 08 May 2025 06:16:27 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"message\": \"Incident not found\"\n}"
 						}
 					]
 				},
@@ -25093,13 +25628,13 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MTQ4MTQyODU3MzlmNWI5NGRkOTIwMCIsInJvbGUiOiJjbGllbnQtYWRtaW4iLCJvcyI6InVua25vd24iLCJkZXZpY2UiOiJkZXNrdG9wIiwiaWF0IjoxNzQ2MTkyNzU1LCJleHAiOjE3NDYyNzkxNTV9.iG2uXbYxUMh0q63ZfSy8nXfKiaqZeKLh5-MAAK9mfBI",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MTg2OTdjM2M1NGJmNjAyOTUzZWNjOSIsInJvbGUiOiJjbGllbnQtYWRtaW4iLCJvcyI6InVua25vd24iLCJkZXZpY2UiOiJkZXNrdG9wIiwiaWF0IjoxNzQ2Njg0NzIyLCJleHAiOjE3NDY3NzExMjJ9.dhfBiFRG2C1gpVngxRmg93t1DDdrBCuAKUXY72obnz4",
 								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"participant\":\"68147b98b2937f71aa8a85c1\"\n}",
+							"raw": "{\n    \"participant\":\"681c4dbf1aba032944d1902f\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -25214,13 +25749,13 @@
 								"header": [
 									{
 										"key": "Authorization",
-										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MTQ4MTQyODU3MzlmNWI5NGRkOTIwMCIsInJvbGUiOiJjbGllbnQtYWRtaW4iLCJvcyI6InVua25vd24iLCJkZXZpY2UiOiJkZXNrdG9wIiwiaWF0IjoxNzQ2MTkyNzU1LCJleHAiOjE3NDYyNzkxNTV9.iG2uXbYxUMh0q63ZfSy8nXfKiaqZeKLh5-MAAK9mfBI",
+										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MTg2OTdjM2M1NGJmNjAyOTUzZWNjOSIsInJvbGUiOiJjbGllbnQtYWRtaW4iLCJvcyI6InVua25vd24iLCJkZXZpY2UiOiJkZXNrdG9wIiwiaWF0IjoxNzQ2Njg0NzIyLCJleHAiOjE3NDY3NzExMjJ9.dhfBiFRG2C1gpVngxRmg93t1DDdrBCuAKUXY72obnz4",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"participant\":\"68147b98b2937f71aa8a85c1\"\n}",
+									"raw": "{\n    \"participant\":\"681c4dbf1aba032944d1902f\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -25263,7 +25798,7 @@
 								},
 								{
 									"key": "Set-Cookie",
-									"value": "i18next=en; Path=/; Expires=Sat, 02 May 2026 13:34:10 GMT; SameSite=Strict"
+									"value": "i18next=en; Path=/; Expires=Fri, 08 May 2026 06:26:55 GMT; SameSite=Strict"
 								},
 								{
 									"key": "Content-Type",
@@ -25271,15 +25806,15 @@
 								},
 								{
 									"key": "Content-Length",
-									"value": "430"
+									"value": "751"
 								},
 								{
 									"key": "ETag",
-									"value": "W/\"1ae-6ktQI+e2ona60hTFgqU8zOvni0Y\""
+									"value": "W/\"2ef-nma/Q4NuWlGeVskcU2hPmCar6sE\""
 								},
 								{
 									"key": "Date",
-									"value": "Fri, 02 May 2025 13:34:13 GMT"
+									"value": "Thu, 08 May 2025 06:26:59 GMT"
 								},
 								{
 									"key": "Connection",
@@ -25291,9 +25826,80 @@
 								}
 							],
 							"cookie": [],
-							"body": "{\n    \"success\": true,\n    \"conversation\": {\n        \"twilioSid\": \"CHfeeecefdd17644c683e55cb126e80dcc\",\n        \"type\": \"single\",\n        \"identity\": \"Employee\",\n        \"name\": \"conversation-6814814285739f5b94dd9200-68147b98b2937f71aa8a85c5\",\n        \"participants\": [],\n        \"createdBy\": \"6814814285739f5b94dd9200\",\n        \"isActive\": true,\n        \"_id\": \"6814c9d38dd324e3afb867c4\",\n        \"createdAt\": \"2025-05-02T13:34:11.859Z\",\n        \"updatedAt\": \"2025-05-02T13:34:11.859Z\",\n        \"__v\": 0\n    },\n    \"message\": \"Conversation created successfully\"\n}"
+							"body": "{\n    \"success\": true,\n    \"conversation\": {\n        \"_id\": \"681c4eb00d595d924d802265\",\n        \"twilioSid\": \"CH2b6d90a1a88e4648a0964f7a35ab95ee\",\n        \"type\": \"single\",\n        \"identity\": \"Employee\",\n        \"name\": \"conversation-6818697c3c54bf602953ecc9-681c4dc01aba032944d19033\",\n        \"participants\": [\n            {\n                \"user\": \"6818697c3c54bf602953ecc9\",\n                \"participantSid\": \"MB6f2f5ebf18174ba39ca0233fe238b1ac\",\n                \"identity\": \"6818697c3c54bf602953ecc9\",\n                \"_id\": \"681c4eb20d595d924d802268\"\n            },\n            {\n                \"user\": \"681c4dc01aba032944d19033\",\n                \"participantSid\": \"MB26dfeca943f44dbf9091569ba7001cf8\",\n                \"identity\": \"681c4dc01aba032944d19033\",\n                \"_id\": \"681c4eb30d595d924d80226d\"\n            }\n        ],\n        \"createdBy\": \"6818697c3c54bf602953ecc9\",\n        \"isActive\": true,\n        \"createdAt\": \"2025-05-08T06:26:56.769Z\",\n        \"updatedAt\": \"2025-05-08T06:26:59.355Z\",\n        \"__v\": 2\n    },\n    \"message\": \"Conversation created successfully\"\n}"
 						}
 					]
+				}
+			]
+		},
+		{
+			"name": "Video",
+			"item": [
+				{
+					"name": "Generate Video Token",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MTg1YzRjYWFlYmUxNjhkY2FiYWFhMyIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoidW5rbm93biIsImRldmljZSI6ImRlc2t0b3AiLCJpYXQiOjE3NDY1MTE4NzgsImV4cCI6MTc0NjU5ODI3OH0.pvG6hjH5ZMvsJeHbqevt_l9O7gOgggpJiSehDqXC3Do",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/calls/generate-token?roomName=Gaurav Room",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"calls",
+								"generate-token"
+							],
+							"query": [
+								{
+									"key": "roomName",
+									"value": "Gaurav Room"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Iniate Call",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MTg1YzRjYWFlYmUxNjhkY2FiYWFhMyIsInJvbGUiOiJzdXBlci1hZG1pbiIsIm9zIjoidW5rbm93biIsImRldmljZSI6ImRlc2t0b3AiLCJpYXQiOjE3NDY1MTE4NzgsImV4cCI6MTc0NjU5ODI3OH0.pvG6hjH5ZMvsJeHbqevt_l9O7gOgggpJiSehDqXC3Do",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/calls/generate-token?roomName=Gaurav Room",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"calls",
+								"generate-token"
+							],
+							"query": [
+								{
+									"key": "roomName",
+									"value": "Gaurav Room"
+								}
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		}

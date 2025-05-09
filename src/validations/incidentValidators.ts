@@ -290,12 +290,11 @@ export const updateIncidentValidationRules = [
         "incidentValidationMessages.incidentValidationRules.damageAssets.array"
       )
     ),
-  body("finance")
-    .optional()
-    .isFloat({ min: 0 })
+    body("finance")
+    .notEmpty()
     .withMessage((_, { req }) =>
       req.i18n.t(
-        "incidentValidationMessages.incidentValidationRules.finance.int"
+        "incidentValidationMessages.incidentValidationRules.finance.empty"
       )
     ),
   body("utilityAffected")

@@ -55,7 +55,7 @@ export const generateVideoCallToken = async (req: Request, res: Response) => {
     console.error("Error generating call token:", error);
     return res.status(500).json({
       success: false,
-      error: error.message || "An error occurred generating call token",
+      error: error.message ?? "An error occurred generating call token",
     });
   }
 };
@@ -176,7 +176,7 @@ export const initiateVideoCall = async (req: Request, res: Response) => {
     // Generate token for the current user to join the video room
     const token = await callService.generateToken(
       fromUserId,
-      currentUser.email || fromUserId,
+      currentUser.email ?? fromUserId,
       call.roomName
     );
     

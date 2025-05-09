@@ -10,7 +10,7 @@ export interface IIncident extends Document {
   // assignedTo: mongoose.Types.ObjectId;
   countOfInjuredPeople: number;
   countOfTotalPeople: number;
-  location: mongoose.Types.ObjectId;
+  location: string;
   damageAssets: string[];
   finance: number;
   utilityAffected: string[];
@@ -67,8 +67,7 @@ const IncidentSchema: Schema = new Schema(
       required: true,
     },
     location: {
-      type:  mongoose.Schema.Types.ObjectId,
-      ref:"Worksite",
+      type: String,
       required: true,
     },
     damageAssets: {

@@ -3,7 +3,6 @@ import CallModel, { CallType, CallStatus, ICall } from "../models/CallModel";
 import mongoose from "mongoose";
 import UserModel from "../models/UserModel";
 import VoiceResponse from "twilio/lib/twiml/VoiceResponse";
-import AccessToken from "twilio/lib/jwt/AccessToken";
 
 class CallService {
   /**
