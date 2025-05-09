@@ -54,14 +54,27 @@ class CallService {
   async generateVideoToken(userId: string, roomName: string): Promise<string> {
     try {
       const { AccessToken } = require("twilio").jwt;
-      const { VoiceGrant, VideoGrant } = AccessToken;
+      const { VideoGrant } = AccessToken;
+
+      const user = await UserModel.findById(userId);
+
+      const name = user?.lastName ? user.firstName + " " + user.lastName : user?.firstName;
+
+      const identityPayload = JSON.stringify({
+        id: userId,
+        name,
+        role: user?.role,
+      });
 
       // Create an access token
       const token = new AccessToken(
         process.env.TWILIO_ACCOUNT_SID as string,
         process.env.TWILIO_API_KEY as string,
         process.env.TWILIO_API_SECRET as string,
-        { identity: userId,ttl:12*3600 },
+        { 
+          identity: Buffer.from(identityPayload).toString("base64"),
+          ttl:12*3600 
+        },
       );
 
       const videoGrant = new VideoGrant({
@@ -160,7 +173,6 @@ class CallService {
    */
   async initiateVideoCall(
     fromUserId: string,
-    toUserId: string,
     conversationId?: string
   ): Promise<ICall> {
     try {
@@ -176,7 +188,7 @@ class CallService {
         type: CallType.VIDEO,
         status: CallStatus.INITIATED,
         from: new mongoose.Types.ObjectId(fromUserId),
-        to: new mongoose.Types.ObjectId(toUserId),
+        to: new mongoose.Types.ObjectId(conversationId),
         roomName,
         conversationId: conversationId
           ? new mongoose.Types.ObjectId(conversationId)

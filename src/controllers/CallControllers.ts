@@ -3,7 +3,7 @@ import callService from "../services/call.service";
 import { ICustomRequest } from "../types/express";
 import CallModel, { CallStatus, CallType } from "../models/CallModel";
 import UserModel from "../models/UserModel";
-import { generateAccessToken, twilioClient } from "../config/twilioClient";
+import { twilioClient } from "../config/twilioClient";
 
 export const generateCallToken = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
@@ -155,34 +155,22 @@ export const initiateVideoCall = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
   try {
-    const { toUserId, conversationId } = req.body;
+    const { conversationId } = req.body;
     const fromUserId = currentUser.id;
-
-    // Validate toUserId
-    const toUser = await UserModel.findById(toUserId);
-    if (!toUser) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Recipient user not found" 
-      });
-    }
 
     const call = await callService.initiateVideoCall(
       fromUserId, 
-      toUserId, 
       conversationId
     );
     
     // Generate token for the current user to join the video room
-    const token = await callService.generateToken(
+    const token = await callService.generateVideoToken(
       fromUserId,
-      currentUser.email ?? fromUserId,
-      call.roomName
+      call.roomName!
     );
     
     return res.status(200).json({
       success: true,
-      call,
       token,
       roomName: call.roomName,
       message: "Video call initiated successfully",
