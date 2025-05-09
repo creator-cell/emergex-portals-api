@@ -534,3 +534,78 @@
 {"level":"info","message":"incoming_call event emitted to user 68185da4be6afd5b96c533e2","service":"chat-app","timestamp":"2025-05-09T12:45:04.978Z"}
 {"level":"error","message":" Not Found socket ID for user 68185da4be6afd5b96c533dd","service":"chat-app","timestamp":"2025-05-09T12:45:36.164Z"}
 {"level":"error","message":" Not Found socket ID for user 68185da4be6afd5b96c533e2","service":"chat-app","timestamp":"2025-05-09T12:45:36.167Z"}
+{"level":"info","message":"User connected: TPkgb1Efprvm0IiIAAAC","service":"chat-app","timestamp":"2025-05-09T12:51:24.701Z"}
+{"level":"info","message":"User connected: 4D8mxnUYqPqcGIL7AAAB","service":"chat-app","timestamp":"2025-05-09T12:51:39.272Z"}
+{"level":"info","message":"User disconnected: 4D8mxnUYqPqcGIL7AAAB","service":"chat-app","timestamp":"2025-05-09T12:51:59.072Z"}
+{"level":"info","message":"User connected: SXqLWf-p0tR4fAVaAAAC","service":"chat-app","timestamp":"2025-05-09T12:53:08.657Z"}
+{"level":"info","message":"User connected: 69cktoNYTd2Z-cFUAAAF","service":"chat-app","timestamp":"2025-05-09T12:53:29.707Z"}
+{"level":"error","message":" Not Found socket ID for user 681868953c54bf602953ebd8","service":"chat-app","timestamp":"2025-05-09T12:54:39.406Z"}
+{"level":"error","message":" Not Found socket ID for user 68186adf3c54bf602953ed78","service":"chat-app","timestamp":"2025-05-09T12:54:39.407Z"}
+{"level":"error","message":" Not Found socket ID for user 6819da60383791852ce0023b","service":"chat-app","timestamp":"2025-05-09T12:54:39.408Z"}
+{"level":"info","message":"User connected: J2XDW0Rku_jqPUM2AAAB","service":"chat-app","timestamp":"2025-05-09T12:55:40.517Z"}
+{"level":"info","message":"User connected: zkO2QIVsmGsuvSZCAAAD","service":"chat-app","timestamp":"2025-05-09T12:55:40.968Z"}
+{"level":"error","message":" Not Found socket ID for user 681868953c54bf602953ebd8","service":"chat-app","timestamp":"2025-05-09T12:55:41.985Z"}
+{"level":"error","message":" Not Found socket ID for user 68186adf3c54bf602953ed78","service":"chat-app","timestamp":"2025-05-09T12:55:41.986Z"}
+{"level":"error","message":" Not Found socket ID for user 6819da60383791852ce0023b","service":"chat-app","timestamp":"2025-05-09T12:55:41.987Z"}
+{"level":"info","message":"User connected: aS8XtjYWbZdqIgNvAAAB","service":"chat-app","timestamp":"2025-05-09T12:56:29.088Z"}
+{"level":"info","message":"User connected: 7VLDVKeFy_BFNnE7AAAD","service":"chat-app","timestamp":"2025-05-09T12:56:29.189Z"}
+{"level":"info","message":"User connected: 3uqs4qkl2M-nMDOQAAAB","service":"chat-app","timestamp":"2025-05-09T12:56:38.919Z"}
+{"level":"info","message":"User connected: 0q7q49OzCNenmcJFAAAD","service":"chat-app","timestamp":"2025-05-09T12:56:40.345Z"}
+{"level":"error","message":" Not Found socket ID for user 681868953c54bf602953ebd8","service":"chat-app","timestamp":"2025-05-09T12:56:43.816Z"}
+{"level":"error","message":" Not Found socket ID for user 68186adf3c54bf602953ed78","service":"chat-app","timestamp":"2025-05-09T12:56:43.817Z"}
+{"level":"error","message":" Not Found socket ID for user 6819da60383791852ce0023b","service":"chat-app","timestamp":"2025-05-09T12:56:43.819Z"}
+{"level":"info","message":"User connected: BCa91-5sE3JvHQwIAAAB","service":"chat-app","timestamp":"2025-05-09T12:57:06.239Z"}
+{"level":"info","message":"User connected: SMcpoHOOvWPNI_WtAAAD","service":"chat-app","timestamp":"2025-05-09T12:57:08.062Z"}
+{"level":"error","message":" Not Found socket ID for user 681868953c54bf602953ebd8","service":"chat-app","timestamp":"2025-05-09T12:57:14.253Z"}
+{"level":"error","message":" Not Found socket ID for user 68186adf3c54bf602953ed78","service":"chat-app","timestamp":"2025-05-09T12:57:14.254Z"}
+{"level":"error","message":" Not Found socket ID for user 6819da60383791852ce0023b","service":"chat-app","timestamp":"2025-05-09T12:57:14.255Z"}
+{"level":"info","message":"User connected: AD3JZQW_qxcGU49HAAAB","service":"chat-app","timestamp":"2025-05-09T12:57:35.373Z"}
+{"level":"info","message":"User connected: AzV_FLeQz2zemSApAAAD","service":"chat-app","timestamp":"2025-05-09T12:57:35.954Z"}
+{"level":"info","message":"User connected: A9WAUok64UT22PwAAAAB","service":"chat-app","timestamp":"2025-05-09T12:57:59.807Z"}
+{"level":"info","message":"User connected: Xv-RMgZRLdJ1HjKEAAAD","service":"chat-app","timestamp":"2025-05-09T12:58:03.703Z"}
+{"level":"error","message":" Not Found socket ID for user 68186adf3c54bf602953ed78","service":"chat-app","timestamp":"2025-05-09T12:58:08.835Z"}
+{"level":"error","message":" Not Found socket ID for user 6819da60383791852ce0023b","service":"chat-app","timestamp":"2025-05-09T12:58:08.836Z"}
+{"level":"info","message":"User connected: mMB4HrUHppxIN4cNAAAB","service":"chat-app","timestamp":"2025-05-09T12:58:37.244Z"}
+{"level":"info","message":"User connected: GKw_bJuU1yqnlQAhAAAD","service":"chat-app","timestamp":"2025-05-09T12:58:38.700Z"}
+{"level":"error","message":" Not Found socket ID for user 6818697c3c54bf602953ecc9","service":"chat-app","timestamp":"2025-05-09T12:58:40.977Z"}
+{"level":"error","message":" Not Found socket ID for user 68185da1be6afd5b96c533d4","service":"chat-app","timestamp":"2025-05-09T12:58:40.978Z"}
+{"level":"info","message":"User connected: MjqlF6rDUt_DM2knAAAB","service":"chat-app","timestamp":"2025-05-09T12:59:26.383Z"}
+{"level":"info","message":"User connected: s3Sqp6KzouAIJqsoAAAD","service":"chat-app","timestamp":"2025-05-09T12:59:27.997Z"}
+{"level":"info","message":"User connected: 6tvVQhupY614svYlAAAB","service":"chat-app","timestamp":"2025-05-09T13:08:54.484Z"}
+{"level":"info","message":"User connected: rSkKNTUmTz4mg90pAAAD","service":"chat-app","timestamp":"2025-05-09T13:08:54.622Z"}
+{"level":"info","message":"User connected: Zterm1dRBTSObCmWAAAB","service":"chat-app","timestamp":"2025-05-09T13:09:18.185Z"}
+{"level":"info","message":"User connected: 8ImhWGCZr8CwPofhAAAD","service":"chat-app","timestamp":"2025-05-09T13:09:18.461Z"}
+{"level":"info","message":"User connected: npp-9w349nI8diMHAAAB","service":"chat-app","timestamp":"2025-05-09T13:11:09.516Z"}
+{"level":"info","message":"User connected: YJbHOYDn-s8ALpykAAAD","service":"chat-app","timestamp":"2025-05-09T13:11:10.827Z"}
+{"level":"info","message":"User connected: T7YxlHtdwzZ-4Z7lAAAB","service":"chat-app","timestamp":"2025-05-09T13:11:31.477Z"}
+{"level":"info","message":"User connected: wshRp2L8GSdY2zxCAAAD","service":"chat-app","timestamp":"2025-05-09T13:11:31.571Z"}
+{"level":"info","message":"User connected: 3GSsLuIntO8HkF2DAAAB","service":"chat-app","timestamp":"2025-05-09T13:12:01.715Z"}
+{"level":"info","message":"User connected: o2-bl-D8zu_GQGHiAAAD","service":"chat-app","timestamp":"2025-05-09T13:12:02.040Z"}
+{"level":"info","message":"User connected: 31alt8EgC0-4L3LVAAAB","service":"chat-app","timestamp":"2025-05-09T13:12:54.028Z"}
+{"level":"info","message":"User connected: Fgp6p7_DYy3MELooAAAD","service":"chat-app","timestamp":"2025-05-09T13:12:54.295Z"}
+{"level":"info","message":"User connected: SNXmzriVIKpcyfk4AAAB","service":"chat-app","timestamp":"2025-05-09T13:13:57.824Z"}
+{"level":"info","message":"User connected: a0f-MjNVS_zsxRZUAAAD","service":"chat-app","timestamp":"2025-05-09T13:13:59.465Z"}
+{"level":"info","message":"User connected: v7PmdMMVbuvkALNKAAAB","service":"chat-app","timestamp":"2025-05-09T13:14:30.081Z"}
+{"level":"info","message":"User connected: Q1ws6_fCm8juCSn1AAAD","service":"chat-app","timestamp":"2025-05-09T13:14:33.445Z"}
+{"level":"info","message":"User connected: AWuzCWKX0UdR6nNhAAAB","service":"chat-app","timestamp":"2025-05-09T13:14:49.791Z"}
+{"level":"info","message":"User connected: rPFf-XeiaHrmOHxRAAAB","service":"chat-app","timestamp":"2025-05-09T13:15:03.427Z"}
+{"level":"info","message":"User connected: Jvsep88FydIuUEbhAAAD","service":"chat-app","timestamp":"2025-05-09T13:15:06.253Z"}
+{"level":"info","message":"User connected: JIiosg9cLFEPdyJmAAAB","service":"chat-app","timestamp":"2025-05-09T13:23:38.646Z"}
+{"level":"info","message":"User connected: GAEi03yxMffdVQGzAAAD","service":"chat-app","timestamp":"2025-05-09T13:23:39.254Z"}
+{"level":"info","message":"User connected: eEQf3MxzyeNneazTAAAB","service":"chat-app","timestamp":"2025-05-09T13:24:16.198Z"}
+{"level":"info","message":"User connected: AOkrTkZ_yhUn_kS7AAAD","service":"chat-app","timestamp":"2025-05-09T13:24:19.051Z"}
+{"level":"info","message":"User connected: livVUjJbZuciGeDNAAAB","service":"chat-app","timestamp":"2025-05-09T13:24:32.008Z"}
+{"level":"info","message":"User connected: wUgNoaDxk_dK_13VAAAD","service":"chat-app","timestamp":"2025-05-09T13:24:35.132Z"}
+{"level":"info","message":"User connected: jGZk-xBydg7HmOnJAAAB","service":"chat-app","timestamp":"2025-05-09T13:25:28.082Z"}
+{"level":"info","message":"User connected: _loCtasC07qXEjV5AAAD","service":"chat-app","timestamp":"2025-05-09T13:25:28.548Z"}
+{"level":"info","message":"User connected: KYuqWrGjKJLSPCVnAAAB","service":"chat-app","timestamp":"2025-05-09T13:26:10.868Z"}
+{"level":"info","message":"User connected: 60D7c3z-elpS5h6ZAAAD","service":"chat-app","timestamp":"2025-05-09T13:26:11.700Z"}
+{"level":"info","message":"User connected: gysYnvD2pXZ3zAnIAAAB","service":"chat-app","timestamp":"2025-05-09T13:29:13.012Z"}
+{"level":"info","message":"User connected: RdgPTcx5cXihBMs4AAAD","service":"chat-app","timestamp":"2025-05-09T13:29:14.918Z"}
+{"level":"info","message":"User connected: cXvaGpOiGoBbFhjSAAAB","service":"chat-app","timestamp":"2025-05-09T13:30:04.598Z"}
+{"level":"info","message":"User connected: 58r9ZB5UAKlXpCxSAAAB","service":"chat-app","timestamp":"2025-05-09T13:30:33.048Z"}
+{"level":"info","message":"User connected: J52p8gVNrRa_sANfAAAD","service":"chat-app","timestamp":"2025-05-09T13:30:35.410Z"}
+{"level":"info","message":"User connected: BNvF2xTWhpFDTmBQAAAB","service":"chat-app","timestamp":"2025-05-09T13:30:48.950Z"}
+{"level":"info","message":"User connected: hQmZ4vUmrfQhwyOxAAAD","service":"chat-app","timestamp":"2025-05-09T13:30:52.364Z"}
+{"level":"info","message":"User connected: yowipv_IAUomaL0EAAAB","service":"chat-app","timestamp":"2025-05-09T13:44:07.280Z"}
+{"level":"info","message":"User connected: 0Pm3SunwpHje261xAAAD","service":"chat-app","timestamp":"2025-05-09T13:44:08.370Z"}

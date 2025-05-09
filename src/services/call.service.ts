@@ -211,8 +211,9 @@ class CallService {
       await callRecord.save();
 
       conversation.participants.forEach((user) => {
-        if (user.id.toString() !== fromUserId) {
-          this.notifyIncomingCall(user.id, {
+        console.log("userid: ",user.user)
+        if (user.user.toString() !== fromUserId) {
+          this.notifyIncomingCall(user.user.toString(), {
             callId: (callRecord._id as mongoose.ObjectId).toString(),
             fromUser: {
               _id: fromUser._id,
@@ -328,7 +329,6 @@ class CallService {
   ) {
     try {
       const io = getSocketIO();
-      console.log("touser: ",toUserId)
       if (io) {
         const socketId = userSocketMap[toUserId];
 

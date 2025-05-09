@@ -89,6 +89,7 @@ export interface AuthenticatedRequest extends Request {
     role: string;
     email?: string;
   };
+  room?:string;
 }
 
 const authHeaderSchema = z
