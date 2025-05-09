@@ -158,3 +158,13 @@ export const setupSocketServer = (server: any) => {
 
   return io;
 };
+
+let socketIOInstance: Server | null = null;
+
+export const setSocketIOInstance = (io: Server) => {
+  socketIOInstance = io;
+};
+
+export const getSocketIO = (): Server | null => {
+  return socketIOInstance;
+};

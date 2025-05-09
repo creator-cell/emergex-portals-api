@@ -3,6 +3,8 @@ import CallModel, { CallType, CallStatus, ICall } from "../models/CallModel";
 import mongoose from "mongoose";
 import UserModel from "../models/UserModel";
 import VoiceResponse from "twilio/lib/twiml/VoiceResponse";
+import ConversationModel from "../models/ConversationModel";
+import { getSocketIO } from "../socket";
 
 class CallService {
   /**
@@ -58,28 +60,30 @@ class CallService {
 
       const user = await UserModel.findById(userId);
 
-      const name = user?.lastName ? user.firstName + " " + user.lastName : user?.firstName;
+      const name = user?.lastName
+        ? user.firstName + " " + user.lastName
+        : user?.firstName;
 
       // Create an access token
       const token = new AccessToken(
         process.env.TWILIO_ACCOUNT_SID as string,
         process.env.TWILIO_API_KEY as string,
         process.env.TWILIO_API_SECRET as string,
-        { 
+        {
           identity: userId,
-          ttl:12*3600 ,
+          ttl: 12 * 3600,
           claims: {
             name: name,
             email: user?.email,
             role: user?.role,
-          }
-        },
+          },
+        }
       );
 
       const videoGrant = new VideoGrant({
         room: roomName,
       });
-      
+
       token.addGrant(videoGrant);
 
       // Return the token as a string
@@ -178,6 +182,15 @@ class CallService {
       // Create a unique room name
       const roomName = `room-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
+      const conversation = await ConversationModel.findById(conversationId);
+      if (!conversation) {
+        throw new Error("Conversation not found");
+      }
+      const fromUser = await UserModel.findById(fromUserId);
+      if (!fromUser) {
+        throw new Error("User not found");
+      }
+
       // Create a video room
       const room = await this.createVideoRoom(roomName);
 
@@ -195,6 +208,22 @@ class CallService {
       });
 
       await callRecord.save();
+
+      conversation.participants.forEach((user) => {
+        if (user.id.toString() !== fromUserId) {
+          this.notifyIncomingCall(user.id, {
+            callId: (callRecord._id as mongoose.ObjectId).toString(),
+            fromUser: {
+              _id: fromUser._id,
+              firstName: fromUser.firstName,
+              lastName: fromUser.lastName,
+              image: fromUser.image,
+            },
+            type: CallType.VIDEO,
+          });
+        }
+      });
+
       return callRecord;
     } catch (error) {
       console.error("Error initiating video call:", error);
@@ -285,6 +314,29 @@ class CallService {
     } catch (error) {
       console.error("Error getting call history:", error);
       throw error;
+    }
+  }
+
+  private notifyIncomingCall(
+    toUserId: string,
+    callData: {
+      callId: string;
+      fromUser: any;
+      type: CallType;
+    }
+  ) {
+    try {
+      const io = getSocketIO();
+      if (io) {
+        io.to(toUserId).emit("incoming_call", {
+          callId: callData.callId,
+          from: callData.fromUser,
+          type: callData.type,
+          timestamp: new Date(),
+        });
+      }
+    } catch (error) {
+      console.error("Error notifying incoming call:", error);
     }
   }
 }
