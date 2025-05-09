@@ -354,3 +354,20 @@ export const employeesNotinAnyTeam = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const getUnassignedEmployees = async (req: Request, res: Response) => {
+  try {
+    const teams = await TeamModel.find({ isDeleted: false }).select("members");
+    const assignedEmployeeIds = teams.flatMap((team) => team.members.map(String));
+
+    const unassignedEmployees = await EmployeeModel.find({
+      _id: { $nin: assignedEmployeeIds },
+      isDeleted: false,
+    });
+
+    return res.status(200).json({ success: true, data: unassignedEmployees, message:"Employees who are not in any team fetched successfully" });
+  } catch (error) {
+    console.error("Error fetching unassigned employees:", error);
+    return res.status(500).json({ success: false,  error:"server error in mployees who are not in any team" });
+  }
+};

@@ -11,7 +11,6 @@ import mongoose from "mongoose";
 import IncidentHistoryModel from "../models/IncidentHistoryModel";
 import IncidentStatusHistoryModel from "../models/IncidentStatusHistoryModel";
 import ProjectRoleModel from "../models/ProjectRoleModel";
-import WorksiteModel from "../models/WorksiteModel";
 import conversationService from "../services/conversation.service";
 import {
   ConversationIdentity,
@@ -500,11 +499,11 @@ export const getIncidentsByProject = async (req: Request, res: Response) => {
         //   model: "Employee",
         //   select: "name email designation contactNo",
         // },
-        {
-          path: "location",
-          model: "Worksite",
-          select: "name",
-        },
+        // {
+        //   path: "location",
+        //   model: "Worksite",
+        //   select: "name",
+        // },
         {
           path: "project",
           model: "Project",
@@ -583,11 +582,11 @@ export const getIncidentById = async (req: Request, res: Response) => {
         path: "project",
         model: "Project",
       })
-      .populate({
-        path: "location",
-        model: "Worksite",
-        select: "name",
-      });
+      // .populate({
+      //   path: "location",
+      //   model: "Worksite",
+      //   select: "name",
+      // });
 
     if (!incident) {
       return res.status(200).json({
