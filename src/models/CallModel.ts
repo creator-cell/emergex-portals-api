@@ -40,7 +40,7 @@ const callSchema = new Schema<ICall>(
     twilioSid: {
       type: String,
       required: true,
-      unique: true,
+      // unique: true,
     },
     token: {
       type: String,
@@ -48,7 +48,6 @@ const callSchema = new Schema<ICall>(
     },
     roomId: {
       type: String,
-      unique: true,
     },
     type: {
       type: String,
