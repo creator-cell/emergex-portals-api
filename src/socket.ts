@@ -2,6 +2,8 @@ import { Server } from 'socket.io';
 // import { publisher, subscriber } from './config/redis';
 import { logger } from './config/logger';
 
+export const userSocketMap: { [key: string]: string } = {};
+
 export const setupSocketServer = (server: any) => {
   const io = new Server(server, {
     cors: {

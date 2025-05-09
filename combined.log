@@ -520,3 +520,7 @@
 {"level":"info","message":"User connected: 2r5xRVtyJdoKyAb_AABM","service":"chat-app","timestamp":"2025-05-05T14:05:24.127Z"}
 {"level":"info","message":"User disconnected: 2r5xRVtyJdoKyAb_AABM","service":"chat-app","timestamp":"2025-05-05T14:06:22.632Z"}
 {"level":"info","message":"User connected: Ju0orEmBMssxSHi5AABP","service":"chat-app","timestamp":"2025-05-05T14:06:24.038Z"}
+{"level":"error","message":"Socket.IO instance not available when trying to emit incoming_call","service":"chat-app","timestamp":"2025-05-09T12:25:04.529Z"}
+{"level":"error","message":"Socket.IO instance not available when trying to emit incoming_call","service":"chat-app","timestamp":"2025-05-09T12:25:04.533Z"}
+{"level":"error","message":"Socket.IO instance not available when trying to emit incoming_call","service":"chat-app","timestamp":"2025-05-09T12:36:42.984Z"}
+{"level":"error","message":"Socket.IO instance not available when trying to emit incoming_call","service":"chat-app","timestamp":"2025-05-09T12:36:42.992Z"}

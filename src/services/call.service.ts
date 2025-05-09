@@ -4,7 +4,8 @@ import mongoose from "mongoose";
 import UserModel from "../models/UserModel";
 import VoiceResponse from "twilio/lib/twiml/VoiceResponse";
 import ConversationModel from "../models/ConversationModel";
-import { getSocketIO } from "../socket";
+import { getSocketIO, userSocketMap } from "../socket";
+import { logger } from "../config/logger";
 
 class CallService {
   /**
@@ -327,16 +328,40 @@ class CallService {
   ) {
     try {
       const io = getSocketIO();
+      console.log("touser: ",toUserId)
       if (io) {
-        io.to(toUserId).emit("incoming_call", {
+        const socketId = userSocketMap[toUserId];
+
+        if (!socketId) {
+          logger.info(`Found socket ID ${socketId} for user ${toUserId}`);
+        }
+        logger.error(` Not Found socket ID for user ${toUserId}`);
+
+        logger.info(`Attempting to emit incoming_call to user ${toUserId}`, {
+          callData,
+          timestamp: new Date().toISOString(),
+        });
+
+        io.to(socketId).emit("incoming_call", {
           callId: callData.callId,
           from: callData.fromUser,
           type: callData.type,
           timestamp: new Date(),
         });
+
+        logger.info(`incoming_call event emitted to user ${toUserId}`);
+      } else {
+        logger.error(
+          "Socket.IO instance not available when trying to emit incoming_call"
+        );
       }
     } catch (error) {
-      console.error("Error notifying incoming call:", error);
+      logger.error("Error notifying incoming call:", {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        toUserId,
+        callData,
+      });
     }
   }
 }
