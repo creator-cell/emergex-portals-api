@@ -11,7 +11,8 @@ import {
   generateVideoCallToken,
   createRoom,
   notifyUserToJoinRoom,
-  acceptIncomingCall
+  acceptIncomingCall,
+  handleCallResponse
 } from "../controllers/CallControllers";
 import { authenticate } from "../middlewares/authMiddleware";
 import { authorizeRoles } from "../middlewares/roleMiddleware";
@@ -47,6 +48,7 @@ router.post("/video/create-room", createRoom);
 router.post("/:callId/end", endCall);
 router.get("/history", getCallHistory);
 router.post("/video/notify-join-room", notifyUserToJoinRoom);
+router.post("/video/handle-call-response", handleCallResponse);
 
 
 export default router;

@@ -426,21 +426,18 @@ class CallService {
     }
   }
 
+  
 async notifyUserToJoinRoom(toUserId: string, fromUserId: string, roomName: string) {
     try {
-        // Generate a token for the user to join the video room
-        const token = await this.generateToken(toUserId, roomName);
-        console.log("token",token);
-        
         const io = getSocketIO();
         console.log(io)
         if (!io) {
             logger.error(
-                "Socket.IO instance not available when trying to emit incoming_call",);
+                "Socket.IO instance not available when trying to emit incoming_call");
             return;
         }
 
-        const socketId = userSocketMap["68186ab23c54bf602953ed46"];
+        const socketId = userSocketMap[toUserId];
 
         if (!socketId) {
             logger.error(`Not Found socket ID for user ${toUserId}`);
@@ -450,7 +447,6 @@ async notifyUserToJoinRoom(toUserId: string, fromUserId: string, roomName: strin
 
         logger.info(`Attempting to emit incoming_call to user ${toUserId}`, {
             roomName,
-            token,
             fromUserId,
             type: "video",
             timestamp: new Date().toISOString(),
@@ -458,7 +454,6 @@ async notifyUserToJoinRoom(toUserId: string, fromUserId: string, roomName: strin
 
         io.to(socketId).emit("incoming_call", {
             roomName,
-            token,
             fromUserId,
             type: "video",
             timestamp: new Date(),
@@ -475,6 +470,7 @@ async notifyUserToJoinRoom(toUserId: string, fromUserId: string, roomName: strin
         });
     }
 }
+
 async handleCallResponse(toUserId: string, roomName: string, response: "accepted" | "rejected") {
     try {
         const io = getSocketIO();
@@ -490,9 +486,12 @@ async handleCallResponse(toUserId: string, roomName: string, response: "accepted
         }
 
         if (response === "accepted") {
+            // Generate a token for the user to join the video room
+            const token = await this.generateToken(toUserId, roomName);
             logger.info(`User ${toUserId} accepted the call for room ${roomName}`);
             io.to(socketId).emit("call_accepted", {
                 roomName,
+                token,
                 timestamp: new Date().toISOString(),
             });
         } else if (response === "rejected") {
@@ -517,7 +516,6 @@ async handleCallResponse(toUserId: string, roomName: string, response: "accepted
 
 private async updateCallStatusOnTwilio(roomName: string, status: string) {
     try {
-
         logger.info(`Updating call status to ${status} for room ${roomName} on Twilio`);
         const room = await twilioClient.video.v1
         .rooms(roomName)

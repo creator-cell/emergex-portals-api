@@ -371,7 +371,7 @@ export const notifyUserToJoinRoom = async (req: Request, res: Response) => {
     const { toUserId, roomName } = req.body;
 
     // Notify the user to join the room
-    await callService.notifyUserToJoinRoom(toUserId, currentUser.id, roomName);
+    await callService.handleCallResponse(toUserId, roomName, "accepted");
 
     return res.status(200).json({
       success: true,
@@ -382,6 +382,28 @@ export const notifyUserToJoinRoom = async (req: Request, res: Response) => {
     return res.status(500).json({
       success: false,
       error: error.message || "An error occurred notifying user to join room",
+    });
+  }
+};
+
+export const handleCallResponse = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+  try {
+    const { roomName, response } = req.body;
+    const userId = currentUser.id;
+
+    await callService.handleCallResponse(userId, roomName, response);
+
+    return res.status(200).json({
+      success: true,
+      message: `Call response '${response}' handled successfully`,
+    });
+  } catch (error: any) {
+    console.error("Error handling call response:", error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || "An error occurred while handling call response",
     });
   }
 };
