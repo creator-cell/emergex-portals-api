@@ -235,6 +235,7 @@ class CallService {
                 firstName: fromUser.firstName,
                 lastName: fromUser.lastName,
                 image: fromUser.image,
+                role:fromUser.role
               },
               conversationId: conversation._id,
               type: CallType.VIDEO,
@@ -355,7 +356,7 @@ class CallService {
       const call  = await CallModel.findOne({
         roomName
       })
-      
+
       if(!call){
         throw new Error("Call not found")
       }
