@@ -45,15 +45,14 @@ const callSchema = new mongoose_1.Schema({
     twilioSid: {
         type: String,
         required: true,
-        unique: true,
+        // unique: true,
     },
     token: {
         type: String,
-        unique: true,
+        // unique: true,
     },
     roomId: {
         type: String,
-        unique: true,
     },
     type: {
         type: String,

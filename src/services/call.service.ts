@@ -185,10 +185,13 @@ class CallService {
       // Create a unique room name
       const roomName = `room-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
-      const conversation = await ConversationModel.findById(conversationId).populate({
-        path: "participants.user",
-        select: "firstName lastName email image role",
-      }).lean()
+      const conversation = await ConversationModel.findById(conversationId)
+        .populate({
+          path: "participants.user",
+          select: "firstName lastName email image role",
+        })
+        .lean();
+
       if (!conversation) {
         throw new Error("Conversation not found");
       }
@@ -215,24 +218,41 @@ class CallService {
       await callRecord.save();
 
       conversation.participants.forEach((participant) => {
-        const user = participant.user instanceof mongoose.Types.ObjectId
-          ? null
-          : (participant.user as IUser);
+        const user =
+          participant.user instanceof mongoose.Types.ObjectId
+            ? null
+            : (participant.user as IUser);
 
-        WebsocketServer.to(`${user?.role}-${user?._id}`).emit('incommingCall', { name: 'Mohnish' })
+        // console.log("condition: ",(user!._id as mongoose.ObjectId).toString() !== fromUserId,(user!._id as mongoose.ObjectId).toString(),fromUserId)
 
-        // if (user.user.toString() !== fromUserId) {
-        //   this.notifyIncomingCall(user.user.toString(), {
-        //     callId: (callRecord._id as mongoose.ObjectId).toString(),
-        //     fromUser: {
-        //       _id: fromUser._id,
-        //       firstName: fromUser.firstName,
-        //       lastName: fromUser.lastName,
-        //       image: fromUser.image,
-        //     },
-        //     type: CallType.VIDEO,
-        //   });
-        // }
+        if ((user!._id as mongoose.ObjectId).toString() !== fromUserId) {
+          WebsocketServer.to(`${user?.role}-${user?._id}`).emit(
+            "incommingCall",
+            {
+              callId: (callRecord._id as mongoose.ObjectId).toString(),
+              fromUser: {
+                _id: fromUser._id,
+                firstName: fromUser.firstName,
+                lastName: fromUser.lastName,
+                image: fromUser.image,
+                role:fromUser.role
+              },
+              conversationId: conversation._id,
+              type: CallType.VIDEO,
+            }
+          );
+
+          //   this.notifyIncomingCall(user.user.toString(), {
+          //     callId: (callRecord._id as mongoose.ObjectId).toString(),
+          //     fromUser: {
+          //       _id: fromUser._id,
+          //       firstName: fromUser.firstName,
+          //       lastName: fromUser.lastName,
+          //       image: fromUser.image,
+          //     },
+          //     type: CallType.VIDEO,
+          //   });
+        }
       });
 
       return callRecord;
@@ -325,6 +345,37 @@ class CallService {
     } catch (error) {
       console.error("Error getting call history:", error);
       throw error;
+    }
+  }
+
+  /**
+   * Get call history for a user
+   */
+  async acceptIncomingCall(userId: string, roomName: string) {
+    try {
+      const call  = await CallModel.findOne({
+        roomName
+      })
+
+      if(!call){
+        throw new Error("Call not found")
+      }
+
+      if(call.status===CallStatus.COMPLETED){
+        throw new Error("Call ended already")
+      }
+
+      const token = await this.generateVideoToken(userId, roomName);
+
+      if(call.status===CallStatus.INITIATED){
+        call.status=CallStatus.IN_PROGRESS
+        await call.save();
+      }
+
+      return token;
+    } catch (error) {
+      console.log("error in accepting incoming call: ", error);
+      throw new Error("Error in accepting call");
     }
   }
 

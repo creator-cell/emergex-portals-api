@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.employeesNotinAnyTeam = exports.deleteEmployee = exports.updateEmployee = exports.getEmployeeById = exports.getEmployees = exports.createEmployee = void 0;
+exports.getUnassignedEmployees = exports.employeesNotinAnyTeam = exports.deleteEmployee = exports.updateEmployee = exports.getEmployeeById = exports.getEmployees = exports.createEmployee = void 0;
 const EmployeeModel_1 = __importDefault(require("../models/EmployeeModel"));
 const pagination_1 = require("../helper/pagination");
 const UserModel_1 = __importDefault(require("../models/UserModel"));
@@ -269,3 +269,19 @@ const employeesNotinAnyTeam = async (req, res) => {
     }
 };
 exports.employeesNotinAnyTeam = employeesNotinAnyTeam;
+const getUnassignedEmployees = async (req, res) => {
+    try {
+        const teams = await TeamModel_1.default.find({ isDeleted: false }).select("members");
+        const assignedEmployeeIds = teams.flatMap((team) => team.members.map(String));
+        const unassignedEmployees = await EmployeeModel_1.default.find({
+            _id: { $nin: assignedEmployeeIds },
+            isDeleted: false,
+        });
+        return res.status(200).json({ success: true, data: unassignedEmployees, message: "Employees who are not in any team fetched successfully" });
+    }
+    catch (error) {
+        console.error("Error fetching unassigned employees:", error);
+        return res.status(500).json({ success: false, error: "server error in mployees who are not in any team" });
+    }
+};
+exports.getUnassignedEmployees = getUnassignedEmployees;

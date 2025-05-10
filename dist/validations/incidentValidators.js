@@ -144,9 +144,8 @@ exports.updateIncidentValidationRules = [
         .isArray()
         .withMessage((_, { req }) => req.i18n.t("incidentValidationMessages.incidentValidationRules.damageAssets.array")),
     (0, express_validator_1.body)("finance")
-        .optional()
-        .isFloat({ min: 0 })
-        .withMessage((_, { req }) => req.i18n.t("incidentValidationMessages.incidentValidationRules.finance.int")),
+        .notEmpty()
+        .withMessage((_, { req }) => req.i18n.t("incidentValidationMessages.incidentValidationRules.finance.empty")),
     (0, express_validator_1.body)("utilityAffected")
         .optional()
         .isArray()
