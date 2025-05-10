@@ -9,7 +9,8 @@ import {
   endCall,
   getCallHistory,
   generateVideoCallToken,
-  createRoom
+  createRoom,
+  notifyUserToJoinRoom
 } from "../controllers/CallControllers";
 import { authenticate } from "../middlewares/authMiddleware";
 import { authorizeRoles } from "../middlewares/roleMiddleware";
@@ -43,5 +44,7 @@ router.post("/video/create-room", createRoom);
 // Common call operations
 router.post("/:callId/end", endCall);
 router.get("/history", getCallHistory);
+router.post("/video/notify-join-room", notifyUserToJoinRoom);
+
 
 export default router;

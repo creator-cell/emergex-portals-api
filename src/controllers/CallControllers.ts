@@ -340,3 +340,25 @@ export const createRoom = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const notifyUserToJoinRoom = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+  try {
+    const { toUserId, roomName } = req.body;
+
+    // Notify the user to join the room
+    await callService.notifyUserToJoinRoom(toUserId, currentUser.id, roomName);
+
+    return res.status(200).json({
+      success: true,
+      message: "User notified to join room successfully",
+    });
+  } catch (error: any) {
+    console.error("Error notifying user to join room:", error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || "An error occurred notifying user to join room",
+    });
+  }
+};

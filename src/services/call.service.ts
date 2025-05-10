@@ -7,6 +7,7 @@ import ConversationModel from "../models/ConversationModel";
 import { getSocketIO, userSocketMap } from "../socket";
 import { logger } from "../config/logger";
 import { WebsocketServer } from "..";
+import { RoomRoomStatus } from "twilio/lib/rest/video/v1/room";
 
 class CallService {
   /**
@@ -188,7 +189,6 @@ class CallService {
         path: "participants.user",
         select: "firstName lastName email image role",
       }).lean()
-
       if (!conversation) {
         throw new Error("Conversation not found");
       }
@@ -199,7 +199,6 @@ class CallService {
 
       // Create a video room
       const room = await this.createVideoRoom(roomName);
-
       // Save call details in our database
       const callRecord = new CallModel({
         twilioSid: room.sid,
@@ -375,6 +374,114 @@ class CallService {
       });
     }
   }
+
+async notifyUserToJoinRoom(toUserId: string, fromUserId: string, roomName: string) {
+    try {
+        // Generate a token for the user to join the video room
+        const token = await this.generateToken(toUserId, roomName);
+        console.log("token",token);
+        
+        const io = getSocketIO();
+        console.log(io)
+        if (!io) {
+            logger.error(
+                "Socket.IO instance not available when trying to emit incoming_call",);
+            return;
+        }
+
+        const socketId = userSocketMap["68186ab23c54bf602953ed46"];
+
+        if (!socketId) {
+            logger.error(`Not Found socket ID for user ${toUserId}`);
+            return;
+        }
+        logger.info(`Found socket ID ${socketId} for user ${toUserId}`);
+
+        logger.info(`Attempting to emit incoming_call to user ${toUserId}`, {
+            roomName,
+            token,
+            fromUserId,
+            type: "video",
+            timestamp: new Date().toISOString(),
+        });
+
+        io.to(socketId).emit("incoming_call", {
+            roomName,
+            token,
+            fromUserId,
+            type: "video",
+            timestamp: new Date(),
+        });
+
+        logger.info(`incoming_call event emitted to user ${toUserId}`);
+    } catch (error) {
+        logger.error("Error notifying user to join room:", {
+            error: error instanceof Error ? error.message : String(error),
+            stack: error instanceof Error ? error.stack : undefined,
+            toUserId,
+            fromUserId,
+            roomName,
+        });
+    }
+}
+async handleCallResponse(toUserId: string, roomName: string, response: "accepted" | "rejected") {
+    try {
+        const io = getSocketIO();
+        if (!io) {
+            logger.error("Socket.IO instance not available when trying to emit call response");
+            return;
+        }
+
+        const socketId = userSocketMap[toUserId];
+        if (!socketId) {
+            logger.error(`Not Found socket ID for user ${toUserId}`);
+            return;
+        }
+
+        if (response === "accepted") {
+            logger.info(`User ${toUserId} accepted the call for room ${roomName}`);
+            io.to(socketId).emit("call_accepted", {
+                roomName,
+                timestamp: new Date().toISOString(),
+            });
+        } else if (response === "rejected") {
+            logger.info(`User ${toUserId} rejected the call for room ${roomName}`);
+            io.to(socketId).emit("call_rejected", {
+                roomName,
+                timestamp: new Date().toISOString(),
+            });
+
+            await this.updateCallStatusOnTwilio(roomName, "failed");
+        }
+    } catch (error) {
+        logger.error("Error handling call response:", {
+            error: error instanceof Error ? error.message : String(error),
+            stack: error instanceof Error ? error.stack : undefined,
+            toUserId,
+            roomName,
+            response,
+        });
+    }
+}
+
+private async updateCallStatusOnTwilio(roomName: string, status: string) {
+    try {
+
+        logger.info(`Updating call status to ${status} for room ${roomName} on Twilio`);
+        const room = await twilioClient.video.v1
+        .rooms(roomName)
+        .update({ status: status as RoomRoomStatus });
+        return room;
+    } catch (error) {
+        logger.error("Error updating call status on Twilio:", {
+            error: error instanceof Error ? error.message : String(error),
+            stack: error instanceof Error ? error.stack : undefined,
+            roomName,
+            status,
+        });
+    }
+}
+
 }
 
 export default new CallService();
