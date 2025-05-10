@@ -24,7 +24,7 @@ export const setupSocketServer = (server: any) => {
   setSocketIOInstance(io);
 
   io.on("connection", (socket) => {
-    logger.info(`User connected: ${socket.id}`);
+    // logger.info(`User connected: ${socket.id}`);
 
     // Setup user connection with authentication
     socket.on("setup", (userData: { _id: string }) => {
@@ -52,7 +52,7 @@ export const setupSocketServer = (server: any) => {
         });
       }
 
-      logger.info(`User disconnected: ${socket.id}`);
+      // logger.info(`User disconnected: ${socket.id}`);
     });
   });
 

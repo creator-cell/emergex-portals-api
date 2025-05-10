@@ -4,6 +4,7 @@ import { ICustomRequest } from "../types/express";
 import CallModel, { CallStatus, CallType } from "../models/CallModel";
 import UserModel from "../models/UserModel";
 import { twilioClient } from "../config/twilioClient";
+import { WebsocketServer } from "..";
 
 export const generateCallToken = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;

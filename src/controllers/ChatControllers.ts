@@ -8,6 +8,7 @@ import ProjectRoleModel from "../models/ProjectRoleModel";
 import UserModel from "../models/UserModel";
 import { GlobalAdminRoles } from "../config/global-enum";
 import ProjectModel from "../models/ProjectModel";
+import { WebsocketServer } from "..";
 
 export const generateChatToken = async (req: Request, res: Response) => {
   try {

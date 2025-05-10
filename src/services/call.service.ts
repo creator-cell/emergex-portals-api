@@ -1,11 +1,12 @@
 import { twilioClient } from "../config/twilioClient";
 import CallModel, { CallType, CallStatus, ICall } from "../models/CallModel";
 import mongoose from "mongoose";
-import UserModel from "../models/UserModel";
+import UserModel, { IUser } from "../models/UserModel";
 import VoiceResponse from "twilio/lib/twiml/VoiceResponse";
 import ConversationModel from "../models/ConversationModel";
 import { getSocketIO, userSocketMap } from "../socket";
 import { logger } from "../config/logger";
+import { WebsocketServer } from "..";
 
 class CallService {
   /**
@@ -183,7 +184,11 @@ class CallService {
       // Create a unique room name
       const roomName = `room-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
-      const conversation = await ConversationModel.findById(conversationId);
+      const conversation = await ConversationModel.findById(conversationId).populate({
+        path: "participants.user",
+        select: "firstName lastName email image role",
+      }).lean()
+
       if (!conversation) {
         throw new Error("Conversation not found");
       }
@@ -210,20 +215,25 @@ class CallService {
 
       await callRecord.save();
 
-      conversation.participants.forEach((user) => {
-        console.log("userid: ",user.user)
-        if (user.user.toString() !== fromUserId) {
-          this.notifyIncomingCall(user.user.toString(), {
-            callId: (callRecord._id as mongoose.ObjectId).toString(),
-            fromUser: {
-              _id: fromUser._id,
-              firstName: fromUser.firstName,
-              lastName: fromUser.lastName,
-              image: fromUser.image,
-            },
-            type: CallType.VIDEO,
-          });
-        }
+      conversation.participants.forEach((participant) => {
+        const user = participant.user instanceof mongoose.Types.ObjectId
+          ? null
+          : (participant.user as IUser);
+
+        WebsocketServer.to(`${user?.role}-${user?._id}`).emit('incommingCall', { name: 'Mohnish' })
+
+        // if (user.user.toString() !== fromUserId) {
+        //   this.notifyIncomingCall(user.user.toString(), {
+        //     callId: (callRecord._id as mongoose.ObjectId).toString(),
+        //     fromUser: {
+        //       _id: fromUser._id,
+        //       firstName: fromUser.firstName,
+        //       lastName: fromUser.lastName,
+        //       image: fromUser.image,
+        //     },
+        //     type: CallType.VIDEO,
+        //   });
+        // }
       });
 
       return callRecord;

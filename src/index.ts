@@ -25,16 +25,15 @@ import transcriptionRoutes from "./routes/transcriptionRoutes";
 import chatRoutes from "./routes/ChatRoutes";
 import conversationRoutes from "./routes/ConversationRoutes";
 import webhookRoutes from "./routes/webhookRoutes";
-import callRoutes from './routes/CallRoutes'; // Import the new call routes
-// import messageRoutes from "./routes/MessageRoutes";
+import callRoutes from './routes/CallRoutes';
 
 import path from "path";
-import { setupSocketServer } from "./socket";
 import { validateTwilioWebhook } from "./middlewares/webhookAuthMiddleware";
-// import locationRoutes from './routes/LocationRoutes'
+import { Server } from "socket.io";
+import { socketAuthorizer } from "./middlewares/socketAuthorizer";
+import { socketConnectionHandler } from "./events";
 
 const app = express();
-const server = createServer(app);
 const port = config.port;
 
 app.use(
@@ -58,9 +57,9 @@ app.get("/", (_req: Request, res: Response) => {
   return res.status(200).send("Hello World! with typescript");
 });
 
-app.use((req,res,next)=>{
-    console.log(req.method,req.url)
-    next()
+app.use((req, res, next) => {
+  console.log(req.method, req.url)
+  next()
 })
 
 app.use("/api/auth", authRoutes);
@@ -82,9 +81,23 @@ app.use('/api/calls', callRoutes);
 app.use('/api/webhook', validateTwilioWebhook, webhookRoutes);
 // app.use("/api/messages", messageRoutes);
 
-setupSocketServer(server);
+const httpServer = createServer(app);
 
-server.listen(port, () => {
+export const WebsocketServer = new Server(httpServer, {
+  cors: {
+    origin: '*', // Or: ["http://localhost:3000"]
+    credentials: true
+  }
+});
+
+// ✅ Socket.IO middleware (recommended)
+WebsocketServer.use(socketAuthorizer);
+
+WebsocketServer.on('connection', socketConnectionHandler);
+
+
+
+httpServer.listen(port, () => {
   console.log("Server is running @ " + port);
 });
 

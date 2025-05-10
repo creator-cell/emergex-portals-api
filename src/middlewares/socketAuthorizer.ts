@@ -1,35 +1,36 @@
-
 import jwt from "jsonwebtoken";
 import { config } from "../config/index";
 import UserModel from "../models/UserModel";
+import { Socket } from "socket.io";
+import { IncomingMessage } from "http";
+
+interface CustomRequest extends IncomingMessage {
+  user?: any;
+  room?: string;
+}
 
 export const socketAuthorizer = async (
-    req: Request, fn: (err: string | null | undefined, success: boolean) => void
+  socket: Socket,
+  next: (err?: Error) => void
 ) => {
   try {
-    const decoded = jwt.verify(token as string, config.jwtSecret);
-    const userId =
-      typeof decoded === "object" && "id" in decoded ? decoded.id : null;
+    const token = socket.handshake.query.token as string;
+    if (!token) return next(new Error("Access Denied"));
 
-    if (!userId) {
-      return fn("user not found",false)
-    }
+    const decoded = jwt.verify(token, config.jwtSecret) as { id: string };
+    const user = await UserModel.findById(decoded.id).select("-password");
 
-    const user = await UserModel.findById(userId).select("-password");
-    if (!user) {
-        return fn("user not found",false)
-    }
-    
-    req.user = {
-        id: user?._id as string,
-        role: user?.role ?? "defaultRole",
-        email: user?.email,
-      };
+    if (!user) return next(new Error("Access Denied"));
 
-    req.room = `${user.role}-${(user._id as string).toString()}`
-    fn(null,true)
+    const req = socket.request as CustomRequest;
+    req.user = user;
+    req.room = `${user.role}-${user._id}`;
 
-  } catch (error) {
-    console.error("Error in socketAuthorizer middleware:", error);
+    next();
+  } catch (err) {
+    console.error("❌ Socket auth error:", err);
+    next(new Error("Unauthorized"));
   }
 };
+
+export default socketAuthorizer;
