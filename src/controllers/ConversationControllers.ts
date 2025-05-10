@@ -653,17 +653,16 @@ export const generateToken = async (req: Request, res: Response) => {
   const currentUser = customReq.user;
   try {
     const userId = currentUser.id;
-    const identity = currentUser.email || "default_identity";
 
-    const token = await conversationService.generateToken(userId, identity);
+    const token = await conversationService.generateToken(userId);
     return res
-      .status(200)
+      .status(200)  
       .json({ success: true, token, message: "Token generated successfully" });
   } catch (error: any) {
     console.error("Error generating token:", error);
     return res.status(500).json({
       success: false,
-      error: error.message || "An error occurred in generating token",
+      error: error.message ?? "An error occurred in generating token",
     });
   }
 };

@@ -239,6 +239,7 @@ class CallService {
               },
               conversationId: conversation._id,
               type: CallType.VIDEO,
+              roomName:roomName
             }
           );
 

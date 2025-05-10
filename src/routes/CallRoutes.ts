@@ -38,7 +38,7 @@ router.post("/voice/initiate", initiateVoiceCall);
 // Video calls
 router.get("/video/initiate", initiateVideoCall);
 router.get("/video/join/:roomName", joinVideoCall);
-router.get("accept-incoming-call", acceptIncomingCall);
+router.get("/accept-incoming-call", acceptIncomingCall);
 
 router.post("/video/create-room", createRoom);
 

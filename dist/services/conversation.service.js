@@ -319,7 +319,7 @@ class ConversationService {
     /**
      * Generate a Twilio token for a user to connect to the Conversations SDK
      */
-    async generateToken(userId, identity) {
+    async generateToken(userId) {
         try {
             const { AccessToken } = require("twilio").jwt;
             const { ChatGrant } = AccessToken;

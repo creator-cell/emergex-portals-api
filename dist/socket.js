@@ -22,7 +22,7 @@ const setupSocketServer = (server) => {
     });
     (0, exports.setSocketIOInstance)(io);
     io.on("connection", (socket) => {
-        // logger.info(`User connected: ${socket.id}`);
+        logger_1.logger.info(`User connected: ${socket.id}`);
         // Setup user connection with authentication
         socket.on("setup", (userData) => {
             if (!userData?._id) {
