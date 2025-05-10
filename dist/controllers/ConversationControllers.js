@@ -80,9 +80,10 @@ const createConversation = async (req, res) => {
             const participantId = employee?.user.toString();
             await conversation_service_1.default.addParticipant(conversationId.toString(), participantId, employee.user.toString());
         }
+        const newConversation = await ConversationModel_1.default.findById(conversation._id);
         return res.status(201).json({
             success: true,
-            conversation,
+            conversation: newConversation,
             message: "Conversation created successfully",
         });
     }
@@ -90,7 +91,7 @@ const createConversation = async (req, res) => {
         console.error("Error creating conversation:", error);
         return res
             .status(500)
-            .json({ message: error.message || "An error occurred" });
+            .json({ message: error.message ?? "An error occurred" });
     }
 };
 exports.createConversation = createConversation;

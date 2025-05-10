@@ -15,7 +15,6 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const IncidentHistoryModel_1 = __importDefault(require("../models/IncidentHistoryModel"));
 const IncidentStatusHistoryModel_1 = __importDefault(require("../models/IncidentStatusHistoryModel"));
 const ProjectRoleModel_1 = __importDefault(require("../models/ProjectRoleModel"));
-const WorksiteModel_1 = __importDefault(require("../models/WorksiteModel"));
 const conversation_service_1 = __importDefault(require("../services/conversation.service"));
 const ConversationModel_1 = require("../models/ConversationModel");
 const createIncident = async (req, res) => {
@@ -207,25 +206,11 @@ const updateIncidentById = async (req, res) => {
             existingIncident.countOfTotalPeople = countOfTotalPeople;
         }
         if (location &&
-            existingIncident.location.toString() !== location.toString()) {
-            let oldLocation = await WorksiteModel_1.default.findById(existingIncident.location);
-            let newLocation = await WorksiteModel_1.default.findById(location);
-            if (!oldLocation) {
-                return res.status(200).json({
-                    success: false,
-                    error: req.i18n.t("locationValidationMessages.response.oldLocationNotFound"),
-                });
-            }
-            if (!newLocation) {
-                return res.status(200).json({
-                    success: false,
-                    error: req.i18n.t("locationValidationMessages.response.newLocationNotFound"),
-                });
-            }
+            existingIncident.location !== location) {
             changes.push({
                 field: "Location",
-                oldValue: oldLocation.name,
-                newValue: newLocation.name,
+                oldValue: existingIncident.location,
+                newValue: location,
             });
             existingIncident.location = location;
         }
@@ -391,11 +376,11 @@ const getIncidentsByProject = async (req, res) => {
                 //   model: "Employee",
                 //   select: "name email designation contactNo",
                 // },
-                {
-                    path: "location",
-                    model: "Worksite",
-                    select: "name",
-                },
+                // {
+                //   path: "location",
+                //   model: "Worksite",
+                //   select: "name",
+                // },
                 {
                     path: "project",
                     model: "Project",
@@ -460,12 +445,12 @@ const getIncidentById = async (req, res) => {
             .populate({
             path: "project",
             model: "Project",
-        })
-            .populate({
-            path: "location",
-            model: "Worksite",
-            select: "name",
         });
+        // .populate({
+        //   path: "location",
+        //   model: "Worksite",
+        //   select: "name",
+        // });
         if (!incident) {
             return res.status(200).json({
                 success: false,

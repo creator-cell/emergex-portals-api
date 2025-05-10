@@ -26,6 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.WebsocketServer = void 0;
 const config_1 = require("./config");
 const express_1 = __importDefault(require("express"));
 const DB_Connect_1 = __importDefault(require("./config/DB_Connect"));
@@ -51,14 +52,13 @@ const transcriptionRoutes_1 = __importDefault(require("./routes/transcriptionRou
 const ChatRoutes_1 = __importDefault(require("./routes/ChatRoutes"));
 const ConversationRoutes_1 = __importDefault(require("./routes/ConversationRoutes"));
 const webhookRoutes_1 = __importDefault(require("./routes/webhookRoutes"));
-const CallRoutes_1 = __importDefault(require("./routes/CallRoutes")); // Import the new call routes
-// import messageRoutes from "./routes/MessageRoutes";
+const CallRoutes_1 = __importDefault(require("./routes/CallRoutes"));
 const path_1 = __importDefault(require("path"));
-const socket_1 = require("./socket");
 const webhookAuthMiddleware_1 = require("./middlewares/webhookAuthMiddleware");
-// import locationRoutes from './routes/LocationRoutes'
+const socket_io_1 = require("socket.io");
+const socketAuthorizer_1 = require("./middlewares/socketAuthorizer");
+const events_1 = require("./events");
 const app = (0, express_1.default)();
-const server = (0, http_1.createServer)(app);
 const port = config_1.config.port;
 app.use((0, cors_1.default)({
     origin: "*",
@@ -97,8 +97,17 @@ app.use('/api/conversations', ConversationRoutes_1.default);
 app.use('/api/calls', CallRoutes_1.default);
 app.use('/api/webhook', webhookAuthMiddleware_1.validateTwilioWebhook, webhookRoutes_1.default);
 // app.use("/api/messages", messageRoutes);
-(0, socket_1.setupSocketServer)(server);
-server.listen(port, () => {
+const httpServer = (0, http_1.createServer)(app);
+exports.WebsocketServer = new socket_io_1.Server(httpServer, {
+    cors: {
+        origin: '*', // Or: ["http://localhost:3000"]
+        credentials: true
+    }
+});
+// ✅ Socket.IO middleware (recommended)
+exports.WebsocketServer.use(socketAuthorizer_1.socketAuthorizer);
+exports.WebsocketServer.on('connection', events_1.socketConnectionHandler);
+httpServer.listen(port, () => {
     console.log("Server is running @ " + port);
 });
 exports.default = app;

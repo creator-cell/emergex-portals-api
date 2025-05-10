@@ -66,8 +66,7 @@ const IncidentSchema = new mongoose_1.Schema({
         required: true,
     },
     location: {
-        type: mongoose_1.default.Schema.Types.ObjectId,
-        ref: "Worksite",
+        type: String,
         required: true,
     },
     damageAssets: {
