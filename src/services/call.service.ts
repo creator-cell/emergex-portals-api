@@ -223,7 +223,7 @@ class CallService {
             ? null
             : (participant.user as IUser);
 
-            // console.log("condition: ",(user!._id as mongoose.ObjectId).toString() !== fromUserId,(user!._id as mongoose.ObjectId).toString(),fromUserId)
+        // console.log("condition: ",(user!._id as mongoose.ObjectId).toString() !== fromUserId,(user!._id as mongoose.ObjectId).toString(),fromUserId)
 
         if ((user!._id as mongoose.ObjectId).toString() !== fromUserId) {
           WebsocketServer.to(`${user?.role}-${user?._id}`).emit(
@@ -236,7 +236,7 @@ class CallService {
                 lastName: fromUser.lastName,
                 image: fromUser.image,
               },
-              conversationId:conversation._id,
+              conversationId: conversation._id,
               type: CallType.VIDEO,
             }
           );
@@ -344,6 +344,37 @@ class CallService {
     } catch (error) {
       console.error("Error getting call history:", error);
       throw error;
+    }
+  }
+
+  /**
+   * Get call history for a user
+   */
+  async acceptIncomingCall(userId: string, roomName: string) {
+    try {
+      const call  = await CallModel.findOne({
+        roomName
+      })
+      
+      if(!call){
+        throw new Error("Call not found")
+      }
+
+      if(call.status===CallStatus.COMPLETED){
+        throw new Error("Call ended already")
+      }
+
+      const token = await this.generateVideoToken(userId, roomName);
+
+      if(call.status===CallStatus.INITIATED){
+        call.status=CallStatus.IN_PROGRESS
+        await call.save();
+      }
+
+      return token;
+    } catch (error) {
+      console.log("error in accepting incoming call: ", error);
+      throw new Error("Error in accepting call");
     }
   }
 

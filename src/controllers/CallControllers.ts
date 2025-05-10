@@ -204,8 +204,7 @@ export const joinVideoCall = async (req: Request, res: Response) => {
 
     // Generate token for the user to join the video room
     const token = await callService.generateToken(
-      userId,
-      currentUser.email || userId,
+      userId, userId,
       roomName
     );
 
@@ -337,6 +336,30 @@ export const createRoom = async (req: Request, res: Response) => {
     return res.status(500).json({
       success: false,
       error: error.message || "An error occurred while creating room",
+    });
+  }
+};
+
+export const acceptIncomingCall = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+  try {
+    const { roomName } = req.query;
+    const userId = currentUser.id;
+
+    const token  = await callService.acceptIncomingCall(userId,roomName as string)
+
+    return res.status(200).json({
+      success: true,
+      token,
+      roomName,
+      message: "Accept incoming call token generated successfully",
+    });
+  } catch (error: any) {
+    console.error("Error accepting incoming video call:", error);
+    return res.status(500).json({
+      success: false,
+      error: error.message ?? "An error occurred accepting incoming call",
     });
   }
 };

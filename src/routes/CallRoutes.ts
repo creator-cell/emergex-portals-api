@@ -9,7 +9,8 @@ import {
   endCall,
   getCallHistory,
   generateVideoCallToken,
-  createRoom
+  createRoom,
+  acceptIncomingCall
 } from "../controllers/CallControllers";
 import { authenticate } from "../middlewares/authMiddleware";
 import { authorizeRoles } from "../middlewares/roleMiddleware";
@@ -37,6 +38,7 @@ router.post("/voice/initiate", initiateVoiceCall);
 // Video calls
 router.get("/video/initiate", initiateVideoCall);
 router.get("/video/join/:roomName", joinVideoCall);
+router.get("accept-incoming-call", acceptIncomingCall);
 
 router.post("/video/create-room", createRoom);
 
