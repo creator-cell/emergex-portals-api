@@ -203,10 +203,7 @@ export const joinVideoCall = async (req: Request, res: Response) => {
     }
 
     // Generate token for the user to join the video room
-    const token = await callService.generateToken(
-      userId, userId,
-      roomName
-    );
+    const token = await callService.generateToken(userId, userId, roomName);
 
     return res.status(200).json({
       success: true,
@@ -347,7 +344,10 @@ export const acceptIncomingCall = async (req: Request, res: Response) => {
     const { roomName } = req.query;
     const userId = currentUser.id;
 
-    const token  = await callService.acceptIncomingCall(userId,roomName as string)
+    const token = await callService.acceptIncomingCall(
+      userId,
+      roomName as string
+    );
 
     return res.status(200).json({
       success: true,

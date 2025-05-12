@@ -7,6 +7,7 @@ import ConversationModel from "../models/ConversationModel";
 import { getSocketIO, userSocketMap } from "../socket";
 import { logger } from "../config/logger";
 import { WebsocketServer } from "..";
+import { use } from "i18next";
 
 class CallService {
   /**
@@ -66,19 +67,22 @@ class CallService {
         ? user.firstName + " " + user.lastName
         : user?.firstName;
 
+      const identity = JSON.stringify({
+        id: userId,
+        name: name,
+        email: user?.email,
+        role: user?.role,
+      });
+
       // Create an access token
       const token = new AccessToken(
         process.env.TWILIO_ACCOUNT_SID as string,
         process.env.TWILIO_API_KEY as string,
         process.env.TWILIO_API_SECRET as string,
         {
-          identity: userId,
+          identity: identity,
           ttl: 12 * 3600,
-          claims: {
-            name: name,
-            email: user?.email,
-            role: user?.role,
-          },
+          claims: identity,
         }
       );
 
@@ -93,6 +97,25 @@ class CallService {
     } catch (error) {
       console.error("Error generating token:", error);
       throw error;
+    }
+  }
+
+  decodeToken(token: string) {
+    try {
+      console.log("token: ", token);
+      const base64Url = token.split(".")[1];
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split("")
+          .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+          .join("")
+      );
+
+      return JSON.parse(jsonPayload);
+    } catch (error) {
+      console.error("Error decoding token:", error);
+      return null;
     }
   }
 
@@ -235,11 +258,11 @@ class CallService {
                 firstName: fromUser.firstName,
                 lastName: fromUser.lastName,
                 image: fromUser.image,
-                role:fromUser.role
+                role: fromUser.role,
               },
               conversationId: conversation._id,
               type: CallType.VIDEO,
-              roomName:roomName
+              roomName: roomName,
             }
           );
 
@@ -354,22 +377,22 @@ class CallService {
    */
   async acceptIncomingCall(userId: string, roomName: string) {
     try {
-      const call  = await CallModel.findOne({
-        roomName
-      })
+      const call = await CallModel.findOne({
+        roomName,
+      });
 
-      if(!call){
-        throw new Error("Call not found")
+      if (!call) {
+        throw new Error("Call not found");
       }
 
-      if(call.status===CallStatus.COMPLETED){
-        throw new Error("Call ended already")
+      if (call.status === CallStatus.COMPLETED) {
+        throw new Error("Call ended already");
       }
 
       const token = await this.generateVideoToken(userId, roomName);
 
-      if(call.status===CallStatus.INITIATED){
-        call.status=CallStatus.IN_PROGRESS
+      if (call.status === CallStatus.INITIATED) {
+        call.status = CallStatus.IN_PROGRESS;
         await call.save();
       }
 
