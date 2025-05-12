@@ -4,7 +4,6 @@ import { ICustomRequest } from "../types/express";
 import CallModel, { CallStatus, CallType } from "../models/CallModel";
 import UserModel from "../models/UserModel";
 import { twilioClient } from "../config/twilioClient";
-import { WebsocketServer } from "..";
 
 export const generateCallToken = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
@@ -171,6 +170,7 @@ export const initiateVideoCall = async (req: Request, res: Response) => {
       success: true,
       token,
       roomName: call.roomName,
+      call,
       message: "Video call initiated successfully",
     });
   } catch (error: any) {
@@ -360,6 +360,52 @@ export const acceptIncomingCall = async (req: Request, res: Response) => {
     return res.status(500).json({
       success: false,
       error: error.message ?? "An error occurred accepting incoming call",
+    });
+  }
+};
+
+export const handleEndCall = async (req: Request, res: Response) => {
+  try {
+    const { roomName } = req.params;
+    const call = await CallModel.findOne({
+      roomName,
+    });
+
+    if (!call) {
+      return res.status(200).json({
+        success: false,
+        message: "Call not found",
+      });
+    }
+
+    if (call.status === CallStatus.COMPLETED) {
+      return res.status(200).json({
+        success: true,
+        message: "Call was already ended",
+      });
+    }
+
+    const endTime = new Date();
+    call.endTime = endTime;
+    call.status = CallStatus.COMPLETED;
+
+    if (call.startTime) {
+      const durationInSeconds = Math.floor(
+        (endTime.getTime() - call.startTime.getTime()) / 1000
+      );
+      call.duration = durationInSeconds;
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Call Ended successsfully",
+    });
+
+  } catch (error) {
+    console.error("Error handling end call:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error in ending call",
     });
   }
 };

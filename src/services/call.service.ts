@@ -72,6 +72,7 @@ class CallService {
         name: name,
         email: user?.email,
         role: user?.role,
+        avatar:user?.image
       });
 
       // Create an access token
@@ -97,25 +98,6 @@ class CallService {
     } catch (error) {
       console.error("Error generating token:", error);
       throw error;
-    }
-  }
-
-  decodeToken(token: string) {
-    try {
-      console.log("token: ", token);
-      const base64Url = token.split(".")[1];
-      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-      const jsonPayload = decodeURIComponent(
-        atob(base64)
-          .split("")
-          .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-          .join("")
-      );
-
-      return JSON.parse(jsonPayload);
-    } catch (error) {
-      console.error("Error decoding token:", error);
-      return null;
     }
   }
 
@@ -204,7 +186,7 @@ class CallService {
     conversationId?: string
   ): Promise<ICall> {
     try {
-      // Create a unique room name
+
       const roomName = `room-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
       const conversation = await ConversationModel.findById(conversationId)
