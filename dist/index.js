@@ -49,7 +49,6 @@ const WorksiteRoutes_1 = __importDefault(require("./routes/WorksiteRoutes"));
 const IncidentRoutes_1 = __importDefault(require("./routes/IncidentRoutes"));
 const IncidentHistoryRoutes_1 = __importDefault(require("./routes/IncidentHistoryRoutes"));
 const transcriptionRoutes_1 = __importDefault(require("./routes/transcriptionRoutes"));
-const ChatRoutes_1 = __importDefault(require("./routes/ChatRoutes"));
 const ConversationRoutes_1 = __importDefault(require("./routes/ConversationRoutes"));
 const webhookRoutes_1 = __importDefault(require("./routes/webhookRoutes"));
 const CallRoutes_1 = __importDefault(require("./routes/CallRoutes"));
@@ -92,11 +91,9 @@ app.use("/api/worksites", WorksiteRoutes_1.default);
 app.use("/api/incidents", IncidentRoutes_1.default);
 app.use("/api/incidents-history", IncidentHistoryRoutes_1.default);
 app.use("/api/transcription", transcriptionRoutes_1.default);
-app.use("/api/chats", ChatRoutes_1.default);
 app.use('/api/conversations', ConversationRoutes_1.default);
 app.use('/api/calls', CallRoutes_1.default);
 app.use('/api/webhook', webhookAuthMiddleware_1.validateTwilioWebhook, webhookRoutes_1.default);
-// app.use("/api/messages", messageRoutes);
 const httpServer = (0, http_1.createServer)(app);
 exports.WebsocketServer = new socket_io_1.Server(httpServer, {
     cors: {

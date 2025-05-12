@@ -97,7 +97,7 @@ export const createEmployee = async (req: Request, res: Response) => {
     }
     await user.save({ session });
 
-    await EmailService.sendCredentialsEmail('g82181975@gmail.com',firstName,password);
+    await EmailService.sendCredentialsEmail(email,firstName,password);
 
     const friendlyName = `conversation-${currentUser.id}-${user._id}`;
     const conversation = await conversationService.createConversation(

@@ -2,8 +2,11 @@ import { Request, Response } from "express";
 import callService from "../services/call.service";
 import { ICustomRequest } from "../types/express";
 import CallModel, { CallStatus, CallType } from "../models/CallModel";
-import UserModel from "../models/UserModel";
+import UserModel, { IUser } from "../models/UserModel";
 import { twilioClient } from "../config/twilioClient";
+import { WebsocketServer } from "..";
+import ConversationModel from "../models/ConversationModel";
+import mongoose from "mongoose";
 
 // export const generateCallToken = async (req: Request, res: Response) => {
 //   const customReq = req as ICustomRequest;
@@ -161,10 +164,7 @@ export const initiateVideoCall = async (req: Request, res: Response) => {
     );
 
     // Generate token for the current user to join the video room
-    const token = await callService.generateToken(
-      fromUserId,
-      call.roomName!
-    );
+    const token = await callService.generateToken(fromUserId, call.roomName!);
 
     return res.status(200).json({
       success: true,
@@ -395,6 +395,25 @@ export const handleEndCall = async (req: Request, res: Response) => {
       );
       call.duration = durationInSeconds;
     }
+
+    const conversation = await ConversationModel.findById(call.conversationId)
+      .populate({
+        path: "participants.user",
+        select: "firstName lastName email image role",
+      })
+      .lean();
+
+    if (!conversation) {
+      throw new Error("Conversation not found");
+    }
+
+    conversation.participants.forEach((participant) => {
+      const user =
+        participant.user instanceof mongoose.Types.ObjectId
+          ? null
+          : (participant.user as IUser);
+      WebsocketServer.to(`${user?.role}-${user?._id}`).emit("endCall");
+    });
 
     await call.save();
 

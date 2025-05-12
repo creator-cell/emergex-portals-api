@@ -253,6 +253,7 @@ const login = async (req, res) => {
         else if (user.role === global_enum_1.GlobalAdminRoles.ClientAdmin) {
             redirectUrl = "/";
         }
+        // EmailService.sendWelcome('g82181975@gmail.com',user.firstName ?? "gaurav")
         return res.status(200).json({
             success: true,
             message: req.i18n.t("authValidationMessages.response.login.success"),

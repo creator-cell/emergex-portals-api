@@ -559,6 +559,10 @@ exports.getUserRoleDetails = getUserRoleDetails;
 // get roles by incident id
 const getRolesByIncidentId = async (req, res) => {
     const { id } = req.params;
+    const customReq = req;
+    const currentUser = customReq.user;
+    const currentUserId = currentUser.id;
+    console.log("current User: ", currentUser);
     try {
         const incident = await IncidentModel_1.default.findById(id);
         if (!incident) {
@@ -622,6 +626,8 @@ const getRolesByIncidentId = async (req, res) => {
                             designation: "$employeeData.designation",
                             description: "$description",
                             title: "$roleData.title",
+                            user: "$employeeData.user",
+                            isCurrentUser: { $eq: ["$employeeData.user", new mongoose_1.default.Types.ObjectId(currentUserId)] }
                         },
                     },
                 },
@@ -634,7 +640,39 @@ const getRolesByIncidentId = async (req, res) => {
                 },
             },
         ];
-        const roles = await ProjectRoleModel_1.default.aggregate(rolesPipeline);
+        let roles = await ProjectRoleModel_1.default.aggregate(rolesPipeline);
+        // Fetch conversations for each employee (except current user)
+        roles = await Promise.all(roles.map(async (role) => {
+            const employeesWithConversations = await Promise.all(role.employees.map(async (employee) => {
+                // Skip if this is the current user's employee record
+                console.log("iscUrrent: ", employee);
+                if (employee.isCurrentUser) {
+                    const { isCurrentUser, ...employeeData } = employee;
+                    return employeeData;
+                }
+                if (!employee.user)
+                    return employee;
+                // Find conversation where both current user and employee's user are participants
+                const conversation = await ConversationModel_1.default.findOne({
+                    type: ConversationModel_1.ConversationType.SINGLE,
+                    participants: {
+                        $all: [
+                            { $elemMatch: { user: currentUserId } },
+                            { $elemMatch: { user: employee.user } }
+                        ]
+                    }
+                }).select('twilioSid name type identity');
+                return {
+                    ...employee,
+                    conversation: conversation ?? null,
+                    isCurrentUser: undefined // Remove the flag from final output
+                };
+            }));
+            return {
+                ...role,
+                employees: employeesWithConversations
+            };
+        }));
         return res.status(200).json({
             success: true,
             message: req.i18n.t("projectRoleValidationMessages.response.getRolesByIncidentId.success"),
@@ -642,7 +680,8 @@ const getRolesByIncidentId = async (req, res) => {
         });
     }
     catch (error) {
-        return res.status(5000).json({
+        console.error(error);
+        return res.status(500).json({
             success: false,
             error: req.i18n.t("projectRoleValidationMessages.response.getRolesByIncidentId.server"),
         });

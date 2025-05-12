@@ -14,6 +14,7 @@ const UserFunctions_1 = require("../helper/UserFunctions");
 const conversation_service_1 = __importDefault(require("../services/conversation.service"));
 const ConversationModel_1 = require("../models/ConversationModel");
 const TeamModel_1 = __importDefault(require("../models/TeamModel"));
+const sendgrid_service_1 = require("../services/sendgrid.service");
 // Create a new employee
 const createEmployee = async (req, res) => {
     const { name, email, designation, contactNo } = req.body;
@@ -49,7 +50,6 @@ const createEmployee = async (req, res) => {
         const username = await (0, UserFunctions_1.generateUniqueUsername)(name);
         // const password = generatePassword();
         const password = name + "123";
-        // console.log("password: ",password)
         const [firstName, lastName] = name.split(" ");
         const user = new UserModel_1.default({
             username,
@@ -80,8 +80,7 @@ const createEmployee = async (req, res) => {
             user.accounts.push(account._id);
         }
         await user.save({ session });
-        console.log("user: ", user);
-        console.log("currentUser: ", currentUser);
+        await sendgrid_service_1.EmailService.sendCredentialsEmail(email, firstName, password);
         const friendlyName = `conversation-${currentUser.id}-${user._id}`;
         const conversation = await conversation_service_1.default.createConversation(friendlyName, currentUser.id, ConversationModel_1.ConversationIdentity.EMPLOYEE, ConversationModel_1.ConversationType.SINGLE);
         const conversationId = conversation._id;

@@ -12,10 +12,14 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const CountryModel_1 = __importDefault(require("../models/CountryModel"));
 const RegionModel_1 = __importDefault(require("../models/RegionModel"));
 const WorksiteModel_1 = __importDefault(require("../models/WorksiteModel"));
+const sendgrid_service_1 = require("../services/sendgrid.service");
+const UserModel_1 = __importDefault(require("../models/UserModel"));
 // Create a new announcement
 const createAnnouncement = async (req, res) => {
     const session = await mongoose_1.default.startSession();
     session.startTransaction();
+    const customReq = req;
+    const currentUser = customReq.user;
     try {
         const { title, description, team, country, worksite, region } = req.body;
         const isExist = await AnnouncementModel_1.default.findOne({ title }).session(session);
@@ -26,7 +30,14 @@ const createAnnouncement = async (req, res) => {
                 error: req.i18n.t("announcementValidationMessages.response.createAnnouncement.titleExist"),
             });
         }
-        const isTeamExist = await TeamModel_1.default.findById(team).session(session);
+        const isTeamExist = await TeamModel_1.default.findById(team)
+            .populate([
+            {
+                path: "members",
+                select: 'email name user' // Only populate these fields for efficiency
+            },
+        ])
+            .session(session);
         if (!isTeamExist) {
             await session.abortTransaction();
             return res.status(400).json({
@@ -34,6 +45,7 @@ const createAnnouncement = async (req, res) => {
                 error: `${req.i18n.t("announcementValidationMessages.response.createAnnouncement.teamNotExist")} ${team}`,
             });
         }
+        // console.log("istEam: ",isTeamExist)
         const [isCountryExist, isRegionExist, isWorksiteExist] = await Promise.all([
             CountryModel_1.default.exists({ _id: country }).session(session),
             RegionModel_1.default.exists({ _id: region }).session(session),
@@ -74,6 +86,14 @@ const createAnnouncement = async (req, res) => {
             },
         ], { session }).then((announcements) => announcements[0]);
         await session.commitTransaction();
+        const user = await UserModel_1.default.findById(currentUser.id).session(session);
+        isTeamExist.members.forEach((employee) => {
+            if (currentUser.id !== employee.user.toString()) {
+                sendgrid_service_1.EmailService.sendAnnouncement(employee.email, 
+                // "g82181975@gmail.com",
+                employee.name, title, description, user?.firstName ?? "");
+            }
+        });
         return res.status(201).json({
             success: true,
             message: req.i18n.t("announcementValidationMessages.response.createAnnouncement.success"),

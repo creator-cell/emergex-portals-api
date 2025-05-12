@@ -9,6 +9,8 @@ import RegionModel from "../models/RegionModel";
 import WorksiteModel from "../models/WorksiteModel";
 import { ICustomRequest } from "../types/express";
 import { EmailService } from "../services/sendgrid.service";
+import { IEmployee } from "../models/EmployeeModel";
+import UserModel from "../models/UserModel";
 
 // Create a new announcement
 export const createAnnouncement = async (req: Request, res: Response) => {
@@ -30,10 +32,15 @@ export const createAnnouncement = async (req: Request, res: Response) => {
       });
     }
 
-    const isTeamExist = await TeamModel.findById(team).populate([{ 
-      path:"members",
+const isTeamExist = await TeamModel.findById(team)
+  .populate<{ members: Pick<IEmployee, 'email' | 'name' | 'user'>[] }>([
+    {
+      path: "members",
+      select: 'email name user' // Only populate these fields for efficiency
     },
-    ]).session(session);
+  ])
+  .session(session);
+
     if (!isTeamExist) {
       await session.abortTransaction();
       return res.status(400).json({
@@ -102,11 +109,20 @@ export const createAnnouncement = async (req: Request, res: Response) => {
 
     await session.commitTransaction();
 
-    // isTeamExist.members.forEach((employee)=>{
-    //   if(currentUser.id!==employee.user.toString()){
-    //     EmailService.sendAnnouncement(employee.email,employee.name,title,description,currentUser.name)
-    //   }
-    // })
+    const user = await UserModel.findById(currentUser.id).session(session);
+
+    isTeamExist.members.forEach((employee) => {
+      if (currentUser.id !== employee.user.toString()) {
+        EmailService.sendAnnouncement(
+          employee.email,
+          // "g82181975@gmail.com",
+          employee.name,
+          title,
+          description,
+          user?.firstName ?? ""
+        );
+      }
+    });
 
     return res.status(201).json({
       success: true,
@@ -327,14 +343,17 @@ export const getAnnouncementById = async (req: Request, res: Response) => {
 //   }
 // };
 
-
 // Delete an announcement
 export const deleteAnnouncement = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const deletedAnnouncement = await AnnouncementModel.findByIdAndUpdate(id, {
-      $set: { isDeleted: true },
-    },{new:false,runValidators:true});
+    const deletedAnnouncement = await AnnouncementModel.findByIdAndUpdate(
+      id,
+      {
+        $set: { isDeleted: true },
+      },
+      { new: false, runValidators: true }
+    );
 
     if (!deletedAnnouncement) {
       return res.status(200).json({

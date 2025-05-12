@@ -92,8 +92,6 @@ WebsocketServer.use(socketAuthorizer);
 
 WebsocketServer.on('connection', socketConnectionHandler);
 
-
-
 httpServer.listen(port, () => {
   console.log("Server is running @ " + port);
 });

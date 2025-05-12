@@ -71,7 +71,7 @@ class CallService {
         name: name,
         email: user?.email,
         role: user?.role,
-        avatar:user?.image
+        avatar: user?.image,
       });
 
       // Create an access token
@@ -185,7 +185,6 @@ class CallService {
     conversationId?: string
   ): Promise<ICall> {
     try {
-
       const roomName = `room-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
       const conversation = await ConversationModel.findById(conversationId)
@@ -198,6 +197,7 @@ class CallService {
       if (!conversation) {
         throw new Error("Conversation not found");
       }
+
       const fromUser = await UserModel.findById(fromUserId);
       if (!fromUser) {
         throw new Error("User not found");
@@ -205,7 +205,7 @@ class CallService {
 
       // Create a video room
       const room = await this.createVideoRoom(roomName);
-          const startTime = new Date();
+      const startTime = new Date();
 
       // Save call details in our database
       const callRecord = new CallModel({
@@ -229,8 +229,6 @@ class CallService {
             ? null
             : (participant.user as IUser);
 
-        // console.log("condition: ",(user!._id as mongoose.ObjectId).toString() !== fromUserId,(user!._id as mongoose.ObjectId).toString(),fromUserId)
-
         if ((user!._id as mongoose.ObjectId).toString() !== fromUserId) {
           WebsocketServer.to(`${user?.role}-${user?._id}`).emit(
             "incommingCall",
@@ -248,18 +246,8 @@ class CallService {
               roomName: roomName,
             }
           );
-
-          //   this.notifyIncomingCall(user.user.toString(), {
-          //     callId: (callRecord._id as mongoose.ObjectId).toString(),
-          //     fromUser: {
-          //       _id: fromUser._id,
-          //       firstName: fromUser.firstName,
-          //       lastName: fromUser.lastName,
-          //       image: fromUser.image,
-          //     },
-          //     type: CallType.VIDEO,
-          //   });
         }
+        WebsocketServer.to(`${user?.role}-${user?._id}`).emit("callStarted");
       });
 
       return callRecord;
