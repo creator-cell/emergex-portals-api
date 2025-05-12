@@ -21,8 +21,7 @@ import regionRoutes from "./routes/RegionRoutes";
 import worksiteRoutes from "./routes/WorksiteRoutes";
 import incidentRoutes from "./routes/IncidentRoutes";
 import incidentHistoryRoutes from "./routes/IncidentHistoryRoutes";
-import transcriptionRoutes from "./routes/transcriptionRoutes";
-import chatRoutes from "./routes/ChatRoutes";
+import transcriptionRoutes from "./routes/transcriptionRoutes"
 import conversationRoutes from "./routes/ConversationRoutes";
 import webhookRoutes from "./routes/webhookRoutes";
 import callRoutes from './routes/CallRoutes';
@@ -75,11 +74,9 @@ app.use("/api/worksites", worksiteRoutes);
 app.use("/api/incidents", incidentRoutes);
 app.use("/api/incidents-history", incidentHistoryRoutes);
 app.use("/api/transcription", transcriptionRoutes);
-app.use("/api/chats", chatRoutes);
 app.use('/api/conversations', conversationRoutes);
 app.use('/api/calls', callRoutes);
 app.use('/api/webhook', validateTwilioWebhook, webhookRoutes);
-// app.use("/api/messages", messageRoutes);
 
 const httpServer = createServer(app);
 
