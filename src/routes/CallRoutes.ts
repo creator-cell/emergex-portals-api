@@ -39,19 +39,19 @@ router.use(
 
 // Token generation
 router.get("/token", generateCallToken);
-router.get("/generate-token/video", generateVideoCallToken);
+router.get("/generate-token", generateVideoCallToken);
 
 // Voice calls
 router.post("/voice/initiate", initiateVoiceCall);
 
 // Video calls
 router.get(
-  "/video/initiate",
+  "/initiate",
   initiateVideoCallValidator,
   checkValidationResult,
   initiateVideoCall
 );
-router.get("/video/join/:roomName", joinVideoCall);
+
 router.get(
   "/accept-incoming-call",
   // acceptIncomingCallValidation,
@@ -59,7 +59,7 @@ router.get(
   acceptIncomingCall
 );
 
-router.post("/video/create-room", createRoom);
+router.post("/create-room", createRoom);
 router.patch(
   "/end-call/:roomName",
   handleCallEndValidation,
@@ -67,8 +67,6 @@ router.patch(
   handleEndCall
 );
 
-// Common call operations
-router.post("/:callId/end", endCall);
 router.get("/history", getCallHistory);
 
 router.get(
