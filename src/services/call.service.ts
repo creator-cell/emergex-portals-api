@@ -206,6 +206,7 @@ class CallService {
 
       // Create a video room
       const room = await this.createVideoRoom(roomName);
+          const startTime = new Date();
 
       // Save call details in our database
       const callRecord = new CallModel({
@@ -215,6 +216,7 @@ class CallService {
         from: new mongoose.Types.ObjectId(fromUserId),
         to: new mongoose.Types.ObjectId(conversationId),
         roomName,
+        startTime,
         conversationId: conversationId
           ? new mongoose.Types.ObjectId(conversationId)
           : undefined,

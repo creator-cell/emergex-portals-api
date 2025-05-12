@@ -396,6 +396,8 @@ export const handleEndCall = async (req: Request, res: Response) => {
       call.duration = durationInSeconds;
     }
 
+    await call.save()
+
     return res.status(200).json({
       success: true,
       message: "Call Ended successsfully",
