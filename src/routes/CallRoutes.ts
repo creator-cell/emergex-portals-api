@@ -11,11 +11,19 @@ import {
   generateVideoCallToken,
   createRoom,
   acceptIncomingCall,
-  handleEndCall
+  handleEndCall,
+  fetchCallByConversation,
 } from "../controllers/CallControllers";
 import { authenticate } from "../middlewares/authMiddleware";
 import { authorizeRoles } from "../middlewares/roleMiddleware";
 import { GlobalAdminRoles } from "../config/global-enum";
+import {
+  acceptIncomingCallValidation,
+  fetchCallByConversationValidator,
+  handleCallEndValidation,
+  initiateVideoCallValidator,
+} from "../validations/callValidators";
+import { checkValidationResult } from "../middlewares/checkValidationsMiddleware";
 
 const router = express.Router();
 
@@ -37,15 +45,37 @@ router.get("/generate-token/video", generateVideoCallToken);
 router.post("/voice/initiate", initiateVoiceCall);
 
 // Video calls
-router.get("/video/initiate", initiateVideoCall);
+router.get(
+  "/video/initiate",
+  initiateVideoCallValidator,
+  checkValidationResult,
+  initiateVideoCall
+);
 router.get("/video/join/:roomName", joinVideoCall);
-router.get("/accept-incoming-call", acceptIncomingCall);
+router.get(
+  "/accept-incoming-call",
+  acceptIncomingCallValidation,
+  checkValidationResult,
+  acceptIncomingCall
+);
 
 router.post("/video/create-room", createRoom);
-router.patch("/video/end-call/:roomName", handleEndCall);
+router.patch(
+  "/video/end-call/:roomName",
+  handleCallEndValidation,
+  checkValidationResult,
+  handleEndCall
+);
 
 // Common call operations
 router.post("/:callId/end", endCall);
 router.get("/history", getCallHistory);
+
+router.get(
+  "/call-by-conversation/:id",
+  fetchCallByConversationValidator,
+  checkValidationResult,
+  fetchCallByConversation
+);
 
 export default router;

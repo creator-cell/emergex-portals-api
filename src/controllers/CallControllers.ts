@@ -396,18 +396,48 @@ export const handleEndCall = async (req: Request, res: Response) => {
       call.duration = durationInSeconds;
     }
 
-    await call.save()
+    await call.save();
 
     return res.status(200).json({
       success: true,
       message: "Call Ended successsfully",
     });
-
   } catch (error) {
     console.error("Error handling end call:", error);
     return res.status(500).json({
       success: false,
       message: "Server error in ending call",
+    });
+  }
+};
+
+export const fetchCallByConversation = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const call = await CallModel.findOne({
+      conversationId: id,
+      status: {
+        $ne: CallStatus.COMPLETED,
+      },
+    });
+
+    if (!call) {
+      return res.status(200).json({
+        success: false,
+        message: "Call not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Call fetched succesfully",
+      call,
+    });
+  } catch (error) {
+    console.error("Error in fetching call:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error in fetching call",
     });
   }
 };

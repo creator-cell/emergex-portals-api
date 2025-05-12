@@ -7,7 +7,6 @@ import ConversationModel from "../models/ConversationModel";
 import { getSocketIO, userSocketMap } from "../socket";
 import { logger } from "../config/logger";
 import { WebsocketServer } from "..";
-import { use } from "i18next";
 
 class CallService {
   /**
