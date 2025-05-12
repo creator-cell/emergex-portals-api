@@ -12,50 +12,50 @@ class CallService {
   /**
    * Generate a token for voice and video calls
    */
-  async generateToken(
-    userId: string,
-    identity: string,
-    roomName?: string
-  ): Promise<string> {
-    try {
-      const { AccessToken } = require("twilio").jwt;
-      const { VoiceGrant, VideoGrant } = AccessToken;
+  // async generateToken(
+  //   userId: string,
+  //   identity: string,
+  //   roomName?: string
+  // ): Promise<string> {
+  //   try {
+  //     const { AccessToken } = require("twilio").jwt;
+  //     const { VoiceGrant, VideoGrant } = AccessToken;
 
-      // Create an access token
-      const token = new AccessToken(
-        process.env.TWILIO_ACCOUNT_SID as string,
-        process.env.TWILIO_API_KEY as string,
-        process.env.TWILIO_API_SECRET as string,
-        { identity }
-      );
+  //     // Create an access token
+  //     const token = new AccessToken(
+  //       process.env.TWILIO_ACCOUNT_SID as string,
+  //       process.env.TWILIO_API_KEY as string,
+  //       process.env.TWILIO_API_SECRET as string,
+  //       { identity }
+  //     );
 
-      // Create a Voice grant for this token
-      const voiceGrant = new VoiceGrant({
-        outgoingApplicationSid: process.env.TWILIO_TWIML_APP_SID as string,
-        incomingAllow: true,
-      });
+  //     // Create a Voice grant for this token
+  //     const voiceGrant = new VoiceGrant({
+  //       outgoingApplicationSid: process.env.TWILIO_TWIML_APP_SID as string,
+  //       incomingAllow: true,
+  //     });
 
-      // Add the voice grant to the token
-      token.addGrant(voiceGrant);
+  //     // Add the voice grant to the token
+  //     token.addGrant(voiceGrant);
 
-      // If roomName is provided, add a Video grant
-      if (roomName) {
-        const videoGrant = new VideoGrant({ room: roomName });
-        token.addGrant(videoGrant);
-      }
+  //     // If roomName is provided, add a Video grant
+  //     if (roomName) {
+  //       const videoGrant = new VideoGrant({ room: roomName });
+  //       token.addGrant(videoGrant);
+  //     }
 
-      // Return the token as a string
-      return token.toJwt();
-    } catch (error) {
-      console.error("Error generating token:", error);
-      throw error;
-    }
-  }
+  //     // Return the token as a string
+  //     return token.toJwt();
+  //   } catch (error) {
+  //     console.error("Error generating token:", error);
+  //     throw error;
+  //   }
+  // }
 
   /**
    * Generate a token for voice and video calls
    */
-  async generateVideoToken(userId: string, roomName: string) {
+  async generateToken(userId: string, roomName: string) {
     try {
       const { AccessToken } = require("twilio").jwt;
       const { VideoGrant } = AccessToken;
@@ -372,7 +372,7 @@ class CallService {
         throw new Error("Call ended already");
       }
 
-      const token = await this.generateVideoToken(userId, roomName);
+      const token = await this.generateToken(userId, roomName);
 
       if (call.status === CallStatus.INITIATED) {
         call.status = CallStatus.IN_PROGRESS;

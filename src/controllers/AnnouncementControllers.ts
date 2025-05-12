@@ -102,11 +102,11 @@ export const createAnnouncement = async (req: Request, res: Response) => {
 
     await session.commitTransaction();
 
-    isTeamExist.members.forEach((employee)=>{
-      if(currentUser.id!==employee.user.toString()){
-        EmailService.sendAnnouncement(employee.email,employee.name,title,description,currentUser.name)
-      }
-    })
+    // isTeamExist.members.forEach((employee)=>{
+    //   if(currentUser.id!==employee.user.toString()){
+    //     EmailService.sendAnnouncement(employee.email,employee.name,title,description,currentUser.name)
+    //   }
+    // })
 
     return res.status(201).json({
       success: true,

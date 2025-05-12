@@ -5,41 +5,41 @@ import CallModel, { CallStatus, CallType } from "../models/CallModel";
 import UserModel from "../models/UserModel";
 import { twilioClient } from "../config/twilioClient";
 
+// export const generateCallToken = async (req: Request, res: Response) => {
+//   const customReq = req as ICustomRequest;
+//   const currentUser = customReq.user;
+//   try {
+//     const { roomName } = req.query;
+//     const userId = currentUser.id;
+//     const identity = currentUser.id;
+
+//     const token = await callService.generateToken(
+//       userId,
+//       identity,
+//       roomName as string | undefined
+//     );
+
+//     return res.status(200).json({
+//       success: true,
+//       token,
+//       message: "Call token generated successfully",
+//     });
+//   } catch (error: any) {
+//     console.error("Error generating call token:", error);
+//     return res.status(500).json({
+//       success: false,
+//       error: error.message || "An error occurred generating call token",
+//     });
+//   }
+// };
+
 export const generateCallToken = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
   try {
     const { roomName } = req.query;
-    const userId = currentUser.id;
-    const identity = currentUser.id;
 
     const token = await callService.generateToken(
-      userId,
-      identity,
-      roomName as string | undefined
-    );
-
-    return res.status(200).json({
-      success: true,
-      token,
-      message: "Call token generated successfully",
-    });
-  } catch (error: any) {
-    console.error("Error generating call token:", error);
-    return res.status(500).json({
-      success: false,
-      error: error.message || "An error occurred generating call token",
-    });
-  }
-};
-
-export const generateVideoCallToken = async (req: Request, res: Response) => {
-  const customReq = req as ICustomRequest;
-  const currentUser = customReq.user;
-  try {
-    const { roomName } = req.query;
-
-    const token = await callService.generateVideoToken(
       currentUser.id,
       roomName as string
     );
@@ -85,7 +85,7 @@ export const initiateVoiceCall = async (req: Request, res: Response) => {
     console.error("Error initiating voice call:", error);
     return res.status(500).json({
       success: false,
-      error: error.message || "An error occurred initiating voice call",
+      error: error.message ?? "An error occurred initiating voice call",
     });
   }
 };
@@ -161,7 +161,7 @@ export const initiateVideoCall = async (req: Request, res: Response) => {
     );
 
     // Generate token for the current user to join the video room
-    const token = await callService.generateVideoToken(
+    const token = await callService.generateToken(
       fromUserId,
       call.roomName!
     );
@@ -182,44 +182,44 @@ export const initiateVideoCall = async (req: Request, res: Response) => {
   }
 };
 
-export const joinVideoCall = async (req: Request, res: Response) => {
-  const customReq = req as ICustomRequest;
-  const currentUser = customReq.user;
-  try {
-    const { roomName } = req.params;
-    const userId = currentUser.id;
+// export const joinVideoCall = async (req: Request, res: Response) => {
+//   const customReq = req as ICustomRequest;
+//   const currentUser = customReq.user;
+//   try {
+//     const { roomName } = req.params;
+//     const userId = currentUser.id;
 
-    // Check if the room exists and the call is valid
-    const call = await CallModel.findOne({
-      roomName,
-      $or: [{ from: userId }, { to: userId }],
-    });
+//     // Check if the room exists and the call is valid
+//     const call = await CallModel.findOne({
+//       roomName,
+//       $or: [{ from: userId }, { to: userId }],
+//     });
 
-    if (!call) {
-      return res.status(404).json({
-        success: false,
-        message: "Video call not found or you don't have permission to join",
-      });
-    }
+//     if (!call) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Video call not found or you don't have permission to join",
+//       });
+//     }
 
-    // Generate token for the user to join the video room
-    const token = await callService.generateToken(userId, userId, roomName);
+//     // Generate token for the user to join the video room
+//     const token = await callService.generateToken(userId, userId, roomName);
 
-    return res.status(200).json({
-      success: true,
-      token,
-      roomName,
-      call,
-      message: "Join video call token generated successfully",
-    });
-  } catch (error: any) {
-    console.error("Error joining video call:", error);
-    return res.status(500).json({
-      success: false,
-      error: error.message || "An error occurred joining video call",
-    });
-  }
-};
+//     return res.status(200).json({
+//       success: true,
+//       token,
+//       roomName,
+//       call,
+//       message: "Join video call token generated successfully",
+//     });
+//   } catch (error: any) {
+//     console.error("Error joining video call:", error);
+//     return res.status(500).json({
+//       success: false,
+//       error: error.message || "An error occurred joining video call",
+//     });
+//   }
+// };
 
 export const endCall = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
