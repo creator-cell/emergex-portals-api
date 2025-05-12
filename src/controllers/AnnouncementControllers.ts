@@ -1,19 +1,21 @@
 import { Request, Response } from "express";
-import AnnouncementModel, { IAnnouncement } from "../models/AnnouncementModel";
+import AnnouncementModel from "../models/AnnouncementModel";
 import TeamModel from "../models/TeamModel";
 import { getPaginationOptions, paginate } from "../helper/pagination";
 import LocationModel from "../models/LocationModel";
 import mongoose from "mongoose";
-import { abort } from "process";
 import CountryModel from "../models/CountryModel";
 import RegionModel from "../models/RegionModel";
 import WorksiteModel from "../models/WorksiteModel";
-import path from "path";
+import { ICustomRequest } from "../types/express";
+import { EmailService } from "../services/sendgrid.service";
 
 // Create a new announcement
 export const createAnnouncement = async (req: Request, res: Response) => {
   const session = await mongoose.startSession();
   session.startTransaction();
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
   try {
     const { title, description, team, country, worksite, region } = req.body;
     const isExist = await AnnouncementModel.findOne({ title }).session(session);
@@ -28,7 +30,10 @@ export const createAnnouncement = async (req: Request, res: Response) => {
       });
     }
 
-    const isTeamExist = await TeamModel.findById(team).session(session);
+    const isTeamExist = await TeamModel.findById(team).populate([{ 
+      path:"members",
+    },
+    ]).session(session);
     if (!isTeamExist) {
       await session.abortTransaction();
       return res.status(400).json({
@@ -38,6 +43,8 @@ export const createAnnouncement = async (req: Request, res: Response) => {
         )} ${team}`,
       });
     }
+
+    // console.log("istEam: ",isTeamExist)
 
     const [isCountryExist, isRegionExist, isWorksiteExist] = await Promise.all([
       CountryModel.exists({ _id: country }).session(session),
@@ -94,6 +101,12 @@ export const createAnnouncement = async (req: Request, res: Response) => {
     ).then((announcements) => announcements[0]);
 
     await session.commitTransaction();
+
+    // isTeamExist.members.forEach((employee)=>{
+    //   if(currentUser.id!==employee.user.toString()){
+    //     EmailService.sendAnnouncement(employee.email,employee.name,title,description,currentUser.name)
+    //   }
+    // })
 
     return res.status(201).json({
       success: true,

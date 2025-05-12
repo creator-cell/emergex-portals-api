@@ -16,6 +16,7 @@ import {
   ConversationType,
 } from "../models/ConversationModel";
 import TeamModel from "../models/TeamModel";
+import { EmailService } from "../services/sendgrid.service";
 
 // Create a new employee
 export const createEmployee = async (req: Request, res: Response) => {
@@ -58,7 +59,6 @@ export const createEmployee = async (req: Request, res: Response) => {
     const username = await generateUniqueUsername(name);
     // const password = generatePassword();
     const password = name + "123";
-    // console.log("password: ",password)
 
     const [firstName, lastName] = name.split(" ");
 
@@ -97,8 +97,7 @@ export const createEmployee = async (req: Request, res: Response) => {
     }
     await user.save({ session });
 
-    console.log("user: ", user);
-    console.log("currentUser: ", currentUser);
+    await EmailService.sendCredentialsEmail('g82181975@gmail.com',firstName,password);
 
     const friendlyName = `conversation-${currentUser.id}-${user._id}`;
     const conversation = await conversationService.createConversation(

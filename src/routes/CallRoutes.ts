@@ -54,14 +54,14 @@ router.get(
 router.get("/video/join/:roomName", joinVideoCall);
 router.get(
   "/accept-incoming-call",
-  acceptIncomingCallValidation,
-  checkValidationResult,
+  // acceptIncomingCallValidation,
+  // checkValidationResult,
   acceptIncomingCall
 );
 
 router.post("/video/create-room", createRoom);
 router.patch(
-  "/video/end-call/:roomName",
+  "/end-call/:roomName",
   handleCallEndValidation,
   checkValidationResult,
   handleEndCall
