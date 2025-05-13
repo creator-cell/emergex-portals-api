@@ -69,9 +69,7 @@ class CallService {
       const identity = JSON.stringify({
         id: userId,
         name: name,
-        email: user?.email,
         role: user?.role,
-        avatar: user?.image,
       });
 
       // Create an access token
@@ -211,7 +209,7 @@ class CallService {
       // Save call details in our database
       const callRecord = new CallModel({
         twilioSid: room.sid,
-        type: type,
+        type: type ? type : CallType.AUDIO,
         status: CallStatus.INITIATED,
         from: new mongoose.Types.ObjectId(fromUserId),
         to: new mongoose.Types.ObjectId(conversationId),
