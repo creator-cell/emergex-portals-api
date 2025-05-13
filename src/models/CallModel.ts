@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema, Model } from "mongoose";
 
 export enum CallType {
-  VOICE = "voice",
+  AUDIO = "audio",
   VIDEO = "video",
 }
 

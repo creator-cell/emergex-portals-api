@@ -130,7 +130,7 @@ class CallService {
       // Save call details in our database
       const callRecord = new CallModel({
         twilioSid: call.sid,
-        type: CallType.VOICE,
+        type: CallType.AUDIO,
         status: CallStatus.INITIATED,
         from: new mongoose.Types.ObjectId(fromUserId),
         to: new mongoose.Types.ObjectId(toUserId),
