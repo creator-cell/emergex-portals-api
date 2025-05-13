@@ -243,7 +243,7 @@ class CallService {
                 role: fromUser.role,
               },
               conversationId: conversation._id,
-              type: CallType.VIDEO,
+              type: type,
               roomName: roomName,
             }
           );
