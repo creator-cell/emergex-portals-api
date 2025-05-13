@@ -182,7 +182,8 @@ class CallService {
    */
   async initiateVideoCall(
     fromUserId: string,
-    conversationId?: string
+    type:CallType,
+    conversationId?: string,
   ): Promise<ICall> {
     try {
       const roomName = `room-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
@@ -210,7 +211,7 @@ class CallService {
       // Save call details in our database
       const callRecord = new CallModel({
         twilioSid: room.sid,
-        type: CallType.VIDEO,
+        type: type,
         status: CallStatus.INITIATED,
         from: new mongoose.Types.ObjectId(fromUserId),
         to: new mongoose.Types.ObjectId(conversationId),

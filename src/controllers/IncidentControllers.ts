@@ -71,7 +71,7 @@ export const createIncident = async (req: Request, res: Response) => {
     if (images && Array.isArray(images)) {
       const uploadPromises = images.map(async (base64String, index) => {
         const fileName = `incident_${id}_image_${index}_${Date.now()}.jpg`;
-        const uploadResponse = await UploadBase64File(base64String, fileName);
+        const uploadResponse = await UploadBase64File(base64String, fileName,'incident');
         return uploadResponse.Success ? uploadResponse.ImageURl : null;
       });
 
@@ -82,7 +82,7 @@ export const createIncident = async (req: Request, res: Response) => {
     let signaturePath = null;
     if (signature) {
       const fileName = `incident_${id}_signature_image_${Date.now()}.jpg`;
-      const uploadResponse = await UploadBase64File(signature, fileName);
+      const uploadResponse = await UploadBase64File(signature, fileName,'signature');
       signaturePath = uploadResponse.Success ? uploadResponse.ImageURl : null;
     }
 
@@ -380,7 +380,7 @@ export const updateIncidentById = async (req: Request, res: Response) => {
       );
       const uploadPromises = imageToUpload.map(async (base64String, index) => {
         const fileName = `incident_${incidentId}_image_${index}_${Date.now()}.jpg`;
-        const uploadResponse = await UploadBase64File(base64String, fileName);
+        const uploadResponse = await UploadBase64File(base64String, fileName, 'incident');
         return uploadResponse.Success ? uploadResponse.ImageURl : null;
       });
 
@@ -407,7 +407,7 @@ export const updateIncidentById = async (req: Request, res: Response) => {
     let signaturePath = null;
     if (signature && !signature.startsWith("https://")) {
       const fileName = `incident_${incidentId}_signature_image_${Date.now()}.jpg`;
-      const uploadResponse = await UploadBase64File(signature, fileName);
+      const uploadResponse = await UploadBase64File(signature, fileName,'signature');
       signaturePath = uploadResponse.Success ? uploadResponse.ImageURl : null;
       if (signaturePath) {
         existingIncident.signature = signaturePath;

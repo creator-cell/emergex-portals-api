@@ -12,6 +12,36 @@
     }
   },
 
+  "userValidationMessages": {
+    "id":{
+      "empty":"User ID is required",
+      "isMongoDbId":"Invalid user ID format"
+    },
+    "firstName":{
+      "length":"First name must be between 2-50 characters",
+      "matches":"First name contains invalid characters"
+    },
+    "lastName":{
+      "length":"Last name must be between 2-50 characters",
+      "matches":"last name contains invalid characters"
+    },
+    "phoneNumber": {
+      "length": "Admin Phone number must be 10 digits.",
+      "containCharacters": "Phone No. must contain only digits."
+    },
+    "response": {
+      "updateUserById": {
+        "success": "User details updated successfully",
+        "server": "Server error in updating user details"
+      },
+      "getUserById": {
+        "success": "User fetched successfully",
+        "server": "Server error in fetching user details"
+      },
+      "notFound":"User not found"
+    }
+  },
+
   "authValidationMessages": {
     "username": {
       "empty": "Username must not be empty.",

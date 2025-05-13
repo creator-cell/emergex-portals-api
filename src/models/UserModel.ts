@@ -118,7 +118,6 @@ userSchema.methods.generateChatToken = async (identity:string)=>{
   return twilioToken;
 }
 
-
 const UserModel: Model<IUser> = mongoose.model<IUser>("User", userSchema);
 
 export default UserModel;

@@ -47,7 +47,7 @@ const convertBase64ToBuffer = (base64String: string): Buffer => {
     return Buffer.from(base64Data, 'base64');
 };
 
-const UploadBase64File = async (base64String: string, fileName: string): Promise<UploadFileResponse> => {
+const UploadBase64File = async (base64String: string, fileName: string, folderPath: string = ""): Promise<UploadFileResponse> => {
     try {
         if (!base64String || !fileName) {
             return { Error: "file and fileName not found", Success: false };
@@ -60,9 +60,11 @@ const UploadBase64File = async (base64String: string, fileName: string): Promise
         const buffer = convertBase64ToBuffer(base64String);
         const contentType = getContentTypeFromBase64(base64String);
 
+         const s3Key = folderPath ? `${folderPath}/${fileName}` : fileName;
+
         const Params = {
             Bucket: config.aws_bucket_name as string,
-            Key: fileName,
+             Key: s3Key,
             Body: buffer,
             ContentType: contentType
         };
