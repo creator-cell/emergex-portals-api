@@ -71,7 +71,11 @@ export const createIncident = async (req: Request, res: Response) => {
     if (images && Array.isArray(images)) {
       const uploadPromises = images.map(async (base64String, index) => {
         const fileName = `incident_${id}_image_${index}_${Date.now()}.jpg`;
-        const uploadResponse = await UploadBase64File(base64String, fileName,'incident');
+        const uploadResponse = await UploadBase64File(
+          base64String,
+          fileName,
+          "incident"
+        );
         return uploadResponse.Success ? uploadResponse.ImageURl : null;
       });
 
@@ -82,7 +86,11 @@ export const createIncident = async (req: Request, res: Response) => {
     let signaturePath = null;
     if (signature) {
       const fileName = `incident_${id}_signature_image_${Date.now()}.jpg`;
-      const uploadResponse = await UploadBase64File(signature, fileName,'signature');
+      const uploadResponse = await UploadBase64File(
+        signature,
+        fileName,
+        "signature"
+      );
       signaturePath = uploadResponse.Success ? uploadResponse.ImageURl : null;
     }
 
@@ -140,10 +148,32 @@ export const createIncident = async (req: Request, res: Response) => {
     const conversationId = (conversation as { _id: string })._id;
 
     // Add the creator as the first participant
-    await conversationService.addParticipant(
-      conversationId.toString(),
-      currentUser.id,
-      currentUser.id
+    // await conversationService.addParticipant(
+    //   conversationId.toString(),
+    //   currentUser.id,
+    //   currentUser.id
+    // );
+
+    const roles = await ProjectRoleModel.find({
+      project: projectId,
+    });
+
+    const employeeIds = roles.map((role) => role.employee);
+
+    const employees = await EmployeeModel.find({
+      _id: {
+        $in: employeeIds,
+      },
+    });
+
+    Promise.all(
+      employees.map(async (employee) => {
+        await conversationService.addParticipant(
+          conversationId.toString(),
+          employee.user.toString(),
+          employee.user.toString()
+        );
+      })
     );
 
     return res.status(201).json({
@@ -285,11 +315,7 @@ export const updateIncidentById = async (req: Request, res: Response) => {
       existingIncident.countOfTotalPeople = countOfTotalPeople;
     }
 
-    if (
-      location &&
-      existingIncident.location !== location
-    ) {
-
+    if (location && existingIncident.location !== location) {
       changes.push({
         field: "Location",
         oldValue: existingIncident.location,
@@ -380,7 +406,11 @@ export const updateIncidentById = async (req: Request, res: Response) => {
       );
       const uploadPromises = imageToUpload.map(async (base64String, index) => {
         const fileName = `incident_${incidentId}_image_${index}_${Date.now()}.jpg`;
-        const uploadResponse = await UploadBase64File(base64String, fileName, 'incident');
+        const uploadResponse = await UploadBase64File(
+          base64String,
+          fileName,
+          "incident"
+        );
         return uploadResponse.Success ? uploadResponse.ImageURl : null;
       });
 
@@ -407,7 +437,11 @@ export const updateIncidentById = async (req: Request, res: Response) => {
     let signaturePath = null;
     if (signature && !signature.startsWith("https://")) {
       const fileName = `incident_${incidentId}_signature_image_${Date.now()}.jpg`;
-      const uploadResponse = await UploadBase64File(signature, fileName,'signature');
+      const uploadResponse = await UploadBase64File(
+        signature,
+        fileName,
+        "signature"
+      );
       signaturePath = uploadResponse.Success ? uploadResponse.ImageURl : null;
       if (signaturePath) {
         existingIncident.signature = signaturePath;
@@ -581,12 +615,12 @@ export const getIncidentById = async (req: Request, res: Response) => {
       .populate({
         path: "project",
         model: "Project",
-      })
-      // .populate({
-      //   path: "location",
-      //   model: "Worksite",
-      //   select: "name",
-      // });
+      });
+    // .populate({
+    //   path: "location",
+    //   model: "Worksite",
+    //   select: "name",
+    // });
 
     if (!incident) {
       return res.status(200).json({
