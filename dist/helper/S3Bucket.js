@@ -33,7 +33,7 @@ const convertBase64ToBuffer = (base64String) => {
     const base64Data = base64String.replace(/^data:image\/\w+;base64,/, '');
     return Buffer.from(base64Data, 'base64');
 };
-const UploadBase64File = async (base64String, fileName) => {
+const UploadBase64File = async (base64String, fileName, folderPath = "") => {
     try {
         if (!base64String || !fileName) {
             return { Error: "file and fileName not found", Success: false };
@@ -43,9 +43,10 @@ const UploadBase64File = async (base64String, fileName) => {
         }
         const buffer = convertBase64ToBuffer(base64String);
         const contentType = getContentTypeFromBase64(base64String);
+        const s3Key = folderPath ? `${folderPath}/${fileName}` : fileName;
         const Params = {
             Bucket: config_1.config.aws_bucket_name,
-            Key: fileName,
+            Key: s3Key,
             Body: buffer,
             ContentType: contentType
         };

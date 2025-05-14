@@ -27,7 +27,7 @@ exports.CallStatus = exports.CallType = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 var CallType;
 (function (CallType) {
-    CallType["VOICE"] = "voice";
+    CallType["AUDIO"] = "audio";
     CallType["VIDEO"] = "video";
 })(CallType || (exports.CallType = CallType = {}));
 var CallStatus;

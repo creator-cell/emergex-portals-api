@@ -49,7 +49,7 @@ const createIncident = async (req, res) => {
         if (images && Array.isArray(images)) {
             const uploadPromises = images.map(async (base64String, index) => {
                 const fileName = `incident_${id}_image_${index}_${Date.now()}.jpg`;
-                const uploadResponse = await (0, S3Bucket_1.UploadBase64File)(base64String, fileName);
+                const uploadResponse = await (0, S3Bucket_1.UploadBase64File)(base64String, fileName, 'incident');
                 return uploadResponse.Success ? uploadResponse.ImageURl : null;
             });
             const uploadedImages = await Promise.all(uploadPromises);
@@ -58,7 +58,7 @@ const createIncident = async (req, res) => {
         let signaturePath = null;
         if (signature) {
             const fileName = `incident_${id}_signature_image_${Date.now()}.jpg`;
-            const uploadResponse = await (0, S3Bucket_1.UploadBase64File)(signature, fileName);
+            const uploadResponse = await (0, S3Bucket_1.UploadBase64File)(signature, fileName, 'signature');
             signaturePath = uploadResponse.Success ? uploadResponse.ImageURl : null;
         }
         if (imagePaths.length === 0) {
@@ -275,7 +275,7 @@ const updateIncidentById = async (req, res) => {
             let imageToUpload = images.filter((item) => !item.startsWith("https"));
             const uploadPromises = imageToUpload.map(async (base64String, index) => {
                 const fileName = `incident_${incidentId}_image_${index}_${Date.now()}.jpg`;
-                const uploadResponse = await (0, S3Bucket_1.UploadBase64File)(base64String, fileName);
+                const uploadResponse = await (0, S3Bucket_1.UploadBase64File)(base64String, fileName, 'incident');
                 return uploadResponse.Success ? uploadResponse.ImageURl : null;
             });
             const uploadedImages = await Promise.all(uploadPromises);
@@ -296,7 +296,7 @@ const updateIncidentById = async (req, res) => {
         let signaturePath = null;
         if (signature && !signature.startsWith("https://")) {
             const fileName = `incident_${incidentId}_signature_image_${Date.now()}.jpg`;
-            const uploadResponse = await (0, S3Bucket_1.UploadBase64File)(signature, fileName);
+            const uploadResponse = await (0, S3Bucket_1.UploadBase64File)(signature, fileName, 'signature');
             signaturePath = uploadResponse.Success ? uploadResponse.ImageURl : null;
             if (signaturePath) {
                 existingIncident.signature = signaturePath;
