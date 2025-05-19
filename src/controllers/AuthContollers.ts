@@ -7,6 +7,8 @@ import AccountModel, { IAccount } from "../models/AccountModel";
 import mongoose from "mongoose";
 import SessionModel from "../models/SessionModel";
 import EmployeeModel from "../models/EmployeeModel";
+import { validatePassword } from "../helper/UserFunctions";
+import { ICustomRequest } from "../types/express";
 
 const parseUserAgent = (userAgent: string): { browser: string; os: string } => {
   let browser = "unknown";
@@ -307,6 +309,81 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
     return res.status(500).json({
       success: false,
       error: req.i18n.t("authValidationMessages.response.login.server"),
+    });
+  }
+};
+
+export const changePassword = async (req: Request, res: Response) => {
+  try {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+    const customReq = req as ICustomRequest;
+    const currentUser = customReq.user;
+    const userId = currentPassword.id;
+
+    // Validate input
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({ 
+        success: false,
+        message: "All fields are required" 
+      });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ 
+        success: false,
+        message: "New password and confirm password do not match" 
+      });
+    }
+
+    // Validate password strength
+    const passwordError = validatePassword(newPassword);
+    if (passwordError) {
+      return res.status(400).json({ 
+        success: false,
+        message: passwordError 
+      });
+    }
+
+    // Find user
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ 
+        success: false,
+        message: "User not found" 
+      });
+    }
+
+    // Verify current password
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Current password is incorrect" 
+      });
+    }
+
+    // Check if new password is same as current
+    if (await user.comparePassword(newPassword)) {
+      return res.status(400).json({ 
+        success: false,
+        message: "New password cannot be same as current password" 
+      });
+    }
+
+    // Update password
+    user.password = newPassword;
+    await user.save();
+
+    return res.status(200).json({ 
+      success: true,
+      message: "Password changed successfully" 
+    });
+
+  } catch (error) {
+    console.error("Error changing password:", error);
+    return res.status(500).json({ 
+      success: false,
+      message: "Internal server error" 
     });
   }
 };

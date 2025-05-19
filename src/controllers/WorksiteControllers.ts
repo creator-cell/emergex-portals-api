@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import WorksiteModel from "../models/WorksiteModel";
 import RegionModel from "../models/RegionModel";
-import path from "path";
 import { getPaginationOptions, paginate } from "../helper/pagination";
 import CountryModel from "../models/CountryModel";
 import mongoose from "mongoose";
@@ -15,7 +14,7 @@ export const addWorksite = async (req: Request, res: Response) => {
     if (isExist) {
       return res.status(400).json({
         success: false,
-        message: req.i18n.t("worksiteValidationMessages.response.workSiteNotExist"),
+        message: req.i18n.t("worksiteValidationMessages.response.workSiteExist"),
       });
     }
 
@@ -291,7 +290,6 @@ export const addCountryRegionWorksites = async (req: Request, res: Response) => 
     }
 
     await session.commitTransaction();
-    session.endSession();
 
     return res.status(201).json({
       success: true,
@@ -304,12 +302,14 @@ export const addCountryRegionWorksites = async (req: Request, res: Response) => 
     });
   } catch (error: any) {
     await session.abortTransaction();
-    session.endSession();
 
     return res.status(400).json({
       success: false,
       message: error.message,
     });
+  }
+  finally{
+    session.endSession();
   }
 };
 

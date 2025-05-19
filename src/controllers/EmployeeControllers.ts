@@ -17,6 +17,7 @@ import {
 } from "../models/ConversationModel";
 import TeamModel from "../models/TeamModel";
 import { EmailService } from "../services/sendgrid.service";
+import ProjectRoleModel from "../models/ProjectRoleModel";
 
 // Create a new employee
 export const createEmployee = async (req: Request, res: Response) => {
@@ -57,8 +58,8 @@ export const createEmployee = async (req: Request, res: Response) => {
     }
 
     const username = await generateUniqueUsername(name);
-    // const password = generatePassword();
-    const password = name + "123";
+    const password = generatePassword();
+    // const password = name + "123";
 
     const [firstName, lastName] = name.split(" ");
 
@@ -104,24 +105,27 @@ export const createEmployee = async (req: Request, res: Response) => {
       friendlyName,
       currentUser.id,
       ConversationIdentity.EMPLOYEE,
-      ConversationType.SINGLE
+      ConversationType.SINGLE,
+     ( user._id as mongoose.Types.ObjectId),
+      session
     );
 
     const conversationId = (conversation as { _id: string })._id;
     await conversationService.addParticipant(
       conversationId.toString(),
       currentUser.id,
-      currentUser.id
+      currentUser.id,
+      session
     );
 
     await conversationService.addParticipant(
       conversationId.toString(),
       user._id!.toString(),
-      user._id!.toString()
+      user._id!.toString(),
+      session
     );
 
     await session.commitTransaction();
-    session.endSession();
 
     return res.status(201).json({
       success: true,
@@ -132,7 +136,6 @@ export const createEmployee = async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     await session.abortTransaction();
-    session.endSession();
     console.log("error: ", error);
     return res.status(500).json({
       success: false,
@@ -140,6 +143,8 @@ export const createEmployee = async (req: Request, res: Response) => {
         "employeeValidationMessages.response.createEmployee.server"
       ),
     });
+  }finally{
+    session.endSession();
   }
 };
 
@@ -365,6 +370,31 @@ export const getUnassignedEmployees = async (req: Request, res: Response) => {
     });
 
     return res.status(200).json({ success: true, data: unassignedEmployees, message:"Employees who are not in any team fetched successfully" });
+  } catch (error) {
+    console.error("Error fetching unassigned employees:", error);
+    return res.status(500).json({ success: false,  error:"server error in mployees who are not in any team" });
+  }
+};
+
+export const getEmployeesNotInProject = async (req: Request, res: Response) => {
+  const {id}=req.params;
+  try {
+    const roles = await ProjectRoleModel.find({
+      project:id
+    })
+
+    const employeeinProject = roles.map((role)=>role.employee);
+
+    const employeeNotInProject = await EmployeeModel.find({
+      _id: { $nin: employeeinProject },
+      isDeleted: false,
+    });
+
+    return res.status(200).json({ 
+      success: true, 
+      data: employeeNotInProject, 
+      message:"Employees who are not in current project fetched successfully" 
+    });
   } catch (error) {
     console.error("Error fetching unassigned employees:", error);
     return res.status(500).json({ success: false,  error:"server error in mployees who are not in any team" });

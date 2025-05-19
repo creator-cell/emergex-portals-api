@@ -14,14 +14,18 @@ import ConversationModel, {
 export const createTeam = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
     const { name } = req.body;
     const isExist = await TeamModel.findOne({
       name,
       createdBy: currentUser.id,
-    });
+    }).session(session);
 
     if (isExist) {
+      await session.abortTransaction();
       return res.status(403).json({
         success: false,
         error: req.i18n.t("teamValidationMessages.response.createTeam.exist"),
@@ -29,7 +33,7 @@ export const createTeam = async (req: Request, res: Response) => {
     }
 
     const newTeam = new TeamModel({ name, createdBy: currentUser.id });
-    const savedTeam = await newTeam.save();
+    const savedTeam = await newTeam.save({ session });
 
     const friendlyName = `conversation-${savedTeam._id}`;
 
@@ -38,7 +42,8 @@ export const createTeam = async (req: Request, res: Response) => {
       currentUser.id,
       ConversationIdentity.TEAM,
       ConversationType.GROUP,
-      savedTeam._id as mongoose.Types.ObjectId
+      savedTeam._id as mongoose.Types.ObjectId,
+      session
     );
 
     const conversationId = (conversation as { _id: string })._id;
@@ -47,8 +52,11 @@ export const createTeam = async (req: Request, res: Response) => {
     await conversationService.addParticipant(
       conversationId.toString(),
       currentUser.id,
-     currentUser.id
+      currentUser.id,
+      session
     );
+
+      await session.commitTransaction();
 
     return res.status(201).json({
       success: true,
@@ -56,10 +64,13 @@ export const createTeam = async (req: Request, res: Response) => {
       data: savedTeam,
     });
   } catch (error: any) {
+    session.abortTransaction();
     return res.status(500).json({
       success: false,
       error: req.i18n.t("teamValidationMessages.response.createTeam.server"),
     });
+  }finally{
+    session.endSession();
   }
 };
 
@@ -104,10 +115,14 @@ export const getAllTeams = async (req: Request, res: Response) => {
 export const addNewMemberToTeam = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { employeeId }: { employeeId: [] } = req.body;
-
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
-    const team = await TeamModel.findById(id).populate("members");
+    const team = await TeamModel.findById(id).populate("members").session(session);
     if (!team) {
+      await session.abortTransaction();
       return res.status(200).json({
         success: false,
         error: req.i18n.t(
@@ -126,6 +141,7 @@ export const addNewMemberToTeam = async (req: Request, res: Response) => {
             )}`
           );
         }
+
         const isAlreadyExist = team.members.some((member) =>
           member._id.equals(item)
         );
@@ -141,20 +157,21 @@ export const addNewMemberToTeam = async (req: Request, res: Response) => {
     );
 
     team.members.push(...employeeMongoIds);
-    await team.save();
+    await team.save({session});
 
     const employees = await EmployeeModel.find({
       _id: { $in: employeeMongoIds },
       isDeleted: false,
-    })
+    }).session(session);
 
-    const userIds = employees.map((employee) => employee.user);
+    const userIds = employees
+      .map((employee) => employee.user)
+      .filter((id) => id.toString() !== currentUser.id.toString());
 
-    // Add the new members to the conversation
     const conversation = await ConversationModel.findOne({
       identity: ConversationIdentity.TEAM,
       identityId: team._id,
-    });
+    }).session(session);
 
     if (conversation) {
       await Promise.all(
@@ -162,11 +179,14 @@ export const addNewMemberToTeam = async (req: Request, res: Response) => {
           await conversationService.addParticipant(
             (conversation._id as mongoose.Types.ObjectId).toString(),
             (userId as mongoose.Types.ObjectId).toString(),
-            (userId as mongoose.Types.ObjectId).toString()
+            (userId as mongoose.Types.ObjectId).toString(),
+            session
           );
         })
       );
     }
+
+    await session.commitTransaction();
 
     return res.status(201).json({
       success: true,
@@ -175,10 +195,13 @@ export const addNewMemberToTeam = async (req: Request, res: Response) => {
       ),
     });
   } catch (error: any) {
+    await session.abortTransaction();
     return res.status(500).json({
       success: false,
       error: error.message,
     });
+  }finally{
+    session.endSession();
   }
 };
 

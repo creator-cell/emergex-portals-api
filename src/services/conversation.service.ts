@@ -12,22 +12,22 @@ class ConversationService {
   /**
    * Create a new conversation in Twilio and save it to the database
    */
-  async createConversation(
+  async createConversation( 
     friendlyName: string,
     createdBy: string,
     identity: ConversationIdentity,
     type: ConversationType = ConversationType.SINGLE,
-    identityId?: mongoose.Types.ObjectId
+    identityId?: mongoose.Types.ObjectId,
+    session?: mongoose.ClientSession
   ): Promise<IConversation> {
+    const sessionOptions = session ? { session } : {};
+    let twilioConversation;
     try {
-
       // Create conversation in Twilio
-      const twilioConversation = await conversationsClient.conversations.create(
-        {
-          friendlyName,
-          uniqueName: `conv-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-        }
-      );
+      twilioConversation = await conversationsClient.conversations.create({
+        friendlyName,
+        uniqueName: `conv-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      });
 
       // Create conversation in our database
       const conversation = new ConversationModel({
@@ -37,13 +37,21 @@ class ConversationService {
         participants: [],
         type: type || ConversationType.SINGLE,
         identity,
-        identityId
+        identityId,
       });
 
-      await conversation.save();
+      await conversation.save(sessionOptions);
       return conversation;
     } catch (error) {
       console.error("Error creating conversation:", error);
+      if (twilioConversation?.sid) {
+        await conversationsClient
+          .conversations(twilioConversation.sid)
+          .remove()
+          .catch((e) =>
+            console.error("Failed to cleanup Twilio conversation:", e)
+          );
+      }
       throw error;
     }
   }
@@ -54,10 +62,15 @@ class ConversationService {
   async addParticipant(
     conversationId: string,
     userId: string,
-    identity: string
+    identity: string,
+    session?: mongoose.ClientSession
   ): Promise<IConversation> {
+    const sessionOptions = session ? { session } : {};
     try {
-      const conversation = await ConversationModel.findById(conversationId);
+      const conversation = await ConversationModel.findById(
+        conversationId
+      ).session(session || null);
+
       if (!conversation) {
         throw new Error("Conversation not found");
       }
@@ -75,7 +88,7 @@ class ConversationService {
         identity,
       } as IParticipant);
 
-      await conversation.save();
+      await conversation.save(sessionOptions);
       return conversation;
     } catch (error) {
       console.error("Error adding participant:", error);
@@ -287,7 +300,7 @@ class ConversationService {
 
       // Get messages
       const messages = await MessageModel.find(query)
-        .populate("author","firstName lastName email image")
+        .populate("author", "firstName lastName email image")
         .sort({ createdAt: -1 })
         .limit(limit);
 
@@ -411,7 +424,6 @@ class ConversationService {
       throw error;
     }
   }
-  
 }
 
 export default new ConversationService();

@@ -6,6 +6,7 @@ import {
   updateEmployee,
   deleteEmployee,
   getUnassignedEmployees,
+  getEmployeesNotInProject,
 } from "../controllers/EmployeeControllers";
 import { validateCreateEmployee, validateEmployeeId, validateUpdateEmployee } from "../validations/employeeValidators";
 import { authenticate } from "../middlewares/authMiddleware";
@@ -21,5 +22,7 @@ router.get("/",authenticate, authorizeRoles(GlobalAdminRoles.SuperAdmin,GlobalAd
 router.route("/employee-by-id/:id").get(authenticate, authorizeRoles(GlobalAdminRoles.SuperAdmin),validateEmployeeId,checkValidationResult,getEmployeeById).put(authenticate, authorizeRoles(GlobalAdminRoles.SuperAdmin),validateUpdateEmployee,checkValidationResult,updateEmployee).delete(authenticate, authorizeRoles(GlobalAdminRoles.SuperAdmin),validateEmployeeId,checkValidationResult,deleteEmployee);  
 
 router.get("/not-in-team",authenticate, authorizeRoles(GlobalAdminRoles.SuperAdmin) ,validateCreateEmployee,getUnassignedEmployees)
+
+router.route('/not-in-project/:id').get(authenticate,authorizeRoles(GlobalAdminRoles.SuperAdmin,GlobalAdminRoles.ClientAdmin),getEmployeesNotInProject)
 
 export default router;

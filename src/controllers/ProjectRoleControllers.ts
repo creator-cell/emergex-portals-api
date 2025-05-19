@@ -3,7 +3,7 @@ import ProjectModel from "../models/ProjectModel";
 import TeamModel from "../models/TeamModel";
 import mongoose from "mongoose";
 import EmployeeModel from "../models/EmployeeModel";
-import ProjectRoleModel from "../models/ProjectRoleModel";
+import ProjectRoleModel, { IProjectRoles } from "../models/ProjectRoleModel";
 import RoleModel from "../models/RoleModel";
 import { ICustomRequest } from "../types/express";
 import IncidentModel from "../models/IncidentModel";
@@ -12,6 +12,7 @@ import ConversationModel, {
   ConversationType,
 } from "../models/ConversationModel";
 import conversationService from "../services/conversation.service";
+import { updateDownstreamNodePriorities } from "../helper/ProjectRoleFunctions";
 
 // add roles in projects
 export const addRolesInProject = async (req: Request, res: Response) => {
@@ -70,7 +71,7 @@ export const addRolesInProject = async (req: Request, res: Response) => {
           );
         }
 
-        const employeeExists = await EmployeeModel.exists({
+        const employeeExists = await EmployeeModel.findOne({
           _id: employeeId,
         });
         if (!employeeExists) {
@@ -89,7 +90,7 @@ export const addRolesInProject = async (req: Request, res: Response) => {
           throw new Error(
             `${req.i18n.t(
               "teamValidationMessages.response.noTeamFoundForEmployee"
-            )} ${role.assignTo}.`
+            )} ${employeeExists.name}.`
           );
         }
 
@@ -297,10 +298,11 @@ export const updateRolePriority = async (req: Request, res: Response) => {
     let role = await ProjectRoleModel.findOne({ project: id, employee });
 
     if (!role) {
-      if (roleId) {
+      console.log("role id: ",roleId)
+      if (roleId && roleId!==undefined) {
         const existingRole = await RoleModel.findById(roleId);
         if (!existingRole) {
-          return res.status(200).json({
+          return res.status(400).json({
             success: false,
             message: req.i18n.t("roleValidationMessages.response.notExist"),
           });
@@ -308,7 +310,7 @@ export const updateRolePriority = async (req: Request, res: Response) => {
 
         const existingEmployee = await EmployeeModel.findById(employee);
         if (!existingEmployee) {
-          return res.status(200).json({
+          return res.status(400).json({
             success: false,
             message: req.i18n.t("employeeValidationMessages.response.notExist"),
           });
@@ -322,7 +324,7 @@ export const updateRolePriority = async (req: Request, res: Response) => {
           throw new Error(
             `${req.i18n.t(
               "teamValidationMessages.response.noTeamFoundForEmployee"
-            )} ${employee}.`
+            )} ${existingEmployee.name}.`
           );
         }
 
@@ -341,14 +343,14 @@ export const updateRolePriority = async (req: Request, res: Response) => {
         const incidents = await IncidentModel.find({
           project: id,
         });
-    
+
         if (incidents.length > 0) {
           const conversationPromises = incidents.map(async (incident) => {
             const conversation = await ConversationModel.findOne({
               identity: ConversationIdentity.INCIDENT,
               identityId: incident._id,
             });
-    
+
             if (!conversation) {
               throw new Error(
                 `${req.i18n.t(
@@ -356,17 +358,21 @@ export const updateRolePriority = async (req: Request, res: Response) => {
                 )} ${incident._id}.`
               );
             }
-            
-                await conversationService.addParticipant(
-                  (conversation._id as mongoose.Types.ObjectId).toString(),
-                  (existingEmployee.user as mongoose.Types.ObjectId).toString(),
-                  (existingEmployee.user as mongoose.Types.ObjectId).toString()
-                );
+
+            await conversationService.addParticipant(
+              (conversation._id as mongoose.Types.ObjectId).toString(),
+              (existingEmployee.user as mongoose.Types.ObjectId).toString(),
+              (existingEmployee.user as mongoose.Types.ObjectId).toString()
+            );
           });
-    
+
           await Promise.all(conversationPromises);
         }
-
+      }else{
+        return res.status(400).json({
+            success: false,
+            message: "Please select role",
+          });
       }
     }
 
@@ -382,6 +388,7 @@ export const updateRolePriority = async (req: Request, res: Response) => {
     // Priority update logic
     if (!from && !to) {
       role.priority = 1;
+      await role.save();
     } else if (from && !to) {
       const fromRole = await ProjectRoleModel.findOne({
         project: id,
@@ -397,6 +404,7 @@ export const updateRolePriority = async (req: Request, res: Response) => {
       }
       role.priority = fromRole.priority + 1;
       role.from = from;
+      await role.save();
     } else if (!from && to) {
       const toRole = await ProjectRoleModel.findOne({
         project: id,
@@ -413,16 +421,17 @@ export const updateRolePriority = async (req: Request, res: Response) => {
       role.priority = toRole.priority;
       role.from = toRole.from;
       role.to = to;
-      toRole.from = role.employee;
-      await ProjectRoleModel.updateMany(
-        {
-          project: id,
-          priority: { $gte: toRole.priority },
-        },
-        { $inc: { priority: 1 } }
-      );
+      await role.save();
 
+      toRole.priority = to.priority + 1;
+      toRole.from = role.employee;
       await toRole.save();
+
+      await updateDownstreamNodePriorities(
+        id,
+        toRole.employee,
+        toRole.priority
+      );
     } else if (from && to) {
       const fromRole = await ProjectRoleModel.findOne({
         project: id,
@@ -442,10 +451,11 @@ export const updateRolePriority = async (req: Request, res: Response) => {
         });
       }
 
-      let newFromPriority = fromRole.priority + 1;
-      let newToPriority = toRole.priority - 1;
+      let sameNodeCheckFrom = toRole.from.toString() === from.toString();
+      let newFromPriorityStatus = fromRole.priority + 1 === toRole.priority;
+      let newToPriorityStatus = toRole.priority - 1 === fromRole.priority;
 
-      if (newFromPriority !== newToPriority) {
+      if (!newFromPriorityStatus || !newToPriorityStatus || !sameNodeCheckFrom) {
         return res.status(400).json({
           success: false,
           error: req.i18n.t(
@@ -457,16 +467,17 @@ export const updateRolePriority = async (req: Request, res: Response) => {
       role.priority = fromRole.priority + 1;
       role.from = from;
       role.to = to;
-      toRole.from = role.employee;
-      await ProjectRoleModel.updateMany(
-        {
-          project: id,
-          priority: { $gte: toRole.priority },
-        },
-        { $inc: { priority: 1 } }
-      );
+      await role.save();
 
+      toRole.priority = toRole.priority + 1;
+      toRole.from = role.employee;
       await toRole.save();
+
+      await updateDownstreamNodePriorities(
+        id,
+        toRole.employee,
+        toRole.priority
+      );
     } else {
       return res.status(400).json({
         success: false,
@@ -479,7 +490,6 @@ export const updateRolePriority = async (req: Request, res: Response) => {
     if (roleId) {
       role.role = new mongoose.Types.ObjectId(roleId);
     }
-
     await role.save();
 
     return res.status(200).json({
@@ -493,9 +503,10 @@ export const updateRolePriority = async (req: Request, res: Response) => {
     console.error("Error updating role priority:", error);
     return res.status(500).json({
       success: false,
-      message: req.i18n.t(
-        "projectRoleValidationMessages.response.updateRolePriority.server"
-      ),
+      message: error instanceof Error ? error.message : String(error)
+      // message: req.i18n.t(
+      //   "projectRoleValidationMessages.response.updateRolePriority.server"
+      // ),
     });
   }
 };
@@ -616,6 +627,7 @@ export const getProjectRolesByPriority = async (
 
     roles.forEach((role) => {
       const { priority, from } = role;
+      if(!priority) return;
       if (!rolesByPriority[priority]) {
         rolesByPriority[priority] = {};
       }
@@ -631,6 +643,8 @@ export const getProjectRolesByPriority = async (
 
       rolesByPriority[priority][fromKey].roles.push(role);
     });
+
+    // rolesByPriority.filter(()=>)
 
     return res.status(200).json({
       success: true,
@@ -715,7 +729,7 @@ export const getRolesByIncidentId = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
   const currentUserId = currentUser.id;
-  console.log("current User: ",currentUser)
+  console.log("current User: ", currentUser);
   try {
     const incident = await IncidentModel.findById(id);
     if (!incident) {
@@ -783,8 +797,13 @@ export const getRolesByIncidentId = async (req: Request, res: Response) => {
               designation: "$employeeData.designation",
               description: "$description",
               title: "$roleData.title",
-              user: "$employeeData.user", 
-              isCurrentUser: { $eq: ["$employeeData.user", new mongoose.Types.ObjectId(currentUserId)] } 
+              user: "$employeeData.user",
+              isCurrentUser: {
+                $eq: [
+                  "$employeeData.user",
+                  new mongoose.Types.ObjectId(currentUserId),
+                ],
+              },
             },
           },
         },
@@ -806,36 +825,36 @@ export const getRolesByIncidentId = async (req: Request, res: Response) => {
         const employeesWithConversations = await Promise.all(
           role.employees.map(async (employee: any) => {
             // Skip if this is the current user's employee record
-            console.log("iscUrrent: ",employee)
+            // console.log("iscUrrent: ", employee);
             if (employee.isCurrentUser) {
               const { isCurrentUser, ...employeeData } = employee;
               return employeeData;
             }
-            
+
             if (!employee.user) return employee;
-            
+
             // Find conversation where both current user and employee's user are participants
             const conversation = await ConversationModel.findOne({
               type: ConversationType.SINGLE,
               participants: {
                 $all: [
                   { $elemMatch: { user: currentUserId } },
-                  { $elemMatch: { user: employee.user } }
-                ]
-              }
-            }).select('twilioSid name type identity');
+                  { $elemMatch: { user: employee.user } },
+                ],
+              },
+            }).select("twilioSid name type identity");
 
             return {
               ...employee,
               conversation: conversation ?? null,
-              isCurrentUser: undefined // Remove the flag from final output
+              isCurrentUser: undefined, // Remove the flag from final output
             };
           })
         );
 
         return {
           ...role,
-          employees: employeesWithConversations
+          employees: employeesWithConversations,
         };
       })
     );

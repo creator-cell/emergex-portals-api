@@ -20,6 +20,8 @@ import {
 export const createIncident = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     const {
       level,
@@ -42,7 +44,7 @@ export const createIncident = async (req: Request, res: Response) => {
 
     let id = req.body.id;
 
-    const isIdExist = await IncidentModel.findOne({ id });
+    const isIdExist = await IncidentModel.findOne({ id }).session(session);
     if (isIdExist || !id) {
       id = await generateUniqueIncidentId();
     }
@@ -57,8 +59,11 @@ export const createIncident = async (req: Request, res: Response) => {
     //   });
     // }
 
-    const isProjectexist = await ProjectModel.findById(projectId);
+    const isProjectexist = await ProjectModel.findById(projectId).session(
+      session
+    );
     if (!isProjectexist) {
+      await session.abortTransaction();
       return res.status(400).json({
         success: false,
         error: req.i18n.t(
@@ -95,6 +100,7 @@ export const createIncident = async (req: Request, res: Response) => {
     }
 
     if (imagePaths.length === 0) {
+      await session.abortTransaction();
       return res.status(400).json({
         succees: false,
         error: req.i18n.t(
@@ -104,6 +110,7 @@ export const createIncident = async (req: Request, res: Response) => {
     }
 
     if (!signaturePath) {
+      await session.abortTransaction();
       return res.status(400).json({
         succees: false,
         error: req.i18n.t(
@@ -133,7 +140,7 @@ export const createIncident = async (req: Request, res: Response) => {
       createdBy: currentUser.id,
     });
 
-    const savedIncident = await newIncident.save();
+    const savedIncident = await newIncident.save({ session });
 
     const friendlyName = `conversation-${savedIncident._id}`;
 
@@ -142,21 +149,28 @@ export const createIncident = async (req: Request, res: Response) => {
       currentUser.id,
       ConversationIdentity.INCIDENT,
       ConversationType.GROUP,
-      savedIncident._id as mongoose.Types.ObjectId
+      savedIncident._id as mongoose.Types.ObjectId,
+      session
     );
 
+      if (!conversation) {
+      throw new Error('Failed to create conversation'); // ADDED ERROR THROWING
+    }
+
+    
     const conversationId = (conversation as { _id: string })._id;
 
     // Add the creator as the first participant
     // await conversationService.addParticipant(
     //   conversationId.toString(),
     //   currentUser.id,
-    //   currentUser.id
+    //   currentUser.id,
+    //   session
     // );
 
     const roles = await ProjectRoleModel.find({
       project: projectId,
-    });
+    }).session(session);
 
     const employeeIds = roles.map((role) => role.employee);
 
@@ -164,17 +178,20 @@ export const createIncident = async (req: Request, res: Response) => {
       _id: {
         $in: employeeIds,
       },
-    });
+    }).session(session);
 
-    Promise.all(
+    await Promise.all(
       employees.map(async (employee) => {
         await conversationService.addParticipant(
           conversationId.toString(),
           employee.user.toString(),
-          employee.user.toString()
+          employee.user.toString(),
+          session
         );
       })
     );
+
+    await session.commitTransaction();
 
     return res.status(201).json({
       success: true,
@@ -184,6 +201,7 @@ export const createIncident = async (req: Request, res: Response) => {
       data: savedIncident,
     });
   } catch (error: any) {
+    await session.abortTransaction();
     if (req.files) {
       Object.values(req.files)
         .flat()
@@ -200,6 +218,8 @@ export const createIncident = async (req: Request, res: Response) => {
         "incidentValidationMessages.response.createIncident.server"
       ),
     });
+  }finally {
+    session.endSession();
   }
 };
 

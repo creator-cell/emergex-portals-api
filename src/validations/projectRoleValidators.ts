@@ -88,7 +88,7 @@ export const validateRolePriority = [
     .withMessage("Employee Id is requried")
     .isMongoId()
     .withMessage("Invalid project ID"),
-  body("team").optional().isMongoId().withMessage("Invalid team ID"),
+  body("role").optional().isMongoId().withMessage("Invalid role ID"),
   body("employee")
     .notEmpty()
     .withMessage("Employee Id is requried")
