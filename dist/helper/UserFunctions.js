@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.validatePassword = void 0;
 exports.generateUniqueUsername = generateUniqueUsername;
 exports.generatePassword = generatePassword;
 const UserModel_1 = __importDefault(require("../models/UserModel"));
@@ -26,3 +27,19 @@ function generatePassword() {
     }
     return password;
 }
+const validatePassword = (password) => {
+    if (password.length < 8) {
+        return "Password must be at least 8 characters long";
+    }
+    if (!/\d/.test(password)) {
+        return "Password must contain at least one number";
+    }
+    if (!/[A-Z]/.test(password)) {
+        return "Password must contain at least one uppercase letter";
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+        return "Password must contain at least one special character";
+    }
+    return null;
+};
+exports.validatePassword = validatePassword;

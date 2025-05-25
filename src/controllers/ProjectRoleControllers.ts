@@ -950,3 +950,53 @@ export const getUserRoleInIncident = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const getAvailableRolesInProject = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const {priority} = req.query;
+  try {
+
+    const project = await ProjectModel.findById(id);
+
+    if (!project) {
+      return res.status(200).json({
+        success: false,
+        error:
+          req.i18n.t("projectValidationMessages.response.notExist") +
+          " " +
+          id,
+      });
+    }
+
+    const role = await ProjectRoleModel.find({
+      project: project._id,
+      priority: { $exists: priority },
+      // employee: { $ne: currentUser.id },
+    }).populate("employee role");
+
+    if (!role) {
+      return res.status(200).json({
+        success: false,
+        error: req.i18n.t(
+          "projectRoleValidationMessages.response.getUserRoleDetails.roleNotAvailable"
+        ),
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: req.i18n.t(
+        "projectRoleValidationMessages.response.getUserRoleInIncident.success"
+      ),
+      data: role,
+    });
+  } catch (error) {
+    return res.status(5000).json({
+      success: false,
+      error: req.i18n.t(
+        "projectRoleValidationMessages.response.getUserRoleInIncident.server"
+      ),
+    });
+  }
+};
+

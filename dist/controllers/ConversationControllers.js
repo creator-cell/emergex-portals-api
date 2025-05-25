@@ -40,16 +40,20 @@ const ProjectRoleModel_1 = __importDefault(require("../models/ProjectRoleModel")
 const createConversation = async (req, res) => {
     const customReq = req;
     const currentUser = customReq.user;
+    const session = await mongoose_1.default.startSession();
+    session.startTransaction();
     try {
         const { participant } = req.body;
         const userId = currentUser.id;
         if (!participant) {
+            await session.abortTransaction();
             return res
                 .status(400)
                 .json({ success: false, message: "Participant is required" });
         }
         const employee = await EmployeeModel_1.default.findById(participant);
         if (!employee) {
+            await session.abortTransaction();
             return res
                 .status(400)
                 .json({ success: false, message: "Participant not found" });
@@ -63,6 +67,7 @@ const createConversation = async (req, res) => {
         });
         // console.log("conver: ",isConversationExist)
         if (isConversationExist) {
+            await session.abortTransaction();
             return res.status(400).json({
                 success: false,
                 message: "Conversation already exists between the participants",
@@ -71,16 +76,17 @@ const createConversation = async (req, res) => {
         const friendlyName = `conversation-${currentUser.id}-${employee.user}`;
         const conversation = await conversation_service_1.default.createConversation(friendlyName, userId, currentUser.role === global_enum_1.GlobalAdminRoles.SuperAdmin
             ? ConversationModel_1.ConversationIdentity.SUPERADMIN
-            : ConversationModel_1.ConversationIdentity.EMPLOYEE, ConversationModel_1.ConversationType.SINGLE);
+            : ConversationModel_1.ConversationIdentity.EMPLOYEE, ConversationModel_1.ConversationType.SINGLE, participant, session);
         // Ensure conversation has a known type
         const conversationId = conversation._id;
         // Add the creator as the first participant
-        await conversation_service_1.default.addParticipant(conversationId.toString(), userId, currentUser.id);
+        await conversation_service_1.default.addParticipant(conversationId.toString(), userId, currentUser.id, session);
         if (participant) {
             const participantId = employee?.user.toString();
-            await conversation_service_1.default.addParticipant(conversationId.toString(), participantId, employee.user.toString());
+            await conversation_service_1.default.addParticipant(conversationId.toString(), participantId, employee.user.toString(), session);
         }
-        const newConversation = await ConversationModel_1.default.findById(conversation._id);
+        const newConversation = await ConversationModel_1.default.findById(conversation._id).session(session);
+        await session.commitTransaction();
         return res.status(201).json({
             success: true,
             conversation: newConversation,
@@ -88,10 +94,14 @@ const createConversation = async (req, res) => {
         });
     }
     catch (error) {
+        await session.abortTransaction();
         console.error("Error creating conversation:", error);
         return res
             .status(500)
             .json({ message: error.message ?? "An error occurred" });
+    }
+    finally {
+        session.endSession();
     }
 };
 exports.createConversation = createConversation;
@@ -896,9 +906,9 @@ const getIncidentChats = async (req, res) => {
         // Get all employees in the project
         const projectEmployees = await EmployeeModel_1.default.find({
             _id: {
-                $in: projectEmployeesIds
+                $in: projectEmployeesIds,
             },
-            isDeleted: false
+            isDeleted: false,
         });
         // Get all user IDs of the project employees (except current user)
         const projectUserIds = projectEmployees
@@ -908,26 +918,26 @@ const getIncidentChats = async (req, res) => {
         const incidentConversation = await ConversationModel_1.default.findOne({
             identity: ConversationModel_1.ConversationIdentity.INCIDENT,
             identityId: incident._id,
-            isActive: true
-        }).populate('lastMessage');
+            isActive: true,
+        }).populate("lastMessage");
         // Find one-on-one conversations between current user and each project employee
         const employeeConversations = await ConversationModel_1.default.find({
             type: ConversationModel_1.ConversationType.SINGLE,
             isActive: true,
             $and: [
-                { 'participants.user': currentUser.id },
-                { 'participants.user': { $in: projectUserIds } }
-            ]
-        }).populate('lastMessage');
+                { "participants.user": currentUser.id },
+                { "participants.user": { $in: projectUserIds } },
+            ],
+        }).populate("lastMessage");
         // Map conversations to their respective employee users
         const employeesWithConversations = await Promise.all(projectEmployees
-            .filter(emp => emp.user && emp.user.toString() !== currentUser.id)
+            .filter((emp) => emp.user && emp.user.toString() !== currentUser.id)
             .map(async (employee) => {
             // Find the conversation between current user and this employee
-            const conversation = employeeConversations.find(conv => conv.participants.some(p => p.user.toString() === employee.user.toString()));
+            const conversation = employeeConversations.find((conv) => conv.participants.some((p) => p.user.toString() === employee.user.toString()));
             return {
                 ...employee.toObject(),
-                conversation: conversation || null
+                conversation: conversation || null,
             };
         }));
         // Return the complete response
@@ -936,8 +946,8 @@ const getIncidentChats = async (req, res) => {
             data: {
                 ...incident.toObject(),
                 conversation: incidentConversation || null,
-                employees: employeesWithConversations
-            }
+                employees: employeesWithConversations,
+            },
         });
     }
     catch (error) {

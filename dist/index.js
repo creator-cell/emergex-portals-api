@@ -52,6 +52,7 @@ const transcriptionRoutes_1 = __importDefault(require("./routes/transcriptionRou
 const ConversationRoutes_1 = __importDefault(require("./routes/ConversationRoutes"));
 const webhookRoutes_1 = __importDefault(require("./routes/webhookRoutes"));
 const CallRoutes_1 = __importDefault(require("./routes/CallRoutes"));
+const SpeechRoutes_1 = __importDefault(require("./routes/SpeechRoutes"));
 const path_1 = __importDefault(require("path"));
 const webhookAuthMiddleware_1 = require("./middlewares/webhookAuthMiddleware");
 const socket_io_1 = require("socket.io");
@@ -74,10 +75,6 @@ app.use("/uploads", express_1.default.static(uploads));
 app.get("/", (_req, res) => {
     return res.status(200).send("Hello World! with typescript");
 });
-app.use((req, res, next) => {
-    console.log(req.method, req.url);
-    next();
-});
 app.use("/api/auth", AuthRoutes_1.default);
 app.use("/api/users", UsersRoute_1.default);
 app.use("/api/employees", EmployeeRoutes_1.default);
@@ -94,6 +91,7 @@ app.use("/api/transcription", transcriptionRoutes_1.default);
 app.use('/api/conversations', ConversationRoutes_1.default);
 app.use('/api/calls', CallRoutes_1.default);
 app.use('/api/webhook', webhookAuthMiddleware_1.validateTwilioWebhook, webhookRoutes_1.default);
+app.use('/api/speech', SpeechRoutes_1.default);
 const httpServer = (0, http_1.createServer)(app);
 exports.WebsocketServer = new socket_io_1.Server(httpServer, {
     cors: {

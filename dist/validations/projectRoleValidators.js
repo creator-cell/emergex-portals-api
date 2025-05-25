@@ -51,7 +51,7 @@ exports.validateRolePriority = [
         .withMessage("Employee Id is requried")
         .isMongoId()
         .withMessage("Invalid project ID"),
-    (0, express_validator_1.body)("team").optional().isMongoId().withMessage("Invalid team ID"),
+    (0, express_validator_1.body)("role").optional().isMongoId().withMessage("Invalid role ID"),
     (0, express_validator_1.body)("employee")
         .notEmpty()
         .withMessage("Employee Id is requried")

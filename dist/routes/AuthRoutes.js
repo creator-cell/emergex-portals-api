@@ -13,4 +13,5 @@ const checkValidationsMiddleware_1 = require("../middlewares/checkValidationsMid
 const router = express_1.default.Router();
 router.post('/register', authMiddleware_1.authenticate, (0, roleMiddleware_1.authorizeRoles)(global_enum_1.GlobalAdminRoles.SuperAdmin), authValidators_1.validateRegister, checkValidationsMiddleware_1.checkValidationResult, AuthContollers_1.register);
 router.post('/login', authValidators_1.validateLogin, checkValidationsMiddleware_1.checkValidationResult, AuthContollers_1.login);
+router.put('/change-password', authMiddleware_1.authenticate, (0, roleMiddleware_1.authorizeRoles)(global_enum_1.GlobalAdminRoles.SuperAdmin, global_enum_1.GlobalAdminRoles.ClientAdmin), AuthContollers_1.changePassword);
 exports.default = router;

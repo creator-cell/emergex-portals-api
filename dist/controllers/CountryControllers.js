@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getCountryRegionsWorksites = exports.getCountryById = exports.deleteCountryById = exports.updateCountryById = exports.getAllCountries = exports.addCountry = void 0;
 const CountryModel_1 = __importDefault(require("../models/CountryModel"));
-const pagination_1 = require("../helper/pagination");
 const RegionModel_1 = __importDefault(require("../models/RegionModel"));
 const WorksiteModel_1 = __importDefault(require("../models/WorksiteModel"));
 const addCountry = async (req, res) => {
@@ -36,14 +35,17 @@ const addCountry = async (req, res) => {
 exports.addCountry = addCountry;
 const getAllCountries = async (req, res) => {
     try {
-        const options = (0, pagination_1.getPaginationOptions)(req, {
-            sort: { name: 1 },
-        });
-        const countries = await (0, pagination_1.paginate)(CountryModel_1.default, options);
+        // const options = getPaginationOptions(req,{
+        //     sort: { name: 1 },
+        // });
+        // const countries = await paginate(CountryModel, options);
+        const countries = await CountryModel_1.default.find()
+            .sort({ name: 1 }); // Sort by name in ascending order
         return res.status(200).json({
             success: true,
             message: req.i18n.t("countryValidationMessages.response.getAllCountries.success"),
-            ...countries,
+            // ...countries,
+            data: countries
         });
     }
     catch (error) {

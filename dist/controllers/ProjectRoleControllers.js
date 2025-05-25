@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserRoleInIncident = exports.getRolesByIncidentId = exports.getUserRoleDetails = exports.getProjectRolesByPriority = exports.updateRolePriority = exports.updateSpecificRole = exports.addRolesInProject = void 0;
+exports.getAvailableRolesInProject = exports.getUserRoleInIncident = exports.getRolesByIncidentId = exports.getUserRoleDetails = exports.getProjectRolesByPriority = exports.updateRolePriority = exports.updateSpecificRole = exports.addRolesInProject = void 0;
 const ProjectModel_1 = __importDefault(require("../models/ProjectModel"));
 const TeamModel_1 = __importDefault(require("../models/TeamModel"));
 const mongoose_1 = __importDefault(require("mongoose"));
@@ -36,6 +36,7 @@ const RoleModel_1 = __importDefault(require("../models/RoleModel"));
 const IncidentModel_1 = __importDefault(require("../models/IncidentModel"));
 const ConversationModel_1 = __importStar(require("../models/ConversationModel"));
 const conversation_service_1 = __importDefault(require("../services/conversation.service"));
+const ProjectRoleFunctions_1 = require("../helper/ProjectRoleFunctions");
 // add roles in projects
 const addRolesInProject = async (req, res) => {
     const { id } = req.params;
@@ -73,7 +74,7 @@ const addRolesInProject = async (req, res) => {
             if (!roleExists) {
                 throw new Error(`${req.i18n.t("roleValidationMessages.response.notFound")} ${role.roleId}.`);
             }
-            const employeeExists = await EmployeeModel_1.default.exists({
+            const employeeExists = await EmployeeModel_1.default.findOne({
                 _id: employeeId,
             });
             if (!employeeExists) {
@@ -83,7 +84,7 @@ const addRolesInProject = async (req, res) => {
                 .populate("members", "name")
                 .exec();
             if (teams.length === 0) {
-                throw new Error(`${req.i18n.t("teamValidationMessages.response.noTeamFoundForEmployee")} ${role.assignTo}.`);
+                throw new Error(`${req.i18n.t("teamValidationMessages.response.noTeamFoundForEmployee")} ${employeeExists.name}.`);
             }
             const teamId = new mongoose_1.default.Types.ObjectId(teams[0]._id.toString());
             // const isEmployeePartOfTeam = teamExists.members.includes(role.assignTo);
@@ -229,17 +230,18 @@ const updateRolePriority = async (req, res) => {
         }
         let role = await ProjectRoleModel_1.default.findOne({ project: id, employee });
         if (!role) {
-            if (roleId) {
+            console.log("role id: ", roleId);
+            if (roleId && roleId !== undefined) {
                 const existingRole = await RoleModel_1.default.findById(roleId);
                 if (!existingRole) {
-                    return res.status(200).json({
+                    return res.status(400).json({
                         success: false,
                         message: req.i18n.t("roleValidationMessages.response.notExist"),
                     });
                 }
                 const existingEmployee = await EmployeeModel_1.default.findById(employee);
                 if (!existingEmployee) {
-                    return res.status(200).json({
+                    return res.status(400).json({
                         success: false,
                         message: req.i18n.t("employeeValidationMessages.response.notExist"),
                     });
@@ -248,7 +250,7 @@ const updateRolePriority = async (req, res) => {
                     .populate("members", "name")
                     .exec();
                 if (teams.length === 0) {
-                    throw new Error(`${req.i18n.t("teamValidationMessages.response.noTeamFoundForEmployee")} ${employee}.`);
+                    throw new Error(`${req.i18n.t("teamValidationMessages.response.noTeamFoundForEmployee")} ${existingEmployee.name}.`);
                 }
                 const team = new mongoose_1.default.Types.ObjectId(teams[0]._id.toString());
                 role = new ProjectRoleModel_1.default({
@@ -275,6 +277,12 @@ const updateRolePriority = async (req, res) => {
                     await Promise.all(conversationPromises);
                 }
             }
+            else {
+                return res.status(400).json({
+                    success: false,
+                    message: "Please select role",
+                });
+            }
         }
         if (!role) {
             return res.status(200).json({
@@ -285,6 +293,7 @@ const updateRolePriority = async (req, res) => {
         // Priority update logic
         if (!from && !to) {
             role.priority = 1;
+            await role.save();
         }
         else if (from && !to) {
             const fromRole = await ProjectRoleModel_1.default.findOne({
@@ -299,6 +308,7 @@ const updateRolePriority = async (req, res) => {
             }
             role.priority = fromRole.priority + 1;
             role.from = from;
+            await role.save();
         }
         else if (!from && to) {
             const toRole = await ProjectRoleModel_1.default.findOne({
@@ -314,12 +324,11 @@ const updateRolePriority = async (req, res) => {
             role.priority = toRole.priority;
             role.from = toRole.from;
             role.to = to;
+            await role.save();
+            toRole.priority = to.priority + 1;
             toRole.from = role.employee;
-            await ProjectRoleModel_1.default.updateMany({
-                project: id,
-                priority: { $gte: toRole.priority },
-            }, { $inc: { priority: 1 } });
             await toRole.save();
+            await (0, ProjectRoleFunctions_1.updateDownstreamNodePriorities)(id, toRole.employee, toRole.priority);
         }
         else if (from && to) {
             const fromRole = await ProjectRoleModel_1.default.findOne({
@@ -336,9 +345,10 @@ const updateRolePriority = async (req, res) => {
                     message: req.i18n.t("projectRoleValidationMessages.response.updateRolePriority.toNotFound"),
                 });
             }
-            let newFromPriority = fromRole.priority + 1;
-            let newToPriority = toRole.priority - 1;
-            if (newFromPriority !== newToPriority) {
+            let sameNodeCheckFrom = toRole.from.toString() === from.toString();
+            let newFromPriorityStatus = fromRole.priority + 1 === toRole.priority;
+            let newToPriorityStatus = toRole.priority - 1 === fromRole.priority;
+            if (!newFromPriorityStatus || !newToPriorityStatus || !sameNodeCheckFrom) {
                 return res.status(400).json({
                     success: false,
                     error: req.i18n.t("projectRoleValidationMessages.response.updateRolePriority.conflict"),
@@ -347,12 +357,11 @@ const updateRolePriority = async (req, res) => {
             role.priority = fromRole.priority + 1;
             role.from = from;
             role.to = to;
+            await role.save();
+            toRole.priority = toRole.priority + 1;
             toRole.from = role.employee;
-            await ProjectRoleModel_1.default.updateMany({
-                project: id,
-                priority: { $gte: toRole.priority },
-            }, { $inc: { priority: 1 } });
             await toRole.save();
+            await (0, ProjectRoleFunctions_1.updateDownstreamNodePriorities)(id, toRole.employee, toRole.priority);
         }
         else {
             return res.status(400).json({
@@ -374,7 +383,10 @@ const updateRolePriority = async (req, res) => {
         console.error("Error updating role priority:", error);
         return res.status(500).json({
             success: false,
-            message: req.i18n.t("projectRoleValidationMessages.response.updateRolePriority.server"),
+            message: error instanceof Error ? error.message : String(error)
+            // message: req.i18n.t(
+            //   "projectRoleValidationMessages.response.updateRolePriority.server"
+            // ),
         });
     }
 };
@@ -481,6 +493,8 @@ const getProjectRolesByPriority = async (req, res) => {
         const rolesByPriority = {};
         roles.forEach((role) => {
             const { priority, from } = role;
+            if (!priority)
+                return;
             if (!rolesByPriority[priority]) {
                 rolesByPriority[priority] = {};
             }
@@ -494,6 +508,7 @@ const getProjectRolesByPriority = async (req, res) => {
             }
             rolesByPriority[priority][fromKey].roles.push(role);
         });
+        // rolesByPriority.filter(()=>)
         return res.status(200).json({
             success: true,
             message: req.i18n.t("projectRoleValidationMessages.response.getProjectRolesByPriority.success"),
@@ -627,7 +642,12 @@ const getRolesByIncidentId = async (req, res) => {
                             description: "$description",
                             title: "$roleData.title",
                             user: "$employeeData.user",
-                            isCurrentUser: { $eq: ["$employeeData.user", new mongoose_1.default.Types.ObjectId(currentUserId)] }
+                            isCurrentUser: {
+                                $eq: [
+                                    "$employeeData.user",
+                                    new mongoose_1.default.Types.ObjectId(currentUserId),
+                                ],
+                            },
                         },
                     },
                 },
@@ -645,7 +665,7 @@ const getRolesByIncidentId = async (req, res) => {
         roles = await Promise.all(roles.map(async (role) => {
             const employeesWithConversations = await Promise.all(role.employees.map(async (employee) => {
                 // Skip if this is the current user's employee record
-                console.log("iscUrrent: ", employee);
+                // console.log("iscUrrent: ", employee);
                 if (employee.isCurrentUser) {
                     const { isCurrentUser, ...employeeData } = employee;
                     return employeeData;
@@ -658,19 +678,19 @@ const getRolesByIncidentId = async (req, res) => {
                     participants: {
                         $all: [
                             { $elemMatch: { user: currentUserId } },
-                            { $elemMatch: { user: employee.user } }
-                        ]
-                    }
-                }).select('twilioSid name type identity');
+                            { $elemMatch: { user: employee.user } },
+                        ],
+                    },
+                }).select("twilioSid name type identity");
                 return {
                     ...employee,
                     conversation: conversation ?? null,
-                    isCurrentUser: undefined // Remove the flag from final output
+                    isCurrentUser: undefined, // Remove the flag from final output
                 };
             }));
             return {
                 ...role,
-                employees: employeesWithConversations
+                employees: employeesWithConversations,
             };
         }));
         return res.status(200).json({
@@ -744,3 +764,41 @@ const getUserRoleInIncident = async (req, res) => {
     }
 };
 exports.getUserRoleInIncident = getUserRoleInIncident;
+const getAvailableRolesInProject = async (req, res) => {
+    const { id } = req.params;
+    const { priority } = req.query;
+    try {
+        const project = await ProjectModel_1.default.findById(id);
+        if (!project) {
+            return res.status(200).json({
+                success: false,
+                error: req.i18n.t("projectValidationMessages.response.notExist") +
+                    " " +
+                    id,
+            });
+        }
+        const role = await ProjectRoleModel_1.default.find({
+            project: project._id,
+            priority: { $exists: priority },
+            // employee: { $ne: currentUser.id },
+        }).populate("employee role");
+        if (!role) {
+            return res.status(200).json({
+                success: false,
+                error: req.i18n.t("projectRoleValidationMessages.response.getUserRoleDetails.roleNotAvailable"),
+            });
+        }
+        return res.status(200).json({
+            success: true,
+            message: req.i18n.t("projectRoleValidationMessages.response.getUserRoleInIncident.success"),
+            data: role,
+        });
+    }
+    catch (error) {
+        return res.status(5000).json({
+            success: false,
+            error: req.i18n.t("projectRoleValidationMessages.response.getUserRoleInIncident.server"),
+        });
+    }
+};
+exports.getAvailableRolesInProject = getAvailableRolesInProject;

@@ -34,10 +34,12 @@ class ConversationService {
     /**
      * Create a new conversation in Twilio and save it to the database
      */
-    async createConversation(friendlyName, createdBy, identity, type = ConversationModel_1.ConversationType.SINGLE, identityId) {
+    async createConversation(friendlyName, createdBy, identity, type = ConversationModel_1.ConversationType.SINGLE, identityId, session) {
+        const sessionOptions = session ? { session } : {};
+        let twilioConversation;
         try {
             // Create conversation in Twilio
-            const twilioConversation = await twilioClient_1.conversationsClient.conversations.create({
+            twilioConversation = await twilioClient_1.conversationsClient.conversations.create({
                 friendlyName,
                 uniqueName: `conv-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
             });
@@ -49,22 +51,29 @@ class ConversationService {
                 participants: [],
                 type: type || ConversationModel_1.ConversationType.SINGLE,
                 identity,
-                identityId
+                identityId,
             });
-            await conversation.save();
+            await conversation.save(sessionOptions);
             return conversation;
         }
         catch (error) {
             console.error("Error creating conversation:", error);
+            if (twilioConversation?.sid) {
+                await twilioClient_1.conversationsClient
+                    .conversations(twilioConversation.sid)
+                    .remove()
+                    .catch((e) => console.error("Failed to cleanup Twilio conversation:", e));
+            }
             throw error;
         }
     }
     /**
      * Add a participant to a conversation
      */
-    async addParticipant(conversationId, userId, identity) {
+    async addParticipant(conversationId, userId, identity, session) {
+        const sessionOptions = session ? { session } : {};
         try {
-            const conversation = await ConversationModel_1.default.findById(conversationId);
+            const conversation = await ConversationModel_1.default.findById(conversationId).session(session || null);
             if (!conversation) {
                 throw new Error("Conversation not found");
             }
@@ -79,7 +88,7 @@ class ConversationService {
                 participantSid: participant.sid,
                 identity,
             });
-            await conversation.save();
+            await conversation.save(sessionOptions);
             return conversation;
         }
         catch (error) {

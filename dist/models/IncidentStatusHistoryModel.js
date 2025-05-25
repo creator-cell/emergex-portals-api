@@ -26,7 +26,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const IncidentStatusHistorySchema = new mongoose_1.Schema({
     status: { type: String, required: true },
-    old: { type: String, required: true },
+    old: { type: String || null, default: null },
     role: { type: mongoose_1.Schema.Types.ObjectId, ref: "Project_Roles", required: true },
     incident: { type: mongoose_1.Schema.Types.ObjectId, ref: "Incident", required: true },
 }, { timestamps: true });

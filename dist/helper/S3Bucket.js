@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GetFile = exports.UploadFile = exports.DeleteFile = exports.UploadBase64File = void 0;
+exports.GetFile = exports.UploadFile = exports.DeleteFile = exports.UploadBase64File = exports.S3 = void 0;
 const client_s3_1 = require("@aws-sdk/client-s3");
 const config_1 = require("../config");
 const s3Config = {
@@ -11,7 +11,7 @@ const s3Config = {
     },
     forcePathStyle: false
 };
-const S3 = new client_s3_1.S3Client(s3Config);
+exports.S3 = new client_s3_1.S3Client(s3Config);
 const getContentTypeFromBase64 = (base64String) => {
     const match = base64String.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,/);
     return match ? match[1] : 'image/jpeg';
@@ -51,7 +51,7 @@ const UploadBase64File = async (base64String, fileName, folderPath = "") => {
             ContentType: contentType
         };
         const Command = new client_s3_1.PutObjectCommand(Params);
-        const Response = await S3.send(Command);
+        const Response = await exports.S3.send(Command);
         if (Response.$metadata.httpStatusCode !== 200) {
             return { Error: Response.$metadata, Success: false };
         }
@@ -108,7 +108,7 @@ const UploadFile = async ({ file, fileName, contentType }) => {
             ContentType: contentType || getContentTypeFromFileName(fileName)
         };
         const Command = new client_s3_1.PutObjectCommand(Params);
-        const Response = await S3.send(Command);
+        const Response = await exports.S3.send(Command);
         if (Response.$metadata.httpStatusCode !== 200) {
             return { Error: Response.$metadata, Success: false };
         }
@@ -131,7 +131,7 @@ const GetFile = async (FileName) => {
             Key: FileName
         };
         const Command = new client_s3_1.GetObjectCommand(Params);
-        const Response = await S3.send(Command);
+        const Response = await exports.S3.send(Command);
         // console.log(response);
         if (Response.$metadata.httpStatusCode !== 200) {
             return { Success: false, Error: Response.$metadata };
@@ -154,7 +154,7 @@ const DeleteFile = async (FileName) => {
             Key: FileName
         };
         const Command = new client_s3_1.DeleteObjectCommand(Params);
-        const Response = await S3.send(Command);
+        const Response = await exports.S3.send(Command);
         // console.log(Response);
         if (Response.$metadata.httpStatusCode !== 204) {
             return { Success: false, Error: Response.$metadata };

@@ -19,5 +19,6 @@ router.route('/organization-chart/:id')
     .get(ProjectRoleControllers_1.getProjectRolesByPriority);
 router.route('/incident-roles/:id').get(incidentValidators_1.incidentsByIdValidationRules, checkValidationsMiddleware_1.checkValidationResult, ProjectRoleControllers_1.getRolesByIncidentId);
 router.route('/user-role-in-incident/:id').get(incidentValidators_1.incidentsByIdValidationRules, checkValidationsMiddleware_1.checkValidationResult, ProjectRoleControllers_1.getUserRoleInIncident);
+router.route('/roles-in-project/:id').get(incidentValidators_1.incidentsByIdValidationRules, checkValidationsMiddleware_1.checkValidationResult, ProjectRoleControllers_1.getAvailableRolesInProject);
 router.use((0, roleMiddleware_1.authorizeRoles)(global_enum_1.GlobalAdminRoles.SuperAdmin, global_enum_1.GlobalAdminRoles.ClientAdmin));
 exports.default = router;

@@ -1,3 +1,4 @@
+import { google } from '@google-cloud/speech/build/protos/protos';
 import dotenv from 'dotenv';
 
 // Load environment variables from .env file
@@ -20,5 +21,9 @@ export const config = {
     apiKey: process.env.TWILIO_API_KEY || '',
     apiSecret: process.env.TWILIO_API_SECRET || '',
     serviceSid: process.env.TWILIO_SERVICE_SID || ''
+  },
+  google:{
+    cloud_key_path:process.env.GOOGLE_CLOUD_PROJECT_ID || '',
+    cloud_project_id: process.env.GOOGLE_CLOUD_PROJECT_ID || '',
   }
 };

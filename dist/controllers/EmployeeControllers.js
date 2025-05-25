@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUnassignedEmployees = exports.employeesNotinAnyTeam = exports.deleteEmployee = exports.updateEmployee = exports.getEmployeeById = exports.getEmployees = exports.createEmployee = void 0;
+exports.getEmployeesNotInProject = exports.getUnassignedEmployees = exports.employeesNotinAnyTeam = exports.deleteEmployee = exports.updateEmployee = exports.getEmployeeById = exports.getEmployees = exports.createEmployee = void 0;
 const EmployeeModel_1 = __importDefault(require("../models/EmployeeModel"));
 const pagination_1 = require("../helper/pagination");
 const UserModel_1 = __importDefault(require("../models/UserModel"));
@@ -15,6 +15,7 @@ const conversation_service_1 = __importDefault(require("../services/conversation
 const ConversationModel_1 = require("../models/ConversationModel");
 const TeamModel_1 = __importDefault(require("../models/TeamModel"));
 const sendgrid_service_1 = require("../services/sendgrid.service");
+const ProjectRoleModel_1 = __importDefault(require("../models/ProjectRoleModel"));
 // Create a new employee
 const createEmployee = async (req, res) => {
     const { name, email, designation, contactNo } = req.body;
@@ -48,8 +49,8 @@ const createEmployee = async (req, res) => {
             });
         }
         const username = await (0, UserFunctions_1.generateUniqueUsername)(name);
-        // const password = generatePassword();
-        const password = name + "123";
+        const password = (0, UserFunctions_1.generatePassword)();
+        // const password = name + "123";
         const [firstName, lastName] = name.split(" ");
         const user = new UserModel_1.default({
             username,
@@ -82,12 +83,11 @@ const createEmployee = async (req, res) => {
         await user.save({ session });
         await sendgrid_service_1.EmailService.sendCredentialsEmail(email, firstName, password);
         const friendlyName = `conversation-${currentUser.id}-${user._id}`;
-        const conversation = await conversation_service_1.default.createConversation(friendlyName, currentUser.id, ConversationModel_1.ConversationIdentity.EMPLOYEE, ConversationModel_1.ConversationType.SINGLE);
+        const conversation = await conversation_service_1.default.createConversation(friendlyName, currentUser.id, ConversationModel_1.ConversationIdentity.EMPLOYEE, ConversationModel_1.ConversationType.SINGLE, user._id, session);
         const conversationId = conversation._id;
-        await conversation_service_1.default.addParticipant(conversationId.toString(), currentUser.id, currentUser.id);
-        await conversation_service_1.default.addParticipant(conversationId.toString(), user._id.toString(), user._id.toString());
+        await conversation_service_1.default.addParticipant(conversationId.toString(), currentUser.id, currentUser.id, session);
+        await conversation_service_1.default.addParticipant(conversationId.toString(), user._id.toString(), user._id.toString(), session);
         await session.commitTransaction();
-        session.endSession();
         return res.status(201).json({
             success: true,
             message: req.i18n.t("employeeValidationMessages.response.createEmployee.success"),
@@ -96,12 +96,14 @@ const createEmployee = async (req, res) => {
     }
     catch (error) {
         await session.abortTransaction();
-        session.endSession();
         console.log("error: ", error);
         return res.status(500).json({
             success: false,
             error: req.i18n.t("employeeValidationMessages.response.createEmployee.server"),
         });
+    }
+    finally {
+        session.endSession();
     }
 };
 exports.createEmployee = createEmployee;
@@ -284,3 +286,26 @@ const getUnassignedEmployees = async (req, res) => {
     }
 };
 exports.getUnassignedEmployees = getUnassignedEmployees;
+const getEmployeesNotInProject = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const roles = await ProjectRoleModel_1.default.find({
+            project: id
+        });
+        const employeeinProject = roles.map((role) => role.employee);
+        const employeeNotInProject = await EmployeeModel_1.default.find({
+            _id: { $nin: employeeinProject },
+            isDeleted: false,
+        });
+        return res.status(200).json({
+            success: true,
+            data: employeeNotInProject,
+            message: "Employees who are not in current project fetched successfully"
+        });
+    }
+    catch (error) {
+        console.error("Error fetching unassigned employees:", error);
+        return res.status(500).json({ success: false, error: "server error in mployees who are not in any team" });
+    }
+};
+exports.getEmployeesNotInProject = getEmployeesNotInProject;

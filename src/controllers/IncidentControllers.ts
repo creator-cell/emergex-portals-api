@@ -153,11 +153,10 @@ export const createIncident = async (req: Request, res: Response) => {
       session
     );
 
-      if (!conversation) {
-      throw new Error('Failed to create conversation'); // ADDED ERROR THROWING
+    if (!conversation) {
+      throw new Error("Failed to create conversation"); // ADDED ERROR THROWING
     }
 
-    
     const conversationId = (conversation as { _id: string })._id;
 
     // Add the creator as the first participant
@@ -191,6 +190,22 @@ export const createIncident = async (req: Request, res: Response) => {
       })
     );
 
+    await Promise.all(
+      roles.map(async (role) => {
+        await IncidentStatusHistoryModel.create(
+          [
+            {
+              old: null,
+              status: status,
+              role: role._id,
+              incident: savedIncident._id,
+            },
+          ],
+          { session }
+        );
+      })
+    );
+
     await session.commitTransaction();
 
     return res.status(201).json({
@@ -218,7 +233,7 @@ export const createIncident = async (req: Request, res: Response) => {
         "incidentValidationMessages.response.createIncident.server"
       ),
     });
-  }finally {
+  } finally {
     session.endSession();
   }
 };

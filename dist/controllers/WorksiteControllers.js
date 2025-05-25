@@ -16,7 +16,7 @@ const addWorksite = async (req, res) => {
         if (isExist) {
             return res.status(400).json({
                 success: false,
-                message: req.i18n.t("worksiteValidationMessages.response.workSiteNotExist"),
+                message: req.i18n.t("worksiteValidationMessages.response.workSiteExist"),
             });
         }
         const isRegionExist = await RegionModel_1.default.findById(regionId);
@@ -262,7 +262,6 @@ const addCountryRegionWorksites = async (req, res) => {
             await WorksiteModel_1.default.insertMany(worksiteDocs, { session });
         }
         await session.commitTransaction();
-        session.endSession();
         return res.status(201).json({
             success: true,
             message: 'Country, region, and worksites created successfully.',
@@ -275,11 +274,13 @@ const addCountryRegionWorksites = async (req, res) => {
     }
     catch (error) {
         await session.abortTransaction();
-        session.endSession();
         return res.status(400).json({
             success: false,
             message: error.message,
         });
+    }
+    finally {
+        session.endSession();
     }
 };
 exports.addCountryRegionWorksites = addCountryRegionWorksites;

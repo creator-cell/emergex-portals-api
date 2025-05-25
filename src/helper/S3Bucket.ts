@@ -10,15 +10,15 @@ const s3Config = {
     forcePathStyle: false
 }
 
-const S3 = new S3Client(s3Config);
+export const S3 = new S3Client(s3Config);
 
-interface UploadFileResponse {
+export interface UploadFileResponse {
     Success: boolean;
     Error?: any;
     ImageURl?: string;
 }
 
-interface UploadFileParams {
+export interface UploadFileParams {
     file: Buffer | Uint8Array | Blob | string;
     fileName: string;
     contentType?: string;

@@ -20,12 +20,14 @@ const ConversationModel_1 = require("../models/ConversationModel");
 const createIncident = async (req, res) => {
     const customReq = req;
     const currentUser = customReq.user;
+    const session = await mongoose_1.default.startSession();
+    session.startTransaction();
     try {
         const { level, type, description, status, 
         // assignedTo,
         countOfInjuredPeople, countOfTotalPeople, location, damageAssets, finance, utilityAffected, informToTeam, termsAndConditions, projectId, images, signature, } = req.body;
         let id = req.body.id;
-        const isIdExist = await IncidentModel_1.default.findOne({ id });
+        const isIdExist = await IncidentModel_1.default.findOne({ id }).session(session);
         if (isIdExist || !id) {
             id = await (0, IncidentFunctions_1.generateUniqueIncidentId)();
         }
@@ -38,8 +40,9 @@ const createIncident = async (req, res) => {
         //     ),
         //   });
         // }
-        const isProjectexist = await ProjectModel_1.default.findById(projectId);
+        const isProjectexist = await ProjectModel_1.default.findById(projectId).session(session);
         if (!isProjectexist) {
+            await session.abortTransaction();
             return res.status(400).json({
                 success: false,
                 error: req.i18n.t("projectValidationMessages.response.getProjectById.notFound"),
@@ -49,7 +52,7 @@ const createIncident = async (req, res) => {
         if (images && Array.isArray(images)) {
             const uploadPromises = images.map(async (base64String, index) => {
                 const fileName = `incident_${id}_image_${index}_${Date.now()}.jpg`;
-                const uploadResponse = await (0, S3Bucket_1.UploadBase64File)(base64String, fileName, 'incident');
+                const uploadResponse = await (0, S3Bucket_1.UploadBase64File)(base64String, fileName, "incident");
                 return uploadResponse.Success ? uploadResponse.ImageURl : null;
             });
             const uploadedImages = await Promise.all(uploadPromises);
@@ -58,16 +61,18 @@ const createIncident = async (req, res) => {
         let signaturePath = null;
         if (signature) {
             const fileName = `incident_${id}_signature_image_${Date.now()}.jpg`;
-            const uploadResponse = await (0, S3Bucket_1.UploadBase64File)(signature, fileName, 'signature');
+            const uploadResponse = await (0, S3Bucket_1.UploadBase64File)(signature, fileName, "signature");
             signaturePath = uploadResponse.Success ? uploadResponse.ImageURl : null;
         }
         if (imagePaths.length === 0) {
+            await session.abortTransaction();
             return res.status(400).json({
                 succees: false,
                 error: req.i18n.t("incidentValidationMessages.response.createIncident.imageUploadError"),
             });
         }
         if (!signaturePath) {
+            await session.abortTransaction();
             return res.status(400).json({
                 succees: false,
                 error: req.i18n.t("incidentValidationMessages.response.createIncident.signatureUploadError"),
@@ -93,12 +98,43 @@ const createIncident = async (req, res) => {
             termsAndConditions,
             createdBy: currentUser.id,
         });
-        const savedIncident = await newIncident.save();
+        const savedIncident = await newIncident.save({ session });
         const friendlyName = `conversation-${savedIncident._id}`;
-        const conversation = await conversation_service_1.default.createConversation(friendlyName, currentUser.id, ConversationModel_1.ConversationIdentity.INCIDENT, ConversationModel_1.ConversationType.GROUP, savedIncident._id);
+        const conversation = await conversation_service_1.default.createConversation(friendlyName, currentUser.id, ConversationModel_1.ConversationIdentity.INCIDENT, ConversationModel_1.ConversationType.GROUP, savedIncident._id, session);
+        if (!conversation) {
+            throw new Error("Failed to create conversation"); // ADDED ERROR THROWING
+        }
         const conversationId = conversation._id;
         // Add the creator as the first participant
-        await conversation_service_1.default.addParticipant(conversationId.toString(), currentUser.id, currentUser.id);
+        // await conversationService.addParticipant(
+        //   conversationId.toString(),
+        //   currentUser.id,
+        //   currentUser.id,
+        //   session
+        // );
+        const roles = await ProjectRoleModel_1.default.find({
+            project: projectId,
+        }).session(session);
+        const employeeIds = roles.map((role) => role.employee);
+        const employees = await EmployeeModel_1.default.find({
+            _id: {
+                $in: employeeIds,
+            },
+        }).session(session);
+        await Promise.all(employees.map(async (employee) => {
+            await conversation_service_1.default.addParticipant(conversationId.toString(), employee.user.toString(), employee.user.toString(), session);
+        }));
+        await Promise.all(roles.map(async (role) => {
+            await IncidentStatusHistoryModel_1.default.create([
+                {
+                    old: null,
+                    status: status,
+                    role: role._id,
+                    incident: savedIncident._id,
+                },
+            ], { session });
+        }));
+        await session.commitTransaction();
         return res.status(201).json({
             success: true,
             message: req.i18n.t("incidentValidationMessages.response.createIncident.success"),
@@ -106,6 +142,7 @@ const createIncident = async (req, res) => {
         });
     }
     catch (error) {
+        await session.abortTransaction();
         if (req.files) {
             Object.values(req.files)
                 .flat()
@@ -121,6 +158,9 @@ const createIncident = async (req, res) => {
             success: false,
             error: req.i18n.t("incidentValidationMessages.response.createIncident.server"),
         });
+    }
+    finally {
+        session.endSession();
     }
 };
 exports.createIncident = createIncident;
@@ -205,8 +245,7 @@ const updateIncidentById = async (req, res) => {
             });
             existingIncident.countOfTotalPeople = countOfTotalPeople;
         }
-        if (location &&
-            existingIncident.location !== location) {
+        if (location && existingIncident.location !== location) {
             changes.push({
                 field: "Location",
                 oldValue: existingIncident.location,
@@ -275,7 +314,7 @@ const updateIncidentById = async (req, res) => {
             let imageToUpload = images.filter((item) => !item.startsWith("https"));
             const uploadPromises = imageToUpload.map(async (base64String, index) => {
                 const fileName = `incident_${incidentId}_image_${index}_${Date.now()}.jpg`;
-                const uploadResponse = await (0, S3Bucket_1.UploadBase64File)(base64String, fileName, 'incident');
+                const uploadResponse = await (0, S3Bucket_1.UploadBase64File)(base64String, fileName, "incident");
                 return uploadResponse.Success ? uploadResponse.ImageURl : null;
             });
             const uploadedImages = await Promise.all(uploadPromises);
@@ -296,7 +335,7 @@ const updateIncidentById = async (req, res) => {
         let signaturePath = null;
         if (signature && !signature.startsWith("https://")) {
             const fileName = `incident_${incidentId}_signature_image_${Date.now()}.jpg`;
-            const uploadResponse = await (0, S3Bucket_1.UploadBase64File)(signature, fileName, 'signature');
+            const uploadResponse = await (0, S3Bucket_1.UploadBase64File)(signature, fileName, "signature");
             signaturePath = uploadResponse.Success ? uploadResponse.ImageURl : null;
             if (signaturePath) {
                 existingIncident.signature = signaturePath;

@@ -34,14 +34,19 @@ export const addCountry = async (req: Request, res: Response) => {
 
 export const getAllCountries = async (req: Request, res: Response) => {
   try {
-    const options = getPaginationOptions(req,{
-        sort: { name: 1 },
-    });
-    const countries = await paginate(CountryModel, options);
+    // const options = getPaginationOptions(req,{
+    //     sort: { name: 1 },
+    // });
+    // const countries = await paginate(CountryModel, options);
+
+    const countries = await CountryModel.find()
+      .sort({ name: 1 }) // Sort by name in ascending order
+
     return res.status(200).json({
       success: true,
       message:  req.i18n.t("countryValidationMessages.response.getAllCountries.success"),
-      ...countries,
+      // ...countries,
+      data:countries
     });
   } catch (error) {
     return res.status(500).json({

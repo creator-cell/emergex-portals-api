@@ -39,6 +39,7 @@ export async function transcribeAudio(audioFilePath: string): Promise<string> {
 // Extract incident information using OpenAI
 export async function extractIncidentInfo(text: string): Promise<string> {
   const prompt = `
+  First analyze the text then translate the text into English if it is not already in English.
 Extract the following details from the text:
 - Incident Type
 - Location

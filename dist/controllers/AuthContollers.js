@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.login = exports.register = void 0;
+exports.changePassword = exports.login = exports.register = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const UserModel_1 = __importDefault(require("../models/UserModel"));
 const config_1 = require("../config");
@@ -12,6 +12,7 @@ const AccountModel_1 = __importDefault(require("../models/AccountModel"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const SessionModel_1 = __importDefault(require("../models/SessionModel"));
 const EmployeeModel_1 = __importDefault(require("../models/EmployeeModel"));
+const UserFunctions_1 = require("../helper/UserFunctions");
 const parseUserAgent = (userAgent) => {
     let browser = "unknown";
     let os = "unknown";
@@ -271,3 +272,70 @@ const login = async (req, res) => {
     }
 };
 exports.login = login;
+const changePassword = async (req, res) => {
+    try {
+        const { currentPassword, newPassword, confirmPassword } = req.body;
+        const customReq = req;
+        const currentUser = customReq.user;
+        const userId = currentPassword.id;
+        // Validate input
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            return res.status(400).json({
+                success: false,
+                message: "All fields are required"
+            });
+        }
+        if (newPassword !== confirmPassword) {
+            return res.status(400).json({
+                success: false,
+                message: "New password and confirm password do not match"
+            });
+        }
+        // Validate password strength
+        const passwordError = (0, UserFunctions_1.validatePassword)(newPassword);
+        if (passwordError) {
+            return res.status(400).json({
+                success: false,
+                message: passwordError
+            });
+        }
+        // Find user
+        const user = await UserModel_1.default.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+        // Verify current password
+        const isMatch = await user.comparePassword(currentPassword);
+        if (!isMatch) {
+            return res.status(400).json({
+                success: false,
+                message: "Current password is incorrect"
+            });
+        }
+        // Check if new password is same as current
+        if (await user.comparePassword(newPassword)) {
+            return res.status(400).json({
+                success: false,
+                message: "New password cannot be same as current password"
+            });
+        }
+        // Update password
+        user.password = newPassword;
+        await user.save();
+        return res.status(200).json({
+            success: true,
+            message: "Password changed successfully"
+        });
+    }
+    catch (error) {
+        console.error("Error changing password:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
+    }
+};
+exports.changePassword = changePassword;

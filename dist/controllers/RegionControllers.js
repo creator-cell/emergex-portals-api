@@ -69,18 +69,22 @@ exports.getAllRegions = getAllRegions;
 const getRegionsByCountry = async (req, res) => {
     try {
         const { id } = req.params;
-        const options = (0, pagination_1.getPaginationOptions)(req, {
-            populate: [
-                {
-                    path: "country",
-                    "select": "name _id",
-                },
-            ],
-            sort: { name: 1 },
-            filter: { country: id },
-        });
-        const regions = await (0, pagination_1.paginate)(RegionModel_1.default, options);
-        if (regions.data.length === 0) {
+        // const options = getPaginationOptions(req, {
+        //   populate: [
+        //     {
+        //       path: "country",
+        //       "select": "name _id",
+        //     },
+        //   ],
+        //   sort: { name: 1 },
+        //   filter: { country: id },
+        // });
+        // const regions = await paginate(RegionModel, options);
+        const regions = await RegionModel_1.default.find({ country: id })
+            .populate("country", "name _id")
+            .select("name country")
+            .sort({ name: 1 });
+        if (regions.length === 0) {
             return res.status(200).json({
                 success: false,
                 message: req.i18n.t("regionValidationMessages.response.getRegionsByCountry.notFound"),
@@ -89,7 +93,8 @@ const getRegionsByCountry = async (req, res) => {
         return res.status(200).json({
             success: true,
             message: req.i18n.t("regionValidationMessages.response.getRegionsByCountry.success"),
-            ...regions,
+            // ...regions,
+            data: regions
         });
     }
     catch (error) {
