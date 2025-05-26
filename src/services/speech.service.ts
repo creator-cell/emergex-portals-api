@@ -63,24 +63,24 @@ const getAudioEncoding = (mimetype: string) => {
     'audio/mpeg': 'MP3',
     'audio/mp4': 'MP3'
   };
-  console.log("encoding: ",encodingMap[mimetype])
+  // console.log("encoding: ",encodingMap[mimetype])
   return encodingMap[mimetype] || 'LINEAR16';
 };
 
 const validateAudioBuffer = (buffer: Buffer): boolean => {
   // Check if buffer is not empty and has minimum size
   if (!buffer || buffer.length === 0) {
-    console.log("Audio buffer is empty");
+    // console.log("Audio buffer is empty");
     return false;
   }
   
   // Check minimum file size (should be at least 1KB for meaningful audio)
   if (buffer.length < 1024) {
-    console.log("Audio buffer too small:", buffer.length, "bytes");
+    // console.log("Audio buffer too small:", buffer.length, "bytes");
     return false;
   }
   
-  console.log("Audio buffer size:", buffer.length, "bytes");
+  // console.log("Audio buffer size:", buffer.length, "bytes");
   return true;
 };
 
@@ -101,7 +101,7 @@ const detectSampleRate = (buffer: Buffer, mimetype: string): number => {
       // WAV header sample rate is at bytes 24-27 (little endian)
       const sampleRate = buffer.readUInt32LE(24);
       if (sampleRate >= 8000 && sampleRate <= 48000) {
-        console.log("Detected sample rate:", sampleRate);
+        // console.log("Detected sample rate:", sampleRate);
         return sampleRate;
       }
     } catch (error) {
@@ -110,7 +110,7 @@ const detectSampleRate = (buffer: Buffer, mimetype: string): number => {
   }
   
   const defaultRate = defaultRates[mimetype] || 16000;
-  console.log("Using default sample rate:", defaultRate);
+  // console.log("Using default sample rate:", defaultRate);
   return defaultRate;
 };
 
@@ -149,24 +149,24 @@ export class SpeechService {
         },
       };
 
-            console.log("Sending request to Google Speech API with config:", {
-        encoding: request.config.encoding,
-        sampleRate: request.config.sampleRateHertz,
-        audioSize: audioBuffer.length,
-        mimetype
-      });
+      //       console.log("Sending request to Google Speech API with config:", {
+      //   encoding: request.config.encoding,
+      //   sampleRate: request.config.sampleRateHertz,
+      //   audioSize: audioBuffer.length,
+      //   mimetype
+      // });
 
       const [response] = await speechClient.recognize(request);
 
-            console.log("Google Speech API response:", {
-        resultsCount: response.results?.length || 0,
-        totalBilledTime: response.totalBilledTime,
-      });
+      //       console.log("Google Speech API response:", {
+      //   resultsCount: response.results?.length || 0,
+      //   totalBilledTime: response.totalBilledTime,
+      // });
 
       
       if (!response.results || response.results.length === 0) {
         // **ADDED: Try with different sample rates if first attempt fails**
-        console.log("No results with current settings, trying alternative configurations...");
+        // console.log("No results with current settings, trying alternative configurations...");
         
         const alternativeRates = [16000, 8000, 22050, 44100, 48000];
         const currentRateIndex = alternativeRates.indexOf(sampleRate);
@@ -175,7 +175,7 @@ export class SpeechService {
           if (i === currentRateIndex) continue; // Skip the rate we already tried
           
           const altRate = alternativeRates[i];
-          console.log(`Trying alternative sample rate: ${altRate}`);
+          // console.log(`Trying alternative sample rate: ${altRate}`);
           
           try {
             const altRequest = {
@@ -189,7 +189,7 @@ export class SpeechService {
             const [altResponse] = await speechClient.recognize(altRequest);
             
             if (altResponse.results && altResponse.results.length > 0) {
-              console.log(`Success with sample rate: ${altRate}`);
+              // console.log(`Success with sample rate: ${altRate}`);
               const transcription = altResponse.results
                 .map(result => result.alternatives?.[0]?.transcript || '')
                 .join(' ');
@@ -199,7 +199,7 @@ export class SpeechService {
               }
             }
           } catch (altError) {
-            console.log(`Failed with sample rate ${altRate}:`, altError);
+            // console.log(`Failed with sample rate ${altRate}:`, altError);
             continue;
           }
         }
@@ -211,7 +211,7 @@ export class SpeechService {
       const transcription = response.results
         .map(result => {
           const alternative = result.alternatives?.[0];
-          console.log("Alternative confidence:", alternative?.confidence || 'N/A');
+          // console.log("Alternative confidence:", alternative?.confidence || 'N/A');
           return alternative?.transcript || '';
         })
         .join(' ');
@@ -220,7 +220,7 @@ export class SpeechService {
         throw new Error('Could not transcribe the audio - empty transcription result');
       }
 
-      console.log("Transcription successful:", transcription.substring(0, 100) + "...");
+      // console.log("Transcription successful:", transcription.substring(0, 100) + "...");
       return transcription.trim();
     } catch (error) {
       console.error('Speech recognition error:', error);
