@@ -9,6 +9,7 @@ import ConversationModel, {
   ConversationIdentity,
   ConversationType,
 } from "../models/ConversationModel";
+import ProjectRoleModel from "../models/ProjectRoleModel";
 
 // Create a new Team
 export const createTeam = async (req: Request, res: Response) => {
@@ -56,7 +57,7 @@ export const createTeam = async (req: Request, res: Response) => {
       session
     );
 
-      await session.commitTransaction();
+    await session.commitTransaction();
 
     return res.status(201).json({
       success: true,
@@ -69,7 +70,7 @@ export const createTeam = async (req: Request, res: Response) => {
       success: false,
       error: req.i18n.t("teamValidationMessages.response.createTeam.server"),
     });
-  }finally{
+  } finally {
     session.endSession();
   }
 };
@@ -120,7 +121,9 @@ export const addNewMemberToTeam = async (req: Request, res: Response) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
-    const team = await TeamModel.findById(id).populate("members").session(session);
+    const team = await TeamModel.findById(id)
+      .populate("members")
+      .session(session);
     if (!team) {
       await session.abortTransaction();
       return res.status(200).json({
@@ -157,7 +160,7 @@ export const addNewMemberToTeam = async (req: Request, res: Response) => {
     );
 
     team.members.push(...employeeMongoIds);
-    await team.save({session});
+    await team.save({ session });
 
     const employees = await EmployeeModel.find({
       _id: { $in: employeeMongoIds },
@@ -186,6 +189,23 @@ export const addNewMemberToTeam = async (req: Request, res: Response) => {
       );
     }
 
+    const adminEmployee = await EmployeeModel.findOne({
+      user: currentUser.id,
+    }).session(session);
+
+    if (adminEmployee && employeeMongoIds.some((id)=>id.toString()===adminEmployee._id.toString())) {
+      const adminProjectRoles = await ProjectRoleModel.find({
+        employee: adminEmployee?._id,
+      }).session(session);
+
+      await Promise.all(
+        adminProjectRoles.map(async (role) => {
+          role.team = team._id as mongoose.Types.ObjectId;
+          await role.save({ session });
+        })
+      );
+    }
+
     await session.commitTransaction();
 
     return res.status(201).json({
@@ -200,7 +220,7 @@ export const addNewMemberToTeam = async (req: Request, res: Response) => {
       success: false,
       error: error.message,
     });
-  }finally{
+  } finally {
     session.endSession();
   }
 };

@@ -205,7 +205,8 @@
         "server": "Server error in getting employees by team"
       },
       "teamNotExist": "Team Not exist with id: ",
-      "noTeamFoundForEmployee":"No team found for this member."
+      "noTeamFoundForEmployee":"No team found for this member.",
+      "employeeNotInTeam":" is not part of any team"
     }
   },
 
@@ -427,7 +428,7 @@
       },
       "updateSpecificRole": {
         "notFound": "Project not found!",
-        "roleNotAvailable": "Project Role not availabel in Project ",
+        "roleNotAvailable": "Project Role not available in Project ",
         "roleNotFound": "Role does not exist with ID ",
         "employeeNotFound": "Employee does not exist with ID ",
         "success": "Project's Roles updated successfully!",
@@ -449,7 +450,7 @@
         "server": "Server error in getting project organization chart roles"
       },
       "getUserRoleDetails": {
-        "roleNotAvailable": "Project Role not availabel in Project ",
+        "roleNotAvailable": "Project Role not available in Project ",
         "success": "Project role data fetched successfully",
         "server": "Server error in fetching project role data"
       },
@@ -460,7 +461,8 @@
       "getUserRoleInIncident": {
         "success": "User Role fetched successfully",
         "server": "Server error in fetching user role"
-      }
+      },
+      "notFoundInIncident":"Employee role not available in incident"
     }
   },
 

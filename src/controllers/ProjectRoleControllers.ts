@@ -82,11 +82,11 @@ export const addRolesInProject = async (req: Request, res: Response) => {
           );
         }
 
-        const teams = await TeamModel.find({ members: employeeId })
+        const teams = await TeamModel.findOne({ members: employeeId })
           .populate("members", "name")
           .exec();
-
-        if (teams.length === 0) {
+          
+          if (!teams) {
           throw new Error(
             `${req.i18n.t(
               "teamValidationMessages.response.noTeamFoundForEmployee"
@@ -95,17 +95,20 @@ export const addRolesInProject = async (req: Request, res: Response) => {
         }
 
         const teamId = new mongoose.Types.ObjectId(
-          (teams[0]._id as mongoose.Types.ObjectId).toString()
+          (teams._id as mongoose.Types.ObjectId).toString()
         );
 
-        // const isEmployeePartOfTeam = teamExists.members.includes(role.assignTo);
-        // if (!isEmployeePartOfTeam) {
-        //   throw new Error(
-        //     `${req.i18n.t(
-        //       "teamValidationMessages.response.removeMemberFromTeam.alreadyNotinTeam"
-        //     )} ${role.assignTo}.`
-        //   );
-        // }
+        // console.log("teamIds: ",teamId)
+
+        const isEmployeePartOfTeam = teams.members.some((member)=>member._id.toString()===role.assignTo.toString());
+        if (!isEmployeePartOfTeam) {
+           console.log("!isEmployeePartOfTeam: ")
+          throw new Error(
+            `${employeeExists.name} ${req.i18n.t(
+              "teamValidationMessages.response.employeeNotInTeam"
+            )}.`
+          );
+        }
 
         return {
           role: roleId,

@@ -6,7 +6,6 @@ import IncidentHistoryModel from "../models/IncidentHistoryModel";
 import { ICustomRequest } from "../types/express";
 import EmployeeModel from "../models/EmployeeModel";
 import ProjectRoleModel from "../models/ProjectRoleModel";
-import ProjectModel from "../models/ProjectModel";
 import IncidentModel from "../models/IncidentModel";
 
 export const getIncidentStatusHistory = async (req: Request, res: Response) => {

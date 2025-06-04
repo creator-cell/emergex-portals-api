@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import e, { Request, Response } from "express";
 import IncidentModel from "../models/IncidentModel";
 import fs from "fs";
 import { ICustomRequest } from "../types/express";
@@ -556,47 +556,121 @@ export const getAllIncidents = async (req: Request, res: Response) => {
   }
 };
 
+// export const getIncidentsByProject = async (req: Request, res: Response) => {
+
 export const getIncidentsByProject = async (req: Request, res: Response) => {
   const { id } = req.params;
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
   try {
-    const options = getPaginationOptions(req, {
-      sort: { createdAt: -1 },
-      filter: { project: id },
-      populate: [
-        // {
-        //   path: "assignedTo",
-        //   model: "Employee",
-        //   select: "name email designation contactNo",
-        // },
-        // {
-        //   path: "location",
-        //   model: "Worksite",
-        //   select: "name",
-        // },
-        {
-          path: "project",
-          model: "Project",
-        },
-      ],
-    });
 
-    const result = await paginate(IncidentModel, options);
+    const employee = await EmployeeModel.findOne({
+      user:currentUser.id
+    })
 
-    if (result.data.length === 0) {
+    if(!employee){
       return res.status(200).json({
-        success: false,
-        message: req.i18n.t(
-          "incidentValidationMessages.response.getIncidentByProjectId.notFound"
-        ),
-      });
+        success:false,
+        message:req.i18n.t("employeeValidationMessages.response.getEmployeeById.notFound")
+      })
     }
+
+    const userRole = await ProjectRoleModel.findOne({
+      project:id,
+      employee:employee._id
+    })
+
+    if(!userRole){
+      return res.status(200).json({
+        success:false,
+        message:req.i18n.t("projectRoleValidationMessages.response.notFoundInIncident")
+      })
+    }
+
+     const incidents = await IncidentModel.aggregate([
+      // 1. Match by project ID
+      {
+        $match: {
+          project: new mongoose.Types.ObjectId(id),
+          isDeleted: { $ne: true },
+        },
+      },
+
+      // 2. Lookup project role of the current user
+      {
+        $lookup: {
+          from: "project_roles",
+          let: { incidentProject: "$project" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$employee", employee?._id] },
+                    { $eq: ["$project", "$$incidentProject"] },
+                  ],
+                },
+              },
+            },
+            { $limit: 1 } // Only need one role per user in project
+          ],
+          as: "currentUserRole",
+        },
+      },
+      {
+        $unwind: {
+          path: "$currentUserRole",
+          preserveNullAndEmptyArrays: true, // in case no role found
+        },
+      },
+
+      // 3. Lookup status history using the found role
+      {
+        $lookup: {
+          from: "incident_status_histories",
+          let: {
+            incidentId: "$_id",
+            userRoleId: "$currentUserRole._id",
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$incident", "$$incidentId"] },
+                    { $eq: ["$role", "$$userRoleId"] },
+                  ],
+                },
+              },
+            },
+            { $sort: { createdAt: -1 } },
+            { $limit: 1 },
+          ],
+          as: "currentStatusHistory",
+        },
+      },
+      {
+        $addFields: {
+          currentStatus: {
+            $arrayElemAt: ["$currentStatusHistory.status", 0],
+          },
+        },
+      },
+      {
+        $project: {
+          currentStatusHistory: 0, // remove internal array
+        },
+      },
+    ]);
+
+    // console.log("incid: ",incidents)
 
     return res.status(200).json({
       success: true,
       message: req.i18n.t(
         "incidentValidationMessages.response.getIncidentByProjectId.success"
       ),
-      ...result,
+      data:incidents
     });
   } catch (error) {
     return res.status(500).json({
