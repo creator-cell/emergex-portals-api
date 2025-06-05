@@ -8,7 +8,6 @@ const IncidentModel_1 = __importDefault(require("../models/IncidentModel"));
 const fs_1 = __importDefault(require("fs"));
 const EmployeeModel_1 = __importDefault(require("../models/EmployeeModel"));
 const ProjectModel_1 = __importDefault(require("../models/ProjectModel"));
-const pagination_1 = require("../helper/pagination");
 const IncidentFunctions_1 = require("../helper/IncidentFunctions");
 const S3Bucket_1 = require("../helper/S3Bucket");
 const mongoose_1 = __importDefault(require("mongoose"));
@@ -403,40 +402,109 @@ const getAllIncidents = async (req, res) => {
     }
 };
 exports.getAllIncidents = getAllIncidents;
+// export const getIncidentsByProject = async (req: Request, res: Response) => {
 const getIncidentsByProject = async (req, res) => {
     const { id } = req.params;
+    const customReq = req;
+    const currentUser = customReq.user;
     try {
-        const options = (0, pagination_1.getPaginationOptions)(req, {
-            sort: { createdAt: -1 },
-            filter: { project: id },
-            populate: [
-                // {
-                //   path: "assignedTo",
-                //   model: "Employee",
-                //   select: "name email designation contactNo",
-                // },
-                // {
-                //   path: "location",
-                //   model: "Worksite",
-                //   select: "name",
-                // },
-                {
-                    path: "project",
-                    model: "Project",
-                },
-            ],
+        const employee = await EmployeeModel_1.default.findOne({
+            user: currentUser.id
         });
-        const result = await (0, pagination_1.paginate)(IncidentModel_1.default, options);
-        if (result.data.length === 0) {
+        if (!employee) {
             return res.status(200).json({
                 success: false,
-                message: req.i18n.t("incidentValidationMessages.response.getIncidentByProjectId.notFound"),
+                message: req.i18n.t("employeeValidationMessages.response.getEmployeeById.notFound")
             });
         }
+        const userRole = await ProjectRoleModel_1.default.findOne({
+            project: id,
+            employee: employee._id
+        });
+        if (!userRole) {
+            return res.status(200).json({
+                success: false,
+                message: req.i18n.t("projectRoleValidationMessages.response.notFoundInIncident")
+            });
+        }
+        const incidents = await IncidentModel_1.default.aggregate([
+            // 1. Match by project ID
+            {
+                $match: {
+                    project: new mongoose_1.default.Types.ObjectId(id),
+                    isDeleted: { $ne: true },
+                },
+            },
+            // 2. Lookup project role of the current user
+            {
+                $lookup: {
+                    from: "project_roles",
+                    let: { incidentProject: "$project" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$employee", employee?._id] },
+                                        { $eq: ["$project", "$$incidentProject"] },
+                                    ],
+                                },
+                            },
+                        },
+                        { $limit: 1 } // Only need one role per user in project
+                    ],
+                    as: "currentUserRole",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$currentUserRole",
+                    preserveNullAndEmptyArrays: true, // in case no role found
+                },
+            },
+            // 3. Lookup status history using the found role
+            {
+                $lookup: {
+                    from: "incident_status_histories",
+                    let: {
+                        incidentId: "$_id",
+                        userRoleId: "$currentUserRole._id",
+                    },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$incident", "$$incidentId"] },
+                                        { $eq: ["$role", "$$userRoleId"] },
+                                    ],
+                                },
+                            },
+                        },
+                        { $sort: { createdAt: -1 } },
+                        { $limit: 1 },
+                    ],
+                    as: "currentStatusHistory",
+                },
+            },
+            {
+                $addFields: {
+                    currentStatus: {
+                        $arrayElemAt: ["$currentStatusHistory.status", 0],
+                    },
+                },
+            },
+            {
+                $project: {
+                    currentStatusHistory: 0, // remove internal array
+                },
+            },
+        ]);
+        // console.log("incid: ",incidents)
         return res.status(200).json({
             success: true,
             message: req.i18n.t("incidentValidationMessages.response.getIncidentByProjectId.success"),
-            ...result,
+            data: incidents
         });
     }
     catch (error) {

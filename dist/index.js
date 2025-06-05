@@ -58,6 +58,7 @@ const webhookAuthMiddleware_1 = require("./middlewares/webhookAuthMiddleware");
 const socket_io_1 = require("socket.io");
 const socketAuthorizer_1 = require("./middlewares/socketAuthorizer");
 const events_1 = require("./events");
+const logger_middleware_1 = require("./middlewares/logger.middleware");
 const app = (0, express_1.default)();
 const port = config_1.config.port;
 app.use((0, cors_1.default)({
@@ -69,6 +70,7 @@ app.use(express_1.default.urlencoded({ limit: "10mb", extended: true }));
 app.use((0, cookie_parser_1.default)());
 app.use(i18next_http_middleware_1.default.handle(i18n_1.default));
 app.use(i18n_1.setLanguageMiddleware);
+app.use(logger_middleware_1.logger);
 const uploads = path_1.default.join(__dirname, "../uploads/");
 app.use("/uploads", express_1.default.static(uploads));
 // health check route
@@ -95,11 +97,10 @@ app.use('/api/speech', SpeechRoutes_1.default);
 const httpServer = (0, http_1.createServer)(app);
 exports.WebsocketServer = new socket_io_1.Server(httpServer, {
     cors: {
-        origin: '*', // Or: ["http://localhost:3000"]
+        origin: '*',
         credentials: true
     }
 });
-// ✅ Socket.IO middleware (recommended)
 exports.WebsocketServer.use(socketAuthorizer_1.socketAuthorizer);
 exports.WebsocketServer.on('connection', events_1.socketConnectionHandler);
 httpServer.listen(port, () => {

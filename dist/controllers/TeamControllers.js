@@ -33,6 +33,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const pagination_1 = require("../helper/pagination");
 const conversation_service_1 = __importDefault(require("../services/conversation.service"));
 const ConversationModel_1 = __importStar(require("../models/ConversationModel"));
+const ProjectRoleModel_1 = __importDefault(require("../models/ProjectRoleModel"));
 // Create a new Team
 const createTeam = async (req, res) => {
     const customReq = req;
@@ -122,7 +123,9 @@ const addNewMemberToTeam = async (req, res) => {
     const session = await mongoose_1.default.startSession();
     session.startTransaction();
     try {
-        const team = await TeamModel_1.default.findById(id).populate("members").session(session);
+        const team = await TeamModel_1.default.findById(id)
+            .populate("members")
+            .session(session);
         if (!team) {
             await session.abortTransaction();
             return res.status(200).json({
@@ -157,6 +160,18 @@ const addNewMemberToTeam = async (req, res) => {
         if (conversation) {
             await Promise.all(userIds.map(async (userId) => {
                 await conversation_service_1.default.addParticipant(conversation._id.toString(), userId.toString(), userId.toString(), session);
+            }));
+        }
+        const adminEmployee = await EmployeeModel_1.default.findOne({
+            user: currentUser.id,
+        }).session(session);
+        if (adminEmployee && employeeMongoIds.some((id) => id.toString() === adminEmployee._id.toString())) {
+            const adminProjectRoles = await ProjectRoleModel_1.default.find({
+                employee: adminEmployee?._id,
+            }).session(session);
+            await Promise.all(adminProjectRoles.map(async (role) => {
+                role.team = team._id;
+                await role.save({ session });
             }));
         }
         await session.commitTransaction();
