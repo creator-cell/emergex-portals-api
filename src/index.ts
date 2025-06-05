@@ -39,7 +39,8 @@ const port = config.port;
 
 app.use(
   cors({
-    origin: '*',
+    origin: 'https://portals.emerge-x.com',
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     credentials: true,
   })
 );
@@ -81,7 +82,7 @@ const httpServer = createServer(app);
 
 export const WebsocketServer = new Server(httpServer, {
   cors: {
-    origin: ['https://portals.emerge-x.com', 'http://localhost:3000'],
+    origin: 'https://portals.emerge-x.com',
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     credentials: true,
   }
