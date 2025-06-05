@@ -93,50 +93,54 @@ export const generateCallToken = async (req: Request, res: Response) => {
 //   }
 // };
 
-export const handleVoiceWebhook = async (req: Request, res: Response) => {
-  try {
-    const { CallSid, CallStatus, CallDuration } = req.body;
+// export const handleCallsWebhook = async (req: Request, res: Response) => {
+//   try {
+//     const { CallSid, CallStatus, CallDuration } = req.body;
 
-    if (CallSid && CallStatus) {
-      // Map Twilio status to our status enum
-      let status: CallStatus;
-      switch (CallStatus) {
-        case "in-progress":
-          status = CallStatus.IN_PROGRESS;
-          break;
-        case "completed":
-          status = CallStatus.COMPLETED;
-          break;
-        case "busy":
-          status = CallStatus.BUSY;
-          break;
-        case "no-answer":
-          status = CallStatus.NO_ANSWER;
-          break;
-        case "canceled":
-          status = CallStatus.CANCELED;
-          break;
-        case "failed":
-          status = CallStatus.FAILED;
-          break;
-        default:
-          status = CallStatus.INITIATED;
-      }
+//     console.log('--------Webhook Controller--------');
+//     console.log({ CallSid, CallStatus, CallDuration });
 
-      // Update call status in database
-      await callService.updateCallStatus(
-        CallSid,
-        status,
-        CallDuration ? parseInt(CallDuration) : undefined
-      );
-    }
 
-    res.status(200).send("Webhook received");
-  } catch (error: any) {
-    console.error("Error handling voice webhook:", error);
-    res.status(500).send("Error processing webhook");
-  }
-};
+//     if (CallSid && CallStatus) {
+//       // Map Twilio status to our status enum
+//       let status: CallStatus;
+//       switch (CallStatus) {
+//         case "in-progress":
+//           status = CallStatus.IN_PROGRESS;
+//           break;
+//         case "completed":
+//           status = CallStatus.COMPLETED;
+//           break;
+//         case "busy":
+//           status = CallStatus.BUSY;
+//           break;
+//         case "no-answer":
+//           status = CallStatus.NO_ANSWER;
+//           break;
+//         case "canceled":
+//           status = CallStatus.CANCELED;
+//           break;
+//         case "failed":
+//           status = CallStatus.FAILED;
+//           break;
+//         default:
+//           status = CallStatus.INITIATED;
+//       }
+
+//       // Update call status in database
+//       await callService.updateCallStatus(
+//         CallSid,
+//         status,
+//         CallDuration ? parseInt(CallDuration) : undefined
+//       );
+//     }
+
+//     res.status(200).send("Webhook received");
+//   } catch (error: any) {
+//     console.error("Error handling voice webhook:", error);
+//     res.status(500).send("Error processing webhook");
+//   }
+// };
 
 // export const connectVoiceCall = async (req: Request, res: Response) => {
 //   try {
@@ -154,8 +158,12 @@ export const handleVoiceWebhook = async (req: Request, res: Response) => {
 export const initiateVideoCall = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
+
+  console.log('--------Intiate Call Controller--------');
+
+
   try {
-    const { conversationId,type } = req.query;
+    const { conversationId, type } = req.query;
     const fromUserId = currentUser.id;
 
     const call = await callService.initiateVideoCall(
@@ -167,6 +175,8 @@ export const initiateVideoCall = async (req: Request, res: Response) => {
     // Generate token for the current user to join the video room
     const token = await callService.generateToken(fromUserId, call.roomName!);
 
+    console.log('token', token);
+
     return res.status(200).json({
       success: true,
       token,
@@ -174,6 +184,7 @@ export const initiateVideoCall = async (req: Request, res: Response) => {
       call,
       message: "Video call initiated successfully",
     });
+
   } catch (error: any) {
     console.error("Error initiating video call:", error);
     return res.status(500).json({
@@ -341,6 +352,9 @@ export const initiateVideoCall = async (req: Request, res: Response) => {
 export const acceptIncomingCall = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
+
+  console.log('------Accept Call-------');
+
   try {
     const { roomName } = req.query;
     const userId = currentUser.id;
@@ -349,6 +363,8 @@ export const acceptIncomingCall = async (req: Request, res: Response) => {
       userId,
       roomName as string
     );
+
+    console.log('token', token)
 
     return res.status(200).json({
       success: true,
@@ -371,6 +387,8 @@ export const handleEndCall = async (req: Request, res: Response) => {
     const call = await CallModel.findOne({
       roomName,
     });
+
+    console.log('End call', call);
 
     if (!call) {
       return res.status(200).json({
@@ -435,12 +453,17 @@ export const handleEndCall = async (req: Request, res: Response) => {
 export const fetchCallByConversation = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+
+    console.log({ id });
+
     const call = await CallModel.findOne({
       conversationId: id,
       status: {
         $ne: CallStatus.COMPLETED,
       },
     });
+
+    console.log('call', call)
 
     if (!call) {
       return res.status(200).json({

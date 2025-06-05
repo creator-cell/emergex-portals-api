@@ -32,6 +32,7 @@ import { validateTwilioWebhook } from "./middlewares/webhookAuthMiddleware";
 import { Server } from "socket.io";
 import { socketAuthorizer } from "./middlewares/socketAuthorizer";
 import { socketConnectionHandler } from "./events";
+import { logger } from "./middlewares/logger.middleware";
 
 const app = express();
 const port = config.port;
@@ -48,6 +49,7 @@ app.use(express.urlencoded({ limit: "10mb", extended: true }));
 app.use(cookieParser());
 app.use(middleware.handle(i18next));
 app.use(setLanguageMiddleware);
+app.use(logger)
 
 const uploads = path.join(__dirname, "../uploads/");
 app.use("/uploads", express.static(uploads));
@@ -79,12 +81,11 @@ const httpServer = createServer(app);
 
 export const WebsocketServer = new Server(httpServer, {
   cors: {
-    origin: '*', // Or: ["http://localhost:3000"]
+    origin: '*',
     credentials: true
   }
 });
 
-// ✅ Socket.IO middleware (recommended)
 WebsocketServer.use(socketAuthorizer);
 
 WebsocketServer.on('connection', socketConnectionHandler);
