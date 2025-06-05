@@ -81,10 +81,15 @@ const httpServer = createServer(app);
 
 export const WebsocketServer = new Server(httpServer, {
   cors: {
-    origin: '*',
-    credentials: true
+    origin: [
+      "http://localhost:3000",
+      "https://portals.emerge-x.com"
+    ],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    credentials: true,
   }
 });
+
 
 WebsocketServer.use(socketAuthorizer);
 
