@@ -39,8 +39,7 @@ const port = config.port;
 
 app.use(
   cors({
-    origin: ['https://portals.emerge-x.com', 'http://localhost:3000'],
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    origin: '*',
     credentials: true,
   })
 );
