@@ -98,7 +98,7 @@ export const createEmployee = async (req: Request, res: Response) => {
     }
     await user.save({ session });
 
-    await EmailService.sendCredentialsEmail(email,firstName,password);
+    await EmailService.sendCredentialsEmail(email, firstName, password);
 
     const friendlyName = `conversation-${currentUser.id}-${user._id}`;
     const conversation = await conversationService.createConversation(
@@ -106,7 +106,7 @@ export const createEmployee = async (req: Request, res: Response) => {
       currentUser.id,
       ConversationIdentity.EMPLOYEE,
       ConversationType.SINGLE,
-     ( user._id as mongoose.Types.ObjectId),
+      user._id as mongoose.Types.ObjectId,
       session
     );
 
@@ -143,7 +143,7 @@ export const createEmployee = async (req: Request, res: Response) => {
         "employeeValidationMessages.response.createEmployee.server"
       ),
     });
-  }finally{
+  } finally {
     session.endSession();
   }
 };
@@ -154,6 +154,10 @@ export const getEmployees = async (req: Request, res: Response) => {
   const currentUser = customReq.user;
   try {
     let user: any = currentUser.id;
+    const limit = req.query.limit ? Number(req.query.limit) : undefined;
+    const page = req.query.page ? Number(req.query.page) : undefined;
+    const sort = req.query.sort;
+    const order = req.query.order;
 
     if (currentUser.role === GlobalAdminRoles.ClientAdmin) {
       const data = await UserModel.findOne({ _id: currentUser.id });
@@ -166,7 +170,8 @@ export const getEmployees = async (req: Request, res: Response) => {
         isDeleted: false,
         createdBy: new mongoose.Types.ObjectId(user),
       },
-      limit: 20,
+      limit,
+      page
     });
 
     const result = await paginate(EmployeeModel, options);
@@ -362,41 +367,59 @@ export const employeesNotinAnyTeam = async (req: Request, res: Response) => {
 export const getUnassignedEmployees = async (req: Request, res: Response) => {
   try {
     const teams = await TeamModel.find({ isDeleted: false }).select("members");
-    const assignedEmployeeIds = teams.flatMap((team) => team.members.map(String));
+    const assignedEmployeeIds = teams.flatMap((team) =>
+      team.members.map(String)
+    );
 
     const unassignedEmployees = await EmployeeModel.find({
       _id: { $nin: assignedEmployeeIds },
       isDeleted: false,
     });
 
-    return res.status(200).json({ success: true, data: unassignedEmployees, message:"Employees who are not in any team fetched successfully" });
+    return res
+      .status(200)
+      .json({
+        success: true,
+        data: unassignedEmployees,
+        message: "Employees who are not in any team fetched successfully",
+      });
   } catch (error) {
     console.error("Error fetching unassigned employees:", error);
-    return res.status(500).json({ success: false,  error:"server error in mployees who are not in any team" });
+    return res
+      .status(500)
+      .json({
+        success: false,
+        error: "server error in mployees who are not in any team",
+      });
   }
 };
 
 export const getEmployeesNotInProject = async (req: Request, res: Response) => {
-  const {id}=req.params;
+  const { id } = req.params;
   try {
     const roles = await ProjectRoleModel.find({
-      project:id
-    })
+      project: id,
+    });
 
-    const employeeinProject = roles.map((role)=>role.employee);
+    const employeeinProject = roles.map((role) => role.employee);
 
     const employeeNotInProject = await EmployeeModel.find({
       _id: { $nin: employeeinProject },
       isDeleted: false,
     });
 
-    return res.status(200).json({ 
-      success: true, 
-      data: employeeNotInProject, 
-      message:"Employees who are not in current project fetched successfully" 
+    return res.status(200).json({
+      success: true,
+      data: employeeNotInProject,
+      message: "Employees who are not in current project fetched successfully",
     });
   } catch (error) {
     console.error("Error fetching unassigned employees:", error);
-    return res.status(500).json({ success: false,  error:"server error in mployees who are not in any team" });
+    return res
+      .status(500)
+      .json({
+        success: false,
+        error: "server error in mployees who are not in any team",
+      });
   }
 };

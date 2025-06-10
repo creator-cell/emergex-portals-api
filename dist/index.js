@@ -62,7 +62,7 @@ const logger_middleware_1 = require("./middlewares/logger.middleware");
 const app = (0, express_1.default)();
 const port = config_1.config.port;
 app.use((0, cors_1.default)({
-    origin: "*",
+    origin: '*',
     credentials: true,
 }));
 app.use(express_1.default.json({ limit: "10mb" }));
@@ -98,7 +98,7 @@ const httpServer = (0, http_1.createServer)(app);
 exports.WebsocketServer = new socket_io_1.Server(httpServer, {
     cors: {
         origin: '*',
-        credentials: true
+        credentials: true,
     }
 });
 exports.WebsocketServer.use(socketAuthorizer_1.socketAuthorizer);

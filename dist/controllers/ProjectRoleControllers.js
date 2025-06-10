@@ -346,7 +346,9 @@ const updateRolePriority = async (req, res) => {
             let sameNodeCheckFrom = toRole.from.toString() === from.toString();
             let newFromPriorityStatus = fromRole.priority + 1 === toRole.priority;
             let newToPriorityStatus = toRole.priority - 1 === fromRole.priority;
-            if (!newFromPriorityStatus || !newToPriorityStatus || !sameNodeCheckFrom) {
+            if (!newFromPriorityStatus ||
+                !newToPriorityStatus ||
+                !sameNodeCheckFrom) {
                 return res.status(400).json({
                     success: false,
                     error: req.i18n.t("projectRoleValidationMessages.response.updateRolePriority.conflict"),
@@ -381,7 +383,7 @@ const updateRolePriority = async (req, res) => {
         console.error("Error updating role priority:", error);
         return res.status(500).json({
             success: false,
-            message: error instanceof Error ? error.message : String(error)
+            message: error instanceof Error ? error.message : String(error),
             // message: req.i18n.t(
             //   "projectRoleValidationMessages.response.updateRolePriority.server"
             // ),
@@ -770,26 +772,44 @@ const getAvailableRolesInProject = async (req, res) => {
         if (!project) {
             return res.status(200).json({
                 success: false,
-                error: req.i18n.t("projectValidationMessages.response.notExist") +
-                    " " +
-                    id,
+                error: req.i18n.t("projectValidationMessages.response.notExist") + " " + id,
             });
         }
-        const role = await ProjectRoleModel_1.default.find({
+        const roles = await ProjectRoleModel_1.default.find({
             project: project._id,
             priority: { $exists: priority },
             // employee: { $ne: currentUser.id },
         }).populate("employee role");
-        if (!role) {
+        if (!roles) {
             return res.status(200).json({
                 success: false,
                 error: req.i18n.t("projectRoleValidationMessages.response.getUserRoleDetails.roleNotAvailable"),
             });
         }
+        const resultMap = new Map();
+        roles.forEach((item) => {
+            const roleId = item.role._id;
+            const roleInfo = {
+                _id: item.role._id,
+                title: item.role.title,
+                description: item.role.description,
+            };
+            const employee = item.employee;
+            if (resultMap.has(roleId)) {
+                resultMap.get(roleId).employees.push(employee);
+            }
+            else {
+                resultMap.set(roleId, {
+                    role: roleInfo,
+                    employees: [employee],
+                });
+            }
+        });
+        const rolesData = Array.from(resultMap.values());
         return res.status(200).json({
             success: true,
             message: req.i18n.t("projectRoleValidationMessages.response.getUserRoleInIncident.success"),
-            data: role,
+            data: rolesData,
         });
     }
     catch (error) {

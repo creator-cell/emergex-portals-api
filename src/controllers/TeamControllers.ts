@@ -80,6 +80,8 @@ export const getAllTeams = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
   try {
+    const limit = req.query.limit ? Number(req.query.limit) : undefined;
+    const page = req.query.page ? Number(req.query.page) : undefined;
     const populateOptions = [
       {
         path: "members",
@@ -93,9 +95,12 @@ export const getAllTeams = async (req: Request, res: Response) => {
       sort: { createdAt: -1 },
       filter: {
         isDeleted: false,
-        // createdBy: currentUser.id,
+        createdBy: currentUser.id,
       },
+      limit,
+      page
     });
+
     const result = await paginate(TeamModel, options);
     return res.status(200).json({
       success: true,
