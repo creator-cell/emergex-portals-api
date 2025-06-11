@@ -1,6 +1,6 @@
 import express from 'express';
 import { addNewMemberToTeam, createTeam, getAllTeams, getTeamDetails, getTeamEmployees, getTeamNames, removeMemberFromTeam, updateTeamDetail } from '../controllers/TeamControllers';
-import { addRemoveTeamMemberValidation, teamGetByIdValidation, teamValidationRules,teamUpdateByIdValidation } from '../validations/teamValidators';
+import { addRemoveTeamMemberValidation, teamGetByIdValidation, teamValidationRules,teamUpdateByIdValidation, removeTeamMemberValidation } from '../validations/teamValidators';
 import { authenticate } from '../middlewares/authMiddleware';
 import { authorizeRoles } from '../middlewares/roleMiddleware';
 import { GlobalAdminRoles } from '../config/global-enum';
@@ -11,9 +11,9 @@ router.route('/')
 .post(authenticate, authorizeRoles(GlobalAdminRoles.SuperAdmin,GlobalAdminRoles.ClientAdmin),teamValidationRules,checkValidationResult,createTeam)
 .get(authenticate, authorizeRoles(GlobalAdminRoles.SuperAdmin,GlobalAdminRoles.ClientAdmin),getAllTeams)
 
-router.put('/add-member/:id',authenticate, authorizeRoles(GlobalAdminRoles.SuperAdmin,GlobalAdminRoles.ClientAdmin),addRemoveTeamMemberValidation,checkValidationResult,addNewMemberToTeam)
+router.put('/add-member/:id',authenticate, authorizeRoles(GlobalAdminRoles.SuperAdmin),addRemoveTeamMemberValidation,checkValidationResult,addNewMemberToTeam)
 
-router.put('/remove-member/:id',authenticate, authorizeRoles(GlobalAdminRoles.SuperAdmin,GlobalAdminRoles.ClientAdmin),addRemoveTeamMemberValidation,checkValidationResult,removeMemberFromTeam)
+router.put('/remove-member/:id',authenticate, authorizeRoles(GlobalAdminRoles.SuperAdmin),removeTeamMemberValidation,checkValidationResult,removeMemberFromTeam)
 
 router.route("/team-by-id/:id").get(authenticate, authorizeRoles(GlobalAdminRoles.SuperAdmin,GlobalAdminRoles.ClientAdmin),teamGetByIdValidation,checkValidationResult,getTeamDetails).put(authenticate, authorizeRoles(GlobalAdminRoles.SuperAdmin,GlobalAdminRoles.ClientAdmin),teamUpdateByIdValidation,checkValidationResult,updateTeamDetail)
 

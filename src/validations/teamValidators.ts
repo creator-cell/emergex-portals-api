@@ -64,5 +64,19 @@ export const addRemoveTeamMemberValidation = [
     .withMessage((_, { req }) =>
       req.i18n.t("teamValidationMessages.addRemoveTeamMemberValidation.employeeId.empty")
     )
-  
+];
+
+export const removeTeamMemberValidation = [
+  param("id")
+    .notEmpty()
+    .withMessage((_, { req }) => req.i18n.t("teamValidationMessages.addRemoveTeamMemberValidation.id.empty"))
+    .isMongoId()
+    .withMessage((_, { req }) =>
+      req.i18n.t("teamValidationMessages.addRemoveTeamMemberValidation.id.invalidMongooseFormat")
+    ),
+    body("employeeId")
+    .notEmpty()
+    .withMessage((_, { req }) => req.i18n.t("employeeValidationMessages.id.empty"))
+    .isMongoId()
+    .withMessage((_, { req }) => req.i18n.t("employeeValidationMessages.id.invalidMongooseFormat"))
 ];

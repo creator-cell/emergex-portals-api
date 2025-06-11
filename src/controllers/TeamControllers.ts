@@ -20,8 +20,9 @@ export const createTeam = async (req: Request, res: Response) => {
 
   try {
     const { name } = req.body;
+    // Check if a team with the same name (case-insensitive, trimmed) exists for the current user
     const isExist = await TeamModel.findOne({
-      name,
+      name: { $regex: new RegExp(`^${name.trim()}$`, "i") },
       createdBy: currentUser.id,
     }).session(session);
 
@@ -255,9 +256,9 @@ export const removeMemberFromTeam = async (req: Request, res: Response) => {
       });
     }
 
-    const isExist = team.members.some((member) =>
-      member._id.equals(employeeId)
-    );
+    const isExist = team.members.some((member) =>{
+     return  member._id.toString()===employeeId.toString();
+    });
 
     if (!isExist) {
       return res.status(400).json({
@@ -281,7 +282,7 @@ export const removeMemberFromTeam = async (req: Request, res: Response) => {
     if (conversation) {
       await conversationService.removeParticipant(
         (conversation._id as mongoose.Types.ObjectId).toString(),
-        (employeeId as mongoose.Types.ObjectId).toString()
+        (employee.user as mongoose.Types.ObjectId).toString()
       );
     }
 
