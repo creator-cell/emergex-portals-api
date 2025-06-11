@@ -59,7 +59,6 @@ export const createEmployee = async (req: Request, res: Response) => {
 
     const username = await generateUniqueUsername(name);
     const password = generatePassword();
-    // const password = name + "123";
 
     const [firstName, lastName] = name.split(" ");
 
