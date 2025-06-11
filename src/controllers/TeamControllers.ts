@@ -255,9 +255,9 @@ export const removeMemberFromTeam = async (req: Request, res: Response) => {
       });
     }
 
-    const isExist = team.members.some((member) =>
-      member._id.equals(employeeId)
-    );
+    const isExist = team.members.some((member) =>{
+     return  member._id.toString()===employeeId.toString();
+    });
 
     if (!isExist) {
       return res.status(400).json({
@@ -281,7 +281,7 @@ export const removeMemberFromTeam = async (req: Request, res: Response) => {
     if (conversation) {
       await conversationService.removeParticipant(
         (conversation._id as mongoose.Types.ObjectId).toString(),
-        (employeeId as mongoose.Types.ObjectId).toString()
+        (employee.user as mongoose.Types.ObjectId).toString()
       );
     }
 
