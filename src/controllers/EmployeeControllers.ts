@@ -151,26 +151,23 @@ export const createEmployee = async (req: Request, res: Response) => {
 export const getEmployees = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
+  console.log("query: ",req.query)
   try {
     let user: any = currentUser.id;
-    const limit = req.query.limit ? Number(req.query.limit) : undefined;
-    const page = req.query.page ? Number(req.query.page) : undefined;
-    const sort = req.query.sort;
-    const order = req.query.order;
-
     if (currentUser.role === GlobalAdminRoles.ClientAdmin) {
       const data = await UserModel.findOne({ _id: currentUser.id });
       user = data?.createdBy;
     }
 
+    const limit = req.query.limit ? Number(req.query.limit) : 10;
+    const page = req.query.page ? Number(req.query.page) : 1;
+    const { sort, order } = req.query;
+
     const options = getPaginationOptions(req, {
-      sort: { createdAt: -1 },
       filter: {
         isDeleted: false,
         createdBy: new mongoose.Types.ObjectId(user),
-      },
-      limit,
-      page
+      }
     });
 
     const result = await paginate(EmployeeModel, options);
@@ -375,21 +372,17 @@ export const getUnassignedEmployees = async (req: Request, res: Response) => {
       isDeleted: false,
     });
 
-    return res
-      .status(200)
-      .json({
-        success: true,
-        data: unassignedEmployees,
-        message: "Employees who are not in any team fetched successfully",
-      });
+    return res.status(200).json({
+      success: true,
+      data: unassignedEmployees,
+      message: "Employees who are not in any team fetched successfully",
+    });
   } catch (error) {
     console.error("Error fetching unassigned employees:", error);
-    return res
-      .status(500)
-      .json({
-        success: false,
-        error: "server error in mployees who are not in any team",
-      });
+    return res.status(500).json({
+      success: false,
+      error: "server error in mployees who are not in any team",
+    });
   }
 };
 
@@ -414,11 +407,9 @@ export const getEmployeesNotInProject = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Error fetching unassigned employees:", error);
-    return res
-      .status(500)
-      .json({
-        success: false,
-        error: "server error in mployees who are not in any team",
-      });
+    return res.status(500).json({
+      success: false,
+      error: "server error in mployees who are not in any team",
+    });
   }
 };

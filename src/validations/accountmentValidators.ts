@@ -35,45 +35,48 @@ export const validateAnnouncement = [
         "announcementValidationMessages.validateAnnouncement.team.invalidId"
       )
     ),
-  body("country")
-    .notEmpty()
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "announcementValidationMessages.validateAnnouncement.country.empty"
-      )
-    )
-    .isMongoId()
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "announcementValidationMessages.validateAnnouncement.country.invalidId"
-      )
-    ),
-  body("region")
-    .notEmpty()
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "announcementValidationMessages.validateAnnouncement.region.empty"
-      )
-    )
-    .isMongoId()
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "announcementValidationMessages.validateAnnouncement.region.invalidId"
-      )
-    ),
-  body("worksite")
-    .notEmpty()
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "announcementValidationMessages.validateAnnouncement.worksite.empty"
-      )
-    )
-    .isMongoId()
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "announcementValidationMessages.validateAnnouncement.worksite.invalidId"
-      )
-    ),
+  // body("country")
+  // .optional()
+  //   .notEmpty()
+  //   .withMessage((_, { req }) =>
+  //     req.i18n.t(
+  //       "announcementValidationMessages.validateAnnouncement.country.empty"
+  //     )
+  //   )
+  //   .isMongoId()
+  //   .withMessage((_, { req }) =>
+  //     req.i18n.t(
+  //       "announcementValidationMessages.validateAnnouncement.country.invalidId"
+  //     )
+  //   ),
+  // body("region")
+  // .optional()
+  //   .notEmpty()
+  //   .withMessage((_, { req }) =>
+  //     req.i18n.t(
+  //       "announcementValidationMessages.validateAnnouncement.region.empty"
+  //     )
+  //   )
+  //   .isMongoId()
+  //   .withMessage((_, { req }) =>
+  //     req.i18n.t(
+  //       "announcementValidationMessages.validateAnnouncement.region.invalidId"
+  //     )
+  //   ),
+  // body("worksite")
+  // .optional()
+  //   .notEmpty()
+  //   .withMessage((_, { req }) =>
+  //     req.i18n.t(
+  //       "announcementValidationMessages.validateAnnouncement.worksite.empty"
+  //     )
+  //   )
+  //   .isMongoId()
+  //   .withMessage((_, { req }) =>
+  //     req.i18n.t(
+  //       "announcementValidationMessages.validateAnnouncement.worksite.invalidId"
+  //     )
+  //   ),
 ];
 
 export const updateAnnouncementByIdValidation = [

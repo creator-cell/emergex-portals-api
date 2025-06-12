@@ -32,14 +32,14 @@ export const createAnnouncement = async (req: Request, res: Response) => {
       });
     }
 
-const isTeamExist = await TeamModel.findById(team)
-  .populate<{ members: Pick<IEmployee, 'email' | 'name' | 'user'>[] }>([
-    {
-      path: "members",
-      select: 'email name user' // Only populate these fields for efficiency
-    },
-  ])
-  .session(session);
+    const isTeamExist = await TeamModel.findById(team)
+      .populate<{ members: Pick<IEmployee, "email" | "name" | "user">[] }>([
+        {
+          path: "members",
+          select: "email name user", // Only populate these fields for efficiency
+        },
+      ])
+      .session(session);
 
     if (!isTeamExist) {
       await session.abortTransaction();
@@ -52,47 +52,50 @@ const isTeamExist = await TeamModel.findById(team)
     }
 
     // console.log("istEam: ",isTeamExist)
+    let location;
+    if (country && region && worksite) {
+      const [isCountryExist, isRegionExist, isWorksiteExist] =
+        await Promise.all([
+          CountryModel.exists({ _id: country }).session(session),
+          RegionModel.exists({ _id: region }).session(session),
+          WorksiteModel.exists({ _id: worksite }).session(session),
+        ]);
 
-    const [isCountryExist, isRegionExist, isWorksiteExist] = await Promise.all([
-      CountryModel.exists({ _id: country }).session(session),
-      RegionModel.exists({ _id: region }).session(session),
-      WorksiteModel.exists({ _id: worksite }).session(session),
-    ]);
+      if (!isCountryExist || !isRegionExist || !isWorksiteExist) {
+        await session.abortTransaction();
+        return res.status(400).json({
+          success: false,
+          error: `${
+            !isCountryExist
+              ? `Country: ${country}`
+              : !isRegionExist
+              ? `Region: ${region}`
+              : `Worksite ${worksite}`
+          } ${req.i18n.t(
+            "announcementValidationMessages.response.createAnnouncement.invalidLocation"
+          )}`,
+        });
+      }
 
-    if (!isCountryExist || !isRegionExist || !isWorksiteExist) {
-      await session.abortTransaction();
-      return res.status(400).json({
-        success: false,
-        error: `${
-          !isCountryExist
-            ? `Country: ${country}`
-            : !isRegionExist
-            ? `Region: ${region}`
-            : `Worksite ${worksite}`
-        } ${req.i18n.t(
-          "announcementValidationMessages.response.createAnnouncement.invalidLocation"
-        )}`,
-      });
-    }
+      location = await LocationModel.findOne({
+        country,
+        region,
+        worksite,
+      }).session(session);
 
-    let location = await LocationModel.findOne({
-      country,
-      region,
-      worksite,
-    }).session(session);
-
-    // Create location if not exists
-    if (!location) {
-      location = await LocationModel.create(
-        [
-          {
-            country,
-            region,
-            worksite,
-          },
-        ],
-        { session }
-      ).then((locations) => locations[0]);
+      // Create location if not exists
+      if (!location) {
+        location = await LocationModel.create(
+          [
+            {
+              country,
+              region,
+              worksite,
+            },
+          ],
+          { session }
+        ).then((locations) => locations[0]);
+      }
     }
 
     const announcement = await AnnouncementModel.create(
@@ -100,8 +103,9 @@ const isTeamExist = await TeamModel.findById(team)
         {
           title,
           description,
-          location: location?._id,
+          location: location?location?._id:null,
           team,
+          createdBy:currentUser.id
         },
       ],
       { session }
@@ -111,18 +115,18 @@ const isTeamExist = await TeamModel.findById(team)
 
     const user = await UserModel.findById(currentUser.id).session(session);
 
-    isTeamExist.members.forEach((employee) => {
-      if (currentUser.id !== employee.user.toString()) {
-        EmailService.sendAnnouncement(
-          employee.email,
-          // "g82181975@gmail.com",
-          employee.name,
-          title,
-          description,
-          user?.firstName ?? ""
-        );
-      }
-    });
+    // isTeamExist.members.forEach((employee) => {
+    //   if (currentUser.id !== employee.user.toString()) {
+    //     EmailService.sendAnnouncement(
+    //       employee.email,
+    //       // "g82181975@gmail.com",
+    //       employee.name,
+    //       title,
+    //       description,
+    //       user?.firstName ?? ""
+    //     );
+    //   }
+    // });
 
     return res.status(201).json({
       success: true,

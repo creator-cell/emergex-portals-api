@@ -4,11 +4,11 @@ import { ILocation } from './LocationModel';
 export interface IAnnouncement extends Document {
   title: string;
   description: string;
-  location: mongoose.Types.ObjectId | ILocation;
+  location?: mongoose.Types.ObjectId | ILocation;
   team: mongoose.Types.ObjectId;
   isActive: boolean;
   isDeleted:boolean;
-//   createdBy: mongoose.Types.ObjectId;
+  createdBy: mongoose.Types.ObjectId;
 //   updatedBy: mongoose.Types.ObjectId;
 }
 
@@ -28,7 +28,7 @@ const announcementSchema = new Schema<IAnnouncement>(
     location: {
       type: Schema.Types.ObjectId,
       ref: 'Location',
-      required: [true, 'Location is required']
+      // required: [true, 'Location is required']
     },
     team: {
       type: Schema.Types.ObjectId,
@@ -44,11 +44,11 @@ const announcementSchema = new Schema<IAnnouncement>(
       type: Boolean,
       default: false
     },
-    // createdBy: {
-    //   type: Schema.Types.ObjectId,
-    //   ref: 'User',
-    //   required: true
-    // },
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
     // updatedBy: {
     //   type: Schema.Types.ObjectId,
     //   ref: 'User',

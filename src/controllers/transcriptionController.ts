@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
-import { convertToWav, transcribeAudio, extractIncidentInfo } from '../services/transcriptionService';
-import path from 'path';
+import {  extractIncidentInfo } from '../services/transcriptionService';
 
 export async function handleTranscription(req: Request, res: Response): Promise<Response> {
   try {

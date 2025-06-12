@@ -81,8 +81,8 @@ export const getAllTeams = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
   try {
-    const limit = req.query.limit ? Number(req.query.limit) : undefined;
-    const page = req.query.page ? Number(req.query.page) : undefined;
+    const limit = req.query.limit ? Number(req.query.limit) : 10;
+    const page = req.query.page ? Number(req.query.page) : 1;
     const populateOptions = [
       {
         path: "members",

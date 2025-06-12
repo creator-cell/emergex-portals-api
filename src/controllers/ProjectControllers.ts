@@ -345,6 +345,33 @@ export const getAllProjects = async (req: Request, res: Response) => {
   }
 };
 
+// Get all projects
+export const getAllProjectsForUser = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+  try {
+    const projects = await ProjectModel.find({
+      createdBy:currentUser.id
+    })
+
+    return res.status(200).json({
+      success: true,
+      data:projects,
+      message: req.i18n.t(
+        "projectValidationMessages.response.getAllProjects.success"
+      ),
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      error: req.i18n.t(
+        "projectValidationMessages.response.getAllProjects.server"
+      ),
+    });
+  }
+};
+
 // Get a project by Id
 // export const getProjectById = async (req: Request, res: Response) => {
 //   const { id } = req.params;

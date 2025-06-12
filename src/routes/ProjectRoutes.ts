@@ -8,6 +8,7 @@ import {
   createProjectByName,
   getProjectsByLocation,
   getAllEmployeesInProjectOrganization,
+  getAllProjectsForUser,
 } from "../controllers/ProjectControllers";
 
 import {
@@ -48,6 +49,13 @@ router
     authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin),
     getAllProjects
   );
+
+router.get(
+  "/get/all",
+  authenticate,
+  authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin),
+  getAllProjectsForUser
+);
 
 router
   .route("/project-by-id/:id")
