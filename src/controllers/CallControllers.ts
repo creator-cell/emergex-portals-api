@@ -161,7 +161,6 @@ export const initiateVideoCall = async (req: Request, res: Response) => {
 
   console.log('--------Intiate Call Controller--------');
 
-
   try {
     const { conversationId, type } = req.query;
     const fromUserId = currentUser.id;

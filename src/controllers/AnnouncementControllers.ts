@@ -115,18 +115,18 @@ export const createAnnouncement = async (req: Request, res: Response) => {
 
     const user = await UserModel.findById(currentUser.id).session(session);
 
-    // isTeamExist.members.forEach((employee) => {
-    //   if (currentUser.id !== employee.user.toString()) {
-    //     EmailService.sendAnnouncement(
-    //       employee.email,
-    //       // "g82181975@gmail.com",
-    //       employee.name,
-    //       title,
-    //       description,
-    //       user?.firstName ?? ""
-    //     );
-    //   }
-    // });
+    isTeamExist.members.forEach((employee) => {
+      if (currentUser.id !== employee.user.toString()) {
+        EmailService.sendAnnouncement(
+          employee.email,
+          // "g82181975@gmail.com",
+          employee.name,
+          title,
+          description,
+          user?.firstName ?? ""
+        );
+      }
+    });
 
     return res.status(201).json({
       success: true,
