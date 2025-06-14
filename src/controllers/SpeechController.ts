@@ -35,8 +35,7 @@ export const convertSpeechToText = async (req: Request, res: Response): Promise<
 
       const response: SpeechToTextResponse = {
         success: true,
-        transcription: result.transcription,
-        audioUrl: result.audioUrl
+        transcription: result.transcription
       };
 
       res.status(200).json(response);
