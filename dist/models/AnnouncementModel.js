@@ -39,7 +39,7 @@ const announcementSchema = new mongoose_1.Schema({
     location: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'Location',
-        required: [true, 'Location is required']
+        // required: [true, 'Location is required']
     },
     team: {
         type: mongoose_1.Schema.Types.ObjectId,
@@ -55,11 +55,11 @@ const announcementSchema = new mongoose_1.Schema({
         type: Boolean,
         default: false
     },
-    // createdBy: {
-    //   type: Schema.Types.ObjectId,
-    //   ref: 'User',
-    //   required: true
-    // },
+    createdBy: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
     // updatedBy: {
     //   type: Schema.Types.ObjectId,
     //   ref: 'User',

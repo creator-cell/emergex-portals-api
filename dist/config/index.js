@@ -28,5 +28,8 @@ exports.config = {
     google: {
         cloud_key_path: process.env.GOOGLE_CLOUD_PROJECT_ID || '',
         cloud_project_id: process.env.GOOGLE_CLOUD_PROJECT_ID || '',
+    },
+    openai: {
+        api_key: process.env.OPENAI_API_KEY
     }
 };

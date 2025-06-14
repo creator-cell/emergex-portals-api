@@ -136,10 +136,10 @@ const recognizeSpeechMultiLanguage = async (
           };
         }
 
-        console.log(`Recognition result for ${languageCode}: confidence ${avgConfidence}, text: "${transcription.substring(0, 50)}..."`);
+        // console.log(`Recognition result for ${languageCode}: confidence ${avgConfidence}, text: "${transcription.substring(0, 50)}..."`);
       }
     } catch (error) {
-      console.log(`Recognition failed for language ${languageCode}:`, error);
+      // console.log(`Recognition failed for language ${languageCode}:`, error);
       continue;
     }
   }
@@ -175,7 +175,7 @@ const translateToEnglish = async (text: string, sourceLanguage: string): Promise
       confidence: 0.9 // Assume high confidence for Google Translate
     };
   } catch (error) {
-    console.error('Translation failed:', error);
+    // console.error('Translation failed:', error);
     return {
       translatedText: text,
       originalLanguage: sourceLanguage,
@@ -226,7 +226,7 @@ const UploadFile = async ({
     const ImageURl = `https://${config.aws_bucket_name}.s3.${config.aws_region}.amazonaws.com/${Params.Key}`;
     return { Success: true, ImageURl: ImageURl };
   } catch (Err) {
-    console.log(Err);
+    // console.log(Err);
     return { Error: Err, Success: false };
   }
 };
@@ -346,10 +346,10 @@ Return only the improved transcription, nothing else.
     });
 
     const enhancedText = completion.choices[0].message.content?.trim() || rawTranscription;
-    console.log("AI Enhanced transcription:", enhancedText);
+    // console.log("AI Enhanced transcription:", enhancedText);
     return enhancedText;
   } catch (error) {
-    console.error('AI enhancement failed:', error);
+    // console.error('AI enhancement failed:', error);
     return rawTranscription; // Return original if AI fails
   }
 };
@@ -360,7 +360,7 @@ const fallbackTranscriptionWithAI = async (audioBuffer: Buffer, detectedLanguage
   translatedText?: string;
 }> => {
   try {
-    console.log("Attempting AI fallback transcription...");
+    // console.log("Attempting AI fallback transcription...");
     
     // Use OpenAI's Whisper API for transcription
     const audioFile = new File([new Uint8Array(audioBuffer)], "audio.wav", { type: "audio/wav" });
@@ -377,7 +377,7 @@ const fallbackTranscriptionWithAI = async (audioBuffer: Buffer, detectedLanguage
     if (detectedLanguage) {
       const languageCode = detectedLanguage.split('-')[0]; // Extract base language code
       whisperRequest.language = languageCode;
-      console.log(`Using language hint for Whisper: ${languageCode}`);
+      // console.log(`Using language hint for Whisper: ${languageCode}`);
     }
 
     const transcription = await openai.audio.transcriptions.create(whisperRequest);
@@ -390,21 +390,21 @@ const fallbackTranscriptionWithAI = async (audioBuffer: Buffer, detectedLanguage
 
     // **ADDED: Translate to English if not already in English**
     if (result.originalLanguage && result.originalLanguage !== 'en' && result.originalLanguage !== 'english') {
-      console.log(`Translating from ${result.originalLanguage} to English...`);
+      // console.log(`Translating from ${result.originalLanguage} to English...`);
       const translation = await translateToEnglish(result.transcription, result.originalLanguage);
       result.translatedText = translation.translatedText;
-      console.log(`Translation result: "${translation.translatedText.substring(0, 100)}..."`);
+      // console.log(`Translation result: "${translation.translatedText.substring(0, 100)}..."`);
     }
 
-    console.log("Whisper transcription result:", {
-      originalLanguage: result.originalLanguage,
-      originalText: result.transcription.substring(0, 100) + "...",
-      hasTranslation: !!result.translatedText
-    });
+    // console.log("Whisper transcription result:", {
+    //   originalLanguage: result.originalLanguage,
+    //   originalText: result.transcription.substring(0, 100) + "...",
+    //   hasTranslation: !!result.translatedText
+    // });
 
     return result;
   } catch (error) {
-    console.error('Whisper fallback failed:', error);
+    // console.error('Whisper fallback failed:', error);
     throw new Error('Both Google Speech-to-Text and OpenAI Whisper failed to transcribe the audio');
   }
 };
@@ -454,7 +454,7 @@ export class SpeechService {
         ? [forceLanguage]
         : targetLanguages || ['en-US', 'es-ES', 'hi-IN', 'fr-FR', 'de-DE', 'pt-BR', 'ru-RU', 'ar-SA'];
 
-      console.log(`Attempting speech recognition with languages: ${languagesToTry.join(', ')}`);
+      // console.log(`Attempting speech recognition with languages: ${languagesToTry.join(', ')}`);
 
       // Step 1: Try Google Speech-to-Text with multiple languages
       try {
@@ -477,28 +477,28 @@ export class SpeechService {
           else if (multiLangResult.confidence > 0.5) confidence = 'medium';
           else confidence = 'low';
 
-          console.log(`Google multi-language recognition successful: ${detectedLanguage} with confidence ${multiLangResult.confidence}`);
+          // console.log(`Google multi-language recognition successful: ${detectedLanguage} with confidence ${multiLangResult.confidence}`);
 
           // **ADDED: Translate to English if not already in English**
           if (detectedLanguage && !detectedLanguage.startsWith('en-') && transcription.trim()) {
-            console.log(`Translating from ${detectedLanguage} to English...`);
+            // console.log(`Translating from ${detectedLanguage} to English...`);
             const baseLanguage = detectedLanguage.split('-')[0];
             const translation = await translateToEnglish(transcription, baseLanguage);
             
             if (translation.translatedText && translation.translatedText !== transcription) {
               translatedText = translation.translatedText;
               originalLanguage = baseLanguage;
-              console.log(`Translation completed: "${translatedText.substring(0, 100)}..."`);
+              // console.log(`Translation completed: "${translatedText.substring(0, 100)}..."`);
             }
           }
         }
       } catch (googleError) {
-        console.log('Google multi-language Speech-to-Text failed:', googleError);
+        // console.log('Google multi-language Speech-to-Text failed:', googleError);
       }
 
       // Step 2: Check if Google transcription is adequate
       if (!isTranscriptionAdequate(transcription)) {
-        console.log('Google transcription inadequate, trying Whisper fallback...');
+        // console.log('Google transcription inadequate, trying Whisper fallback...');
         
         try {
           const whisperResult = await fallbackTranscriptionWithAI(audioBuffer, detectedLanguage);
@@ -515,9 +515,9 @@ export class SpeechService {
             originalTranscription = transcription;
           }
           
-          console.log(`Whisper fallback successful. Original language: ${originalLanguage}`);
+          // console.log(`Whisper fallback successful. Original language: ${originalLanguage}`);
         } catch (whisperError) {
-          console.log('Whisper fallback also failed:', whisperError);
+          // console.log('Whisper fallback also failed:', whisperError);
           
           if (!transcription.trim()) {
             throw new Error('All transcription methods failed');
@@ -527,7 +527,7 @@ export class SpeechService {
 
       // Step 3: Enhance with AI if confidence is low or transcription seems poor
       if (confidence === 'low' || !isTranscriptionAdequate(transcription)) {
-        console.log('Enhancing transcription with AI...');
+        // console.log('Enhancing transcription with AI...');
         
         try {
           // Use the final transcription (translated if available) for enhancement
@@ -541,10 +541,10 @@ export class SpeechService {
             // Upgrade confidence if AI enhancement was applied
             if (confidence === 'low') confidence = 'medium';
             
-            console.log(`AI enhancement applied: "${transcription.substring(0, 100)}..."`);
+            // console.log(`AI enhancement applied: "${transcription.substring(0, 100)}..."`);
           }
         } catch (aiError) {
-          console.log('AI enhancement failed:', aiError);
+          // console.log('AI enhancement failed:', aiError);
         }
       }
 
@@ -553,14 +553,14 @@ export class SpeechService {
       }
 
       // **ADDED: Log final result with language information**
-      console.log(`Final transcription result:`, {
-        method,
-        confidence,
-        detectedLanguage,
-        originalLanguage,
-        hasTranslation: !!translatedText,
-        textPreview: transcription.substring(0, 100) + "..."
-      });
+      // console.log(`Final transcription result:`, {
+      //   method,
+      //   confidence,
+      //   detectedLanguage,
+      //   originalLanguage,
+      //   hasTranslation: !!translatedText,
+      //   textPreview: transcription.substring(0, 100) + "..."
+      // });
       
       return {
         transcription: transcription.trim(),
@@ -576,7 +576,7 @@ export class SpeechService {
       };
 
     } catch (error) {
-      console.error('Speech recognition error:', error);
+      // console.error('Speech recognition error:', error);
       
       if (error instanceof Error) {
         if (error.message.includes('INVALID_ARGUMENT')) {
@@ -647,7 +647,7 @@ export class SpeechService {
         alternatives: result.alternatives
       };
     } catch (error) {
-      console.error('Process audio file error:', error);
+      // console.error('Process audio file error:', error);
       throw error;
     }
   }

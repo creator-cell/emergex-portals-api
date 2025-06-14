@@ -17,21 +17,48 @@ exports.validateAnnouncement = [
         .withMessage((_, { req }) => req.i18n.t("announcementValidationMessages.validateAnnouncement.team.empty"))
         .isMongoId()
         .withMessage((_, { req }) => req.i18n.t("announcementValidationMessages.validateAnnouncement.team.invalidId")),
-    (0, express_validator_1.body)("country")
-        .notEmpty()
-        .withMessage((_, { req }) => req.i18n.t("announcementValidationMessages.validateAnnouncement.country.empty"))
-        .isMongoId()
-        .withMessage((_, { req }) => req.i18n.t("announcementValidationMessages.validateAnnouncement.country.invalidId")),
-    (0, express_validator_1.body)("region")
-        .notEmpty()
-        .withMessage((_, { req }) => req.i18n.t("announcementValidationMessages.validateAnnouncement.region.empty"))
-        .isMongoId()
-        .withMessage((_, { req }) => req.i18n.t("announcementValidationMessages.validateAnnouncement.region.invalidId")),
-    (0, express_validator_1.body)("worksite")
-        .notEmpty()
-        .withMessage((_, { req }) => req.i18n.t("announcementValidationMessages.validateAnnouncement.worksite.empty"))
-        .isMongoId()
-        .withMessage((_, { req }) => req.i18n.t("announcementValidationMessages.validateAnnouncement.worksite.invalidId")),
+    // body("country")
+    // .optional()
+    //   .notEmpty()
+    //   .withMessage((_, { req }) =>
+    //     req.i18n.t(
+    //       "announcementValidationMessages.validateAnnouncement.country.empty"
+    //     )
+    //   )
+    //   .isMongoId()
+    //   .withMessage((_, { req }) =>
+    //     req.i18n.t(
+    //       "announcementValidationMessages.validateAnnouncement.country.invalidId"
+    //     )
+    //   ),
+    // body("region")
+    // .optional()
+    //   .notEmpty()
+    //   .withMessage((_, { req }) =>
+    //     req.i18n.t(
+    //       "announcementValidationMessages.validateAnnouncement.region.empty"
+    //     )
+    //   )
+    //   .isMongoId()
+    //   .withMessage((_, { req }) =>
+    //     req.i18n.t(
+    //       "announcementValidationMessages.validateAnnouncement.region.invalidId"
+    //     )
+    //   ),
+    // body("worksite")
+    // .optional()
+    //   .notEmpty()
+    //   .withMessage((_, { req }) =>
+    //     req.i18n.t(
+    //       "announcementValidationMessages.validateAnnouncement.worksite.empty"
+    //     )
+    //   )
+    //   .isMongoId()
+    //   .withMessage((_, { req }) =>
+    //     req.i18n.t(
+    //       "announcementValidationMessages.validateAnnouncement.worksite.invalidId"
+    //     )
+    //   ),
 ];
 exports.updateAnnouncementByIdValidation = [
     (0, express_validator_1.param)("id")

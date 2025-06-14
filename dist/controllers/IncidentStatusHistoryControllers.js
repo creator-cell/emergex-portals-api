@@ -39,6 +39,75 @@ const getIncidentStatusHistory = async (req, res) => {
         //   },
         // });
         // const result = await paginate(IncidentStatusHistoryModel, options);
+        // const history = await IncidentStatusHistoryModel.aggregate([
+        //   {
+        //     $match: {
+        //       incident: new mongoose.Types.ObjectId(id),
+        //     },
+        //   },
+        //   {
+        //     $lookup: {
+        //       from: "project_roles",
+        //       localField: "role",
+        //       foreignField: "_id",
+        //       as: "role",
+        //     },
+        //   },
+        //   {
+        //     $unwind: "$role",
+        //   },
+        //   {
+        //     $lookup: {
+        //       from: "employees",
+        //       localField: "role.employee",
+        //       foreignField: "_id",
+        //       as: "role.employee",
+        //     },
+        //   },
+        //   {
+        //     $unwind: "$role.employee",
+        //   },
+        //   {
+        //     $lookup: {
+        //       from: "roles",
+        //       localField: "role.role",
+        //       foreignField: "_id",
+        //       as: "role.role",
+        //     },
+        //   },
+        //   {
+        //     $unwind: "$role.role",
+        //   },
+        //   {
+        //     $lookup: {
+        //       from: "teams",
+        //       localField: "role.team",
+        //       foreignField: "_id",
+        //       as: "role.team",
+        //     },
+        //   },
+        //   {
+        //     $unwind: {
+        //       path: "$role.team",
+        //       preserveNullAndEmptyArrays: true,
+        //     },
+        //   },
+        //   {
+        //     $group: {
+        //       _id: {
+        //         $ifNull: ["$role.team.name", null],
+        //       },
+        //       data: { $push: "$$ROOT" },
+        //     },
+        //   },
+        //   {
+        //     $project: {
+        //       _id: 0,
+        //       team: "$_id",
+        //       data: 1,
+        //     },
+        //   },
+        // ]);
         const history = await IncidentStatusHistoryModel_1.default.aggregate([
             {
                 $match: {
@@ -90,6 +159,26 @@ const getIncidentStatusHistory = async (req, res) => {
                 $unwind: {
                     path: "$role.team",
                     preserveNullAndEmptyArrays: true,
+                },
+            },
+            // *** ADDED: Sort by employee and timestamp to get latest first ***
+            {
+                $sort: {
+                    "role.employee._id": 1,
+                    createdAt: -1 // Assuming you have a timestamp field like createdAt or updatedAt
+                },
+            },
+            // *** ADDED: Group by employee to get only the latest record ***
+            {
+                $group: {
+                    _id: "$role.employee._id",
+                    latestRecord: { $first: "$$ROOT" }
+                },
+            },
+            // *** ADDED: Replace root with the latest record ***
+            {
+                $replaceRoot: {
+                    newRoot: "$latestRecord"
                 },
             },
             {

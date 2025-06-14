@@ -16,6 +16,7 @@ router
     .route("/")
     .post(authMiddleware_1.authenticate, (0, roleMiddleware_1.authorizeRoles)(global_enum_1.GlobalAdminRoles.SuperAdmin, global_enum_1.GlobalAdminRoles.ClientAdmin), projectValidators_1.createProjectValidation, checkValidationsMiddleware_1.checkValidationResult, ProjectControllers_1.createProject)
     .get(authMiddleware_1.authenticate, (0, roleMiddleware_1.authorizeRoles)(global_enum_1.GlobalAdminRoles.SuperAdmin, global_enum_1.GlobalAdminRoles.ClientAdmin), ProjectControllers_1.getAllProjects);
+router.get("/get/all", authMiddleware_1.authenticate, (0, roleMiddleware_1.authorizeRoles)(global_enum_1.GlobalAdminRoles.SuperAdmin, global_enum_1.GlobalAdminRoles.ClientAdmin), ProjectControllers_1.getAllProjectsForUser);
 router
     .route("/project-by-id/:id")
     .get(authMiddleware_1.authenticate, (0, roleMiddleware_1.authorizeRoles)(global_enum_1.GlobalAdminRoles.SuperAdmin, global_enum_1.GlobalAdminRoles.ClientAdmin), projectValidators_1.getProjectByIdValidation, checkValidationsMiddleware_1.checkValidationResult, ProjectControllers_1.getProjectById)

@@ -246,7 +246,7 @@ const login = async (req, res) => {
             expiryAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
             role: user.role,
         });
-        const token = jsonwebtoken_1.default.sign({ id: user._id, role: user.role, os: session.os, device: session.device }, config_1.config.jwtSecret, { expiresIn: "1d" });
+        const token = jsonwebtoken_1.default.sign({ id: user._id, role: user.role, os: session.os, device: session.device }, config_1.config.jwtSecret, { expiresIn: "30d" });
         let redirectUrl = "/";
         if (user.role === global_enum_1.GlobalAdminRoles.SuperAdmin) {
             redirectUrl = "/admin";

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAllEmployeesInProjectOrganization = exports.getProjectsByLocation = exports.deleteProject = exports.updateProject = exports.getProjectById = exports.getAllProjects = exports.createProject = exports.createProjectByName = void 0;
+exports.getAllEmployeesInProjectOrganization = exports.getProjectsByLocation = exports.deleteProject = exports.updateProject = exports.getProjectById = exports.getAllProjectsForUser = exports.getAllProjects = exports.createProject = exports.createProjectByName = void 0;
 const ProjectModel_1 = __importDefault(require("../models/ProjectModel"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const pagination_1 = require("../helper/pagination");
@@ -277,6 +277,29 @@ const getAllProjects = async (req, res) => {
     }
 };
 exports.getAllProjects = getAllProjects;
+// Get all projects
+const getAllProjectsForUser = async (req, res) => {
+    const customReq = req;
+    const currentUser = customReq.user;
+    try {
+        const projects = await ProjectModel_1.default.find({
+            createdBy: currentUser.id
+        });
+        return res.status(200).json({
+            success: true,
+            data: projects,
+            message: req.i18n.t("projectValidationMessages.response.getAllProjects.success"),
+        });
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            error: req.i18n.t("projectValidationMessages.response.getAllProjects.server"),
+        });
+    }
+};
+exports.getAllProjectsForUser = getAllProjectsForUser;
 // Get a project by Id
 // export const getProjectById = async (req: Request, res: Response) => {
 //   const { id } = req.params;

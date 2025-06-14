@@ -42,8 +42,9 @@ const createTeam = async (req, res) => {
     session.startTransaction();
     try {
         const { name } = req.body;
+        // Check if a team with the same name (case-insensitive, trimmed) exists for the current user
         const isExist = await TeamModel_1.default.findOne({
-            name,
+            name: { $regex: new RegExp(`^${name.trim()}$`, "i") },
             createdBy: currentUser.id,
         }).session(session);
         if (isExist) {
@@ -84,6 +85,8 @@ const getAllTeams = async (req, res) => {
     const customReq = req;
     const currentUser = customReq.user;
     try {
+        const limit = req.query.limit ? Number(req.query.limit) : 10;
+        const page = req.query.page ? Number(req.query.page) : 1;
         const populateOptions = [
             {
                 path: "members",
@@ -96,8 +99,10 @@ const getAllTeams = async (req, res) => {
             sort: { createdAt: -1 },
             filter: {
                 isDeleted: false,
-                // createdBy: currentUser.id,
+                createdBy: currentUser.id,
             },
+            limit,
+            page
         });
         const result = await (0, pagination_1.paginate)(TeamModel_1.default, options);
         return res.status(200).json({
@@ -211,7 +216,9 @@ const removeMemberFromTeam = async (req, res) => {
                 error: req.i18n.t("teamValidationMessages.response.removeMemberFromTeam.notFoundEmployee"),
             });
         }
-        const isExist = team.members.some((member) => member._id.equals(employeeId));
+        const isExist = team.members.some((member) => {
+            return member._id.toString() === employeeId.toString();
+        });
         if (!isExist) {
             return res.status(400).json({
                 success: false,
@@ -225,7 +232,7 @@ const removeMemberFromTeam = async (req, res) => {
             identityId: team._id,
         });
         if (conversation) {
-            await conversation_service_1.default.removeParticipant(conversation._id.toString(), employeeId.toString());
+            await conversation_service_1.default.removeParticipant(conversation._id.toString(), employee.user.toString());
         }
         return res.status(201).json({
             success: true,

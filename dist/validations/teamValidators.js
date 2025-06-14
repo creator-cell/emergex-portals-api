@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addRemoveTeamMemberValidation = exports.teamUpdateByIdValidation = exports.teamGetByIdValidation = exports.teamValidationRules = void 0;
+exports.removeTeamMemberValidation = exports.addRemoveTeamMemberValidation = exports.teamUpdateByIdValidation = exports.teamGetByIdValidation = exports.teamValidationRules = void 0;
 const express_validator_1 = require("express-validator");
 const mongoose_1 = __importDefault(require("mongoose"));
 exports.teamValidationRules = [
@@ -50,4 +50,16 @@ exports.addRemoveTeamMemberValidation = [
         return true;
     })
         .withMessage((_, { req }) => req.i18n.t("teamValidationMessages.addRemoveTeamMemberValidation.employeeId.empty"))
+];
+exports.removeTeamMemberValidation = [
+    (0, express_validator_1.param)("id")
+        .notEmpty()
+        .withMessage((_, { req }) => req.i18n.t("teamValidationMessages.addRemoveTeamMemberValidation.id.empty"))
+        .isMongoId()
+        .withMessage((_, { req }) => req.i18n.t("teamValidationMessages.addRemoveTeamMemberValidation.id.invalidMongooseFormat")),
+    (0, express_validator_1.body)("employeeId")
+        .notEmpty()
+        .withMessage((_, { req }) => req.i18n.t("employeeValidationMessages.id.empty"))
+        .isMongoId()
+        .withMessage((_, { req }) => req.i18n.t("employeeValidationMessages.id.invalidMongooseFormat"))
 ];
