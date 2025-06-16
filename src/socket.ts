@@ -1,10 +1,5 @@
 import { Server } from "socket.io";
 import { logger } from "./config/logger";
-import { SpeechClient } from "@google-cloud/speech";
-
-const speechClient = new SpeechClient({
-  keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
-});
 
 export const userSocketMap: { [key: string]: string } = {};
 
@@ -31,7 +26,7 @@ export const setupSocketServer = (server: any) => {
   io.on("connection", (socket) => {
     logger.info(`User connected: ${socket.id}`);
 
-    let recognizeStream: any = null;
+    // let recognizeStream: any = null;
 
     // Setup user connection with authentication
     socket.on("setup", (userData: { _id: string }) => {
@@ -45,55 +40,55 @@ export const setupSocketServer = (server: any) => {
       socket.emit("connected");
     });
 
-    socket.on("startGoogleCloudStream", (audioConfig) => {
-      // Create a recognize stream for the client
-      recognizeStream = speechClient.streamingRecognize({
-        config: {
-          encoding: audioConfig.encoding || "LINEAR16",
-          sampleRateHertz: audioConfig.sampleRateHertz || 16000,
-          languageCode: audioConfig.languageCode || "en-US",
-          enableAutomaticPunctuation: true,
-        },
-        interimResults: true,
-      });
+    // socket.on("startGoogleCloudStream", (audioConfig) => {
+    //   // Create a recognize stream for the client
+    //   recognizeStream = speechClient.streamingRecognize({
+    //     config: {
+    //       encoding: audioConfig.encoding || "LINEAR16",
+    //       sampleRateHertz: audioConfig.sampleRateHertz || 16000,
+    //       languageCode: audioConfig.languageCode || "en-US",
+    //       enableAutomaticPunctuation: true,
+    //     },
+    //     interimResults: true,
+    //   });
 
-      // Forward transcription results to the client
-      recognizeStream.on("data", (data: any) => {
-        if (data.results[0] && data.results[0].alternatives[0]) {
-          const transcription = data.results[0].alternatives[0].transcript;
-          const isFinal = data.results[0].isFinal;
+    //   // Forward transcription results to the client
+    //   recognizeStream.on("data", (data: any) => {
+    //     if (data.results[0] && data.results[0].alternatives[0]) {
+    //       const transcription = data.results[0].alternatives[0].transcript;
+    //       const isFinal = data.results[0].isFinal;
 
-          socket.emit("transcription", {
-            transcription,
-            isFinal,
-          });
-        }
-      });
+    //       socket.emit("transcription", {
+    //         transcription,
+    //         isFinal,
+    //       });
+    //     }
+    //   });
 
-      recognizeStream.on("error", (error: any) => {
-        console.error("Recognition error:", error);
-        socket.emit("error", { error: error.message });
-      });
+    //   recognizeStream.on("error", (error: any) => {
+    //     console.error("Recognition error:", error);
+    //     socket.emit("error", { error: error.message });
+    //   });
 
-      recognizeStream.on("end", () => {
-        console.log("Recognition stream ended");
-      });
-    });
+    //   recognizeStream.on("end", () => {
+    //     console.log("Recognition stream ended");
+    //   });
+    // });
 
-    // Process audio data from the client
-    socket.on("audioData", (data) => {
-      if (recognizeStream) {
-        recognizeStream.write(data);
-      }
-    });
+    // // Process audio data from the client
+    // socket.on("audioData", (data) => {
+    //   if (recognizeStream) {
+    //     recognizeStream.write(data);
+    //   }
+    // });
 
-    // Stop the recognition stream
-    socket.on("endGoogleCloudStream", () => {
-      if (recognizeStream) {
-        recognizeStream.end();
-        recognizeStream = null;
-      }
-    });
+    // // Stop the recognition stream
+    // socket.on("endGoogleCloudStream", () => {
+    //   if (recognizeStream) {
+    //     recognizeStream.end();
+    //     recognizeStream = null;
+    //   }
+    // });
 
     // Handle disconnection
     socket.on("disconnect", () => {

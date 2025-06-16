@@ -1,7 +1,7 @@
 "use strict";
+// import { SpeechClient } from '@google-cloud/speech';
 Object.defineProperty(exports, "__esModule", { value: true });
-const speech_1 = require("@google-cloud/speech");
-const speechClient = new speech_1.SpeechClient({
-    keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS || "aalaahah",
-});
-exports.default = speechClient;
+// const speechClient = new SpeechClient({
+//   keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS || "aalaahah",
+// });
+// export default speechClient;

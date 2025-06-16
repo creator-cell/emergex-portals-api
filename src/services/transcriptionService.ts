@@ -1,40 +1,40 @@
 import fs from 'fs';
 import ffmpeg from 'fluent-ffmpeg';
 import path from 'path';
-import speechClient from '../config/googleClient';
+// import speechClient from '../config/googleClient';
 import openai from '../config/openAiClient';
 
 // Convert audio to WAV
-export async function convertToWav(inputPath: string, outputPath: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    ffmpeg(inputPath)
-      .output(outputPath)
-      .audioCodec('pcm_s16le')
-      .audioFilters('aformat=channel_layouts=mono')
-      .on('end', () => resolve(outputPath))
-      .on('error', (err: Error) => reject(new Error(`Conversion error: ${err.message}`)))
-      .run();
-  });
-}
+// export async function convertToWav(inputPath: string, outputPath: string): Promise<string> {
+//   return new Promise((resolve, reject) => {
+//     ffmpeg(inputPath)
+//       .output(outputPath)
+//       .audioCodec('pcm_s16le')
+//       .audioFilters('aformat=channel_layouts=mono')
+//       .on('end', () => resolve(outputPath))
+//       .on('error', (err: Error) => reject(new Error(`Conversion error: ${err.message}`)))
+//       .run();
+//   });
+// }
 
-// Transcribe audio using Google Speech-to-Text
-export async function transcribeAudio(audioFilePath: string): Promise<string> {
-  const file = fs.readFileSync(audioFilePath);
-  const audioBytes = file.toString('base64');
+// // Transcribe audio using Google Speech-to-Text
+// export async function transcribeAudio(audioFilePath: string): Promise<string> {
+//   const file = fs.readFileSync(audioFilePath);
+//   const audioBytes = file.toString('base64');
 
-  const request = {
-    audio: { content: audioBytes },
-    config: { encoding: "LINEAR16" as const, languageCode: 'en-US' },
-  };
+//   const request = {
+//     audio: { content: audioBytes },
+//     config: { encoding: "LINEAR16" as const, languageCode: 'en-US' },
+//   };
 
-  const [response] = await speechClient.recognize(request);
+//   const [response] = await speechClient.recognize(request);
 
-  const transcription = response.results
-    ?.map((result: any) => result.alternatives[0].transcript)
-    .join('\n') || '';
+//   const transcription = response.results
+//     ?.map((result: any) => result.alternatives[0].transcript)
+//     .join('\n') || '';
 
-  return transcription;
-}
+//   return transcription;
+// }
 
 // Extract incident information using OpenAI
 export async function extractIncidentInfo(text: string): Promise<string> {

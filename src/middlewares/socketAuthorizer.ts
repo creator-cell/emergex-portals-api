@@ -15,7 +15,6 @@ export const socketAuthorizer = async (
 ) => {
   try {
     const token = socket.handshake.query.token as string;
-    console.log("token: ",token)
     if (!token) return next(new Error("Access Denied"));
 
     const decoded = jwt.verify(token, config.jwtSecret) as { id: string };
