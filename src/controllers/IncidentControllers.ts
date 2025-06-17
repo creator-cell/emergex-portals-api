@@ -1,4 +1,4 @@
-import e, { Request, Response } from "express";
+import { Request, Response } from "express";
 import IncidentModel from "../models/IncidentModel";
 import fs from "fs";
 import { ICustomRequest } from "../types/express";
@@ -428,6 +428,8 @@ export const updateIncidentById = async (req: Request, res: Response) => {
     // }
 
     // Handle image updates (if needed)
+
+    // console.log("images: ",images.map((img:string)=>img.slice(0,15)))
     if (
       images &&
       Array.isArray(images) &&
@@ -440,7 +442,7 @@ export const updateIncidentById = async (req: Request, res: Response) => {
         (item: string) => !item.startsWith("https")
       );
       const uploadPromises = imageToUpload.map(async (base64String, index) => {
-        const fileName = `incident_${incidentId}_image_${index}_${Date.now()}.jpg`;
+        const fileName = `incident_${existingIncident.id}_image_${index}_${Date.now()}.jpg`;
         const uploadResponse = await UploadBase64File(
           base64String,
           fileName,

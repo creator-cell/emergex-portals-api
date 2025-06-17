@@ -7,6 +7,7 @@ import { getIncidentsByProjectIdValidationRules, incidentsByIdValidationRules, i
 import { authenticate } from "../middlewares/authMiddleware";
 import { authorizeRoles } from "../middlewares/roleMiddleware";
 import { GlobalAdminRoles } from "../config/global-enum";
+import { normalizeImageData } from "../middlewares/imageNormalizer";
 
 const router = Router();
 
@@ -17,6 +18,7 @@ router
     authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin),
     incidentValidationRules,
     checkValidationResult,
+    normalizeImageData,
     createIncident
   );
 
@@ -25,7 +27,7 @@ router.get("/incident-by-project/:id", authenticate,authorizeRoles(GlobalAdminRo
 
 router.route("/incident-by-id/:id")
 .get(authenticate,authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin),incidentsByIdValidationRules,checkValidationResult,getIncidentById)
-.put(authenticate,authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin),[...incidentsByIdValidationRules,...updateIncidentValidationRules],checkValidationResult,updateIncidentById)
+.put(authenticate,authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin),[...incidentsByIdValidationRules,...updateIncidentValidationRules],checkValidationResult,normalizeImageData,updateIncidentById)
 .delete(authenticate,authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin),incidentsByIdValidationRules,checkValidationResult,deleteIncidentById);
 
 // router.get("/incident-by-id/:id", authenticate,authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin),incidentsByIdValidationRules,checkValidationResult,getIncidentsByProject);

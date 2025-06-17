@@ -151,7 +151,6 @@ export const createEmployee = async (req: Request, res: Response) => {
 export const getEmployees = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
-  console.log("query: ",req.query)
   try {
     let user: any = currentUser.id;
     if (currentUser.role === GlobalAdminRoles.ClientAdmin) {
@@ -159,15 +158,11 @@ export const getEmployees = async (req: Request, res: Response) => {
       user = data?.createdBy;
     }
 
-    const limit = req.query.limit ? Number(req.query.limit) : 10;
-    const page = req.query.page ? Number(req.query.page) : 1;
-    const { sort, order } = req.query;
-
     const options = getPaginationOptions(req, {
       filter: {
         isDeleted: false,
         createdBy: new mongoose.Types.ObjectId(user),
-      }
+      },
     });
 
     const result = await paginate(EmployeeModel, options);
@@ -388,17 +383,42 @@ export const getUnassignedEmployees = async (req: Request, res: Response) => {
 
 export const getEmployeesNotInProject = async (req: Request, res: Response) => {
   const { id } = req.params;
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
   try {
+    let user: any = currentUser.id;
+    if (currentUser.role === GlobalAdminRoles.ClientAdmin) {
+      const data = await UserModel.findOne({ _id: currentUser.id });
+      user = data?.createdBy;
+    }
+
+    const teams = await TeamModel.find({createdBy:user});
+    const employeeInTeams = teams.map((team) => team.members).flat();
+
     const roles = await ProjectRoleModel.find({
       project: id,
     });
 
-    const employeeinProject = roles.map((role) => role.employee);
+    const employeeInProject = roles.map((role) => role.employee);
 
-    const employeeNotInProject = await EmployeeModel.find({
-      _id: { $nin: employeeinProject },
-      isDeleted: false,
-    });
+    const employeeNotInProject = await EmployeeModel.aggregate([
+      {
+        $match:{
+          createdBy:new mongoose.Types.ObjectId(user)
+        }
+      },
+      {
+        $match: {
+          _id: { $in: employeeInTeams },
+          isDeleted: false,
+        },
+      },
+      {
+        $match: {
+          _id: { $nin: employeeInProject },
+        },
+      },
+    ]);
 
     return res.status(200).json({
       success: true,

@@ -192,16 +192,16 @@ export const incidentValidationRules = [
       req.i18n.t(
         "incidentValidationMessages.incidentValidationRules.images.array"
       )
-    )
-    .custom((images) => {
-      if (!Array.isArray(images)) return false;
-      return images.every((img) => base64Regex.test(img));
-    })
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "incidentValidationMessages.incidentValidationRules.images.base64"
-      )
     ),
+    // .custom((images) => {
+    //   if (!Array.isArray(images)) return false;
+    //   return images.every((img) => base64Regex.test(img));
+    // })
+    // .withMessage((_, { req }) =>
+    //   req.i18n.t(
+    //     "incidentValidationMessages.incidentValidationRules.images.base64"
+    //   )
+    // ),
   body("signature")
     .notEmpty()
     .withMessage((_, { req }) =>
