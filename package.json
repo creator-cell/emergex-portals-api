@@ -6,7 +6,7 @@
   "type": "commonjs",
   "scripts": {
     "start": "node dist/index.js",
-    "dev": "nodemon src/index.ts",
+    "dev": "npx ts-node-dev --respawn src/index.ts",
     "build": "tsc"
   },
   "author": "Gaurav Singh",
@@ -52,6 +52,6 @@
     "@types/node": "^22.5.1",
     "@types/sendgrid": "^2.0.31",
     "ts-node": "^10.9.2",
-    "typescript": "^5.5.4"
+    "typescript": "^5.9.2"
   }
 }

@@ -3,50 +3,11 @@ import { body, param } from "express-validator";
 const base64Regex = /^data:image\/(png|jpeg|jpg|gif|webp);base64,[A-Za-z0-9+/=]+$/;
 
 export const incidentValidationRules = [
-  body("level")
-    .notEmpty()
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "incidentValidationMessages.incidentValidationRules.level.empty"
-      )
-    )
-    .isString()
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "incidentValidationMessages.incidentValidationRules.level.string"
-      )
-    )
-    .isIn(["Level 1", "Level 2", "Level 3", "Level 4"])
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "incidentValidationMessages.incidentValidationRules.level.enum"
-      )
-    ),
-  body("type")
-    .notEmpty()
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "incidentValidationMessages.incidentValidationRules.type.empty"
-      )
-    ),
   body("description")
     .notEmpty()
     .withMessage((_, { req }) =>
       req.i18n.t(
         "incidentValidationMessages.incidentValidationRules.description.empty"
-      )
-    ),
-  body("status")
-    .notEmpty()
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "incidentValidationMessages.incidentValidationRules.status.empty"
-      )
-    )
-    .isIn(["Assigned", "Delayed", "In Progress", "Completed", "Cancelled"])
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "incidentValidationMessages.incidentValidationRules.status.enum"
       )
     ),
   body("projectId")
@@ -62,19 +23,7 @@ export const incidentValidationRules = [
         "incidentValidationMessages.incidentValidationRules.projectId.isMongoDbId"
       )
     ),
-  // body("assignedTo")
-  //   .notEmpty()
-  //   .withMessage((_, { req }) =>
-  //     req.i18n.t(
-  //       "incidentValidationMessages.incidentValidationRules.assignedTo.empty"
-  //     )
-  //   )
-  //   .isMongoId()
-  //   .withMessage((_, { req }) =>
-  //     req.i18n.t(
-  //       "incidentValidationMessages.incidentValidationRules.assignedTo.isMongoDbId"
-  //     )
-  //   ),
+
   body("countOfInjuredPeople")
     .notEmpty()
     .withMessage((_, { req }) =>
@@ -134,13 +83,7 @@ export const incidentValidationRules = [
         "incidentValidationMessages.incidentValidationRules.finance.empty"
       )
     )
-    // .isFloat({ min: 0 })
-    // .withMessage((_, { req }) =>
-    //   req.i18n.t(
-    //     "incidentValidationMessages.incidentValidationRules.finance.int"
-    //   )
-    // )
-    ,
+  ,
   body("utilityAffected")
     .notEmpty()
     .withMessage((_, { req }) =>
@@ -154,54 +97,20 @@ export const incidentValidationRules = [
         "incidentValidationMessages.incidentValidationRules.utilityAffected.array"
       )
     ),
-  body("informToTeam")
+  body("images")
     .notEmpty()
     .withMessage((_, { req }) =>
       req.i18n.t(
-        "incidentValidationMessages.incidentValidationRules.informToTeam.empty"
+        "incidentValidationMessages.incidentValidationRules.signature.empty"
       )
     )
-    .isBoolean()
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "incidentValidationMessages.incidentValidationRules.informToTeam.boolean"
-      )
-    ),
-  body("termsAndConditions")
-    .notEmpty()
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "incidentValidationMessages.incidentValidationRules.termsAndConditions.empty"
-      )
-    )
-    .isBoolean()
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "incidentValidationMessages.incidentValidationRules.termsAndConditions.boolean"
-      )
-    ),
-    body("images")
-      .notEmpty()
-      .withMessage((_, { req }) =>
-        req.i18n.t(
-          "incidentValidationMessages.incidentValidationRules.signature.empty"
-        )
-      )
-      .isArray()
+    .isArray()
     .withMessage((_, { req }) =>
       req.i18n.t(
         "incidentValidationMessages.incidentValidationRules.images.array"
       )
     ),
-    // .custom((images) => {
-    //   if (!Array.isArray(images)) return false;
-    //   return images.every((img) => base64Regex.test(img));
-    // })
-    // .withMessage((_, { req }) =>
-    //   req.i18n.t(
-    //     "incidentValidationMessages.incidentValidationRules.images.base64"
-    //   )
-    // ),
+
   body("signature")
     .notEmpty()
     .withMessage((_, { req }) =>
@@ -218,21 +127,6 @@ export const incidentValidationRules = [
 ];
 
 export const updateIncidentValidationRules = [
-  body("level")
-    .optional()
-    .isString()
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "incidentValidationMessages.incidentValidationRules.level.string"
-      )
-    )
-    .isIn(["Level 1", "Level 2", "Level 3", "Level 4"])
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "incidentValidationMessages.incidentValidationRules.level.enum"
-      )
-    ),
-  body("type").optional(),
   body("description").optional(),
   body("status")
     .optional()
@@ -250,14 +144,7 @@ export const updateIncidentValidationRules = [
         "incidentValidationMessages.incidentValidationRules.projectId.isMongoDbId"
       )
     ),
-  // body("assignedTo")
-  //   .optional()
-  //   .isMongoId()
-  //   .withMessage((_, { req }) =>
-  //     req.i18n.t(
-  //       "incidentValidationMessages.incidentValidationRules.assignedTo.isMongoDbId"
-  //     )
-  //   ),
+
   body("countOfInjuredPeople")
     .optional()
     .isInt({ min: 0 })
@@ -290,7 +177,7 @@ export const updateIncidentValidationRules = [
         "incidentValidationMessages.incidentValidationRules.damageAssets.array"
       )
     ),
-    body("finance")
+  body("finance")
     .notEmpty()
     .withMessage((_, { req }) =>
       req.i18n.t(
@@ -303,22 +190,6 @@ export const updateIncidentValidationRules = [
     .withMessage((_, { req }) =>
       req.i18n.t(
         "incidentValidationMessages.incidentValidationRules.utilityAffected.array"
-      )
-    ),
-  body("informToTeam")
-    .optional()
-    .isBoolean()
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "incidentValidationMessages.incidentValidationRules.informToTeam.boolean"
-      )
-    ),
-  body("termsAndConditions")
-    .optional()
-    .isBoolean()
-    .withMessage((_, { req }) =>
-      req.i18n.t(
-        "incidentValidationMessages.incidentValidationRules.termsAndConditions.boolean"
       )
     ),
   body("images")

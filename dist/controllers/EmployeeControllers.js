@@ -110,21 +110,17 @@ exports.createEmployee = createEmployee;
 const getEmployees = async (req, res) => {
     const customReq = req;
     const currentUser = customReq.user;
-    console.log("query: ", req.query);
     try {
         let user = currentUser.id;
         if (currentUser.role === global_enum_1.GlobalAdminRoles.ClientAdmin) {
             const data = await UserModel_1.default.findOne({ _id: currentUser.id });
             user = data?.createdBy;
         }
-        const limit = req.query.limit ? Number(req.query.limit) : 10;
-        const page = req.query.page ? Number(req.query.page) : 1;
-        const { sort, order } = req.query;
         const options = (0, pagination_1.getPaginationOptions)(req, {
             filter: {
                 isDeleted: false,
                 createdBy: new mongoose_1.default.Types.ObjectId(user),
-            }
+            },
         });
         const result = await (0, pagination_1.paginate)(EmployeeModel_1.default, options);
         return res.status(200).json({
@@ -296,15 +292,38 @@ const getUnassignedEmployees = async (req, res) => {
 exports.getUnassignedEmployees = getUnassignedEmployees;
 const getEmployeesNotInProject = async (req, res) => {
     const { id } = req.params;
+    const customReq = req;
+    const currentUser = customReq.user;
     try {
+        let user = currentUser.id;
+        if (currentUser.role === global_enum_1.GlobalAdminRoles.ClientAdmin) {
+            const data = await UserModel_1.default.findOne({ _id: currentUser.id });
+            user = data?.createdBy;
+        }
+        const teams = await TeamModel_1.default.find({ createdBy: user });
+        const employeeInTeams = teams.map((team) => team.members).flat();
         const roles = await ProjectRoleModel_1.default.find({
             project: id,
         });
-        const employeeinProject = roles.map((role) => role.employee);
-        const employeeNotInProject = await EmployeeModel_1.default.find({
-            _id: { $nin: employeeinProject },
-            isDeleted: false,
-        });
+        const employeeInProject = roles.map((role) => role.employee);
+        const employeeNotInProject = await EmployeeModel_1.default.aggregate([
+            {
+                $match: {
+                    createdBy: new mongoose_1.default.Types.ObjectId(user)
+                }
+            },
+            {
+                $match: {
+                    _id: { $in: employeeInTeams },
+                    isDeleted: false,
+                },
+            },
+            {
+                $match: {
+                    _id: { $nin: employeeInProject },
+                },
+            },
+        ]);
         return res.status(200).json({
             success: true,
             data: employeeNotInProject,
