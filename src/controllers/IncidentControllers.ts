@@ -210,8 +210,6 @@ export const createIncident = async (req: Request, res: Response) => {
 export const approveIncidentById = async (req: Request, res: Response) => {
 
   const { id } = req.params;
-  const currentReq = req as ICustomRequest;
-  const currentUser = currentReq.user;
 
   if (!id) return res.status(404).json({ success: false, error: 'Id not Found' });
 
@@ -223,19 +221,24 @@ export const approveIncidentById = async (req: Request, res: Response) => {
 
     await IncidentModel.findByIdAndUpdate(id, { isApproved: true, status: 'Assigned' });
 
-    const employee = await EmployeeModel.findOne({ user: currentUser.id });
-
-    const role = await ProjectRoleModel.findOne({
-      employee: employee?._id,
+    const roles = await ProjectRoleModel.find({
       project: incident.project,
-    });
+    })
 
-    await IncidentStatusHistoryModel.create({
-      incident: incident._id,
-      role: role?._id,
-      old: null,
-      status: 'Assigned'
-    });
+    await Promise.all(
+      roles.map(async (role) => {
+        await IncidentStatusHistoryModel.create(
+          [
+            {
+              old: 'Not-Approved',
+              status: 'Assigned',
+              role: role._id,
+              incident: incident._id,
+            },
+          ],
+        );
+      })
+    );
 
     return res.json({ succes: true, message: 'Incident has been approved' });
 
@@ -246,7 +249,6 @@ export const approveIncidentById = async (req: Request, res: Response) => {
       error: 'Internal Server Error'
     });
   }
-
 
 }
 
