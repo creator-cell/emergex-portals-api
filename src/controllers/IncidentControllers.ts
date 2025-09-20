@@ -613,7 +613,6 @@ export const getIncidentsByProject = async (req: Request, res: Response) => {
       },
     ]);
 
-    // console.log("incid: ",incidents)
 
     return res.status(200).json({
       success: true,
