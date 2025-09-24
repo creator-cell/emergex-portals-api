@@ -207,6 +207,67 @@ export const createIncident = async (req: Request, res: Response) => {
   }
 };
 
+export const markedAsNearMiss = async (req: Request, res: Response) => {
+
+  const { id } = req.params;
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
+  if (!id) return res.status(404).json({ success: false, error: 'Id not Found' });
+
+  try {
+
+    const incident = await IncidentModel.findById(id);
+
+    if (!incident) return res.status(404).json({ status: false, error: 'Incident not found with this Id' });
+
+    if (incident.isApproved) return res.status(400).json({ status: false, error: 'Cannot Mark Incident as Near Miss after being approved' });
+
+    await IncidentModel.findByIdAndUpdate(incident._id, { isNearMissCase: true });
+
+    const employee = await EmployeeModel.findOne({ user: currentUser.id });
+
+    const role = await ProjectRoleModel.findOne({
+      employee: employee?._id,
+      project: incident.project,
+    });
+
+    if (role) {
+
+      await IncidentStatusHistoryModel.create(
+        [
+          {
+            old: 'Not-Approved',
+            status: 'Completed',
+            role: role._id,
+            incident: incident._id,
+          },
+        ],
+      );
+
+      const historyEntry = [{
+        title: `Incident Marked as Near Miss By Admin`,
+        role: role.id,
+        incident: incident._id,
+      }]
+
+      await IncidentHistoryModel.insertMany(historyEntry);
+
+    }
+
+    return res.json({ succes: true, message: 'Incident has been marked as Near Miss' });
+
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({
+      success: false,
+      error: 'Internal Server Error'
+    });
+  }
+
+
+}
+
 export const approveIncidentById = async (req: Request, res: Response) => {
 
   const { id } = req.params;

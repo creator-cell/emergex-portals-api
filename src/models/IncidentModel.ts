@@ -96,6 +96,10 @@ const IncidentSchema: Schema = new Schema(
       type: Boolean,
       default: false,
       required: true
+    },
+    isNearMiss: {
+      type: Boolean,
+      default: false
     }
   },
   { timestamps: true }
