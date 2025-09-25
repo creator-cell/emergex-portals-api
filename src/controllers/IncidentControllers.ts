@@ -223,7 +223,34 @@ export const markedAsNearMiss = async (req: Request, res: Response) => {
 
     if (incident.isApproved) return res.status(400).json({ status: false, error: 'Cannot Mark Incident as Near Miss after being approved' });
 
-    await IncidentModel.findByIdAndUpdate(incident._id, { isNearMissCase: true });
+    await IncidentModel.findByIdAndUpdate(incident._id, { isNearMiss: true, status: 'Completed' });
+
+
+    const roles = await ProjectRoleModel.find({
+      project: incident.project,
+    })
+
+
+    if (roles) {
+
+      await Promise.all(
+
+        roles.map(async (role) => {
+          await IncidentStatusHistoryModel.create(
+            [
+              {
+                old: 'Not-Approved',
+                status: 'Completed',
+                role: role._id,
+                incident: incident._id,
+              },
+            ],
+          );
+
+        })
+      );
+
+    }
 
     const employee = await EmployeeModel.findOne({ user: currentUser.id });
 
@@ -234,17 +261,6 @@ export const markedAsNearMiss = async (req: Request, res: Response) => {
 
     if (role) {
 
-      await IncidentStatusHistoryModel.create(
-        [
-          {
-            old: 'Not-Approved',
-            status: 'Completed',
-            role: role._id,
-            incident: incident._id,
-          },
-        ],
-      );
-
       const historyEntry = [{
         title: `Incident Marked as Near Miss By Admin`,
         role: role.id,
@@ -254,6 +270,8 @@ export const markedAsNearMiss = async (req: Request, res: Response) => {
       await IncidentHistoryModel.insertMany(historyEntry);
 
     }
+
+
 
     return res.json({ succes: true, message: 'Incident has been marked as Near Miss' });
 
@@ -271,6 +289,8 @@ export const markedAsNearMiss = async (req: Request, res: Response) => {
 export const approveIncidentById = async (req: Request, res: Response) => {
 
   const { id } = req.params;
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
 
   if (!id) return res.status(404).json({ success: false, error: 'Id not Found' });
 
@@ -300,6 +320,26 @@ export const approveIncidentById = async (req: Request, res: Response) => {
         );
       })
     );
+
+
+    const employee = await EmployeeModel.findOne({ user: currentUser.id });
+
+    const role = await ProjectRoleModel.findOne({
+      employee: employee?._id,
+      project: incident.project,
+    });
+
+    if (role) {
+
+      const historyEntry = [{
+        title: `Incident has been Approved by Admin`,
+        role: role.id,
+        incident: incident._id,
+      }]
+
+      await IncidentHistoryModel.insertMany(historyEntry);
+
+    }
 
     return res.json({ succes: true, message: 'Incident has been approved' });
 
