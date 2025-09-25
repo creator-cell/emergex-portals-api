@@ -300,7 +300,7 @@ export const approveIncidentById = async (req: Request, res: Response) => {
 
     if (!incident) return res.status(404).json({ status: false, error: 'Incident not. found with this Id' });
 
-    await IncidentModel.findByIdAndUpdate(id, { isApproved: true, status: 'Assigned' });
+    await IncidentModel.findByIdAndUpdate(id, { isApproved: true, approvedAt: Date.now(), status: 'Assigned' });
 
     const roles = await ProjectRoleModel.find({
       project: incident.project,

@@ -100,6 +100,9 @@ const IncidentSchema: Schema = new Schema(
     isNearMiss: {
       type: Boolean,
       default: false
+    },
+    approvedAt: {
+      type: Date
     }
   },
   { timestamps: true }
