@@ -38,7 +38,7 @@ const IncidentSchema: Schema = new Schema(
     status: {
       type: String,
       enum: ["Not-Approved", "Assigned", "Delayed", "In Progress", "Completed", "Cancelled"],
-      required: true,
+      required: false,
       default: 'Not-Approved'
     },
     project: {
@@ -48,11 +48,11 @@ const IncidentSchema: Schema = new Schema(
     },
     countOfInjuredPeople: {
       type: Number,
-      required: true,
+      required: false,
     },
     countOfTotalPeople: {
       type: Number,
-      required: true,
+      required: false,
     },
     location: {
       type: String,
@@ -60,15 +60,15 @@ const IncidentSchema: Schema = new Schema(
     },
     damageAssets: {
       type: [String],
-      required: true,
+      required: false,
     },
     finance: {
       type: String,
-      required: true,
+      required: false,
     },
     utilityAffected: {
       type: [String],
-      required: true,
+      required: false,
     },
     image: {
       type: [String],

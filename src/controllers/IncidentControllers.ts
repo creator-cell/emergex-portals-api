@@ -16,6 +16,7 @@ import {
   ConversationType,
 } from "../models/ConversationModel";
 
+
 export const createIncident = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
@@ -23,47 +24,51 @@ export const createIncident = async (req: Request, res: Response) => {
   session.startTransaction();
   try {
     const {
+      id: incomingId,
+      projectId,
       description,
+      location,
       countOfInjuredPeople,
       countOfTotalPeople,
-      location,
       damageAssets,
       finance,
       utilityAffected,
-      projectId,
       images,
       signature,
     } = req.body;
 
-    let id = req.body.id;
+    // Validate required fields
+    if (!projectId || !description || !location) {
+      await session.abortTransaction();
+      return res.status(400).json({
+        success: false,
+        error: req.i18n.t("incidentValidationMessages.response.createIncident.missingRequired"),
+      });
+    }
 
+    // Handle id
+    let id = incomingId;
     const isIdExist = await IncidentModel.findOne({ id }).session(session);
     if (isIdExist || !id) {
       id = await generateUniqueIncidentId();
     }
 
-    const isProjectexist = await ProjectModel.findById(projectId).session(
-      session
-    );
+    // Check if project exists
+    const isProjectexist = await ProjectModel.findById(projectId).session(session);
     if (!isProjectexist) {
       await session.abortTransaction();
       return res.status(400).json({
         success: false,
-        error: req.i18n.t(
-          "projectValidationMessages.response.getProjectById.notFound"
-        ),
+        error: req.i18n.t("projectValidationMessages.response.getProjectById.notFound"),
       });
     }
 
+    // Process images (optional)
     let imagePaths: string[] = [];
     if (images && Array.isArray(images)) {
       const uploadPromises = images.map(async (base64String, index) => {
         const fileName = `incident_${id}_image_${index}_${Date.now()}.jpg`;
-        const uploadResponse = await UploadBase64File(
-          base64String,
-          fileName,
-          "incident"
-        );
+        const uploadResponse = await UploadBase64File(base64String, fileName, "incident");
         return uploadResponse.Success ? uploadResponse.ImageURl : null;
       });
 
@@ -71,56 +76,34 @@ export const createIncident = async (req: Request, res: Response) => {
       imagePaths = uploadedImages.filter((url): url is string => url !== null);
     }
 
-    let signaturePath = null;
+    // Process signature (optional)
+    let signaturePath: string | null | undefined = null;
     if (signature) {
       const fileName = `incident_${id}_signature_image_${Date.now()}.jpg`;
-      const uploadResponse = await UploadBase64File(
-        signature,
-        fileName,
-        "signature"
-      );
+      const uploadResponse = await UploadBase64File(signature, fileName, "signature");
       signaturePath = uploadResponse.Success ? uploadResponse.ImageURl : null;
     }
 
-    if (imagePaths.length === 0) {
-      await session.abortTransaction();
-      return res.status(400).json({
-        succees: false,
-        error: req.i18n.t(
-          "incidentValidationMessages.response.createIncident.imageUploadError"
-        ),
-      });
-    }
-
-    if (!signaturePath) {
-      await session.abortTransaction();
-      return res.status(400).json({
-        succees: false,
-        error: req.i18n.t(
-          "incidentValidationMessages.response.createIncident.signatureUploadError"
-        ),
-      });
-    }
-
+    // Create incident
     const newIncident = new IncidentModel({
       id,
       project: projectId,
       description,
+      location,
       countOfInjuredPeople,
       countOfTotalPeople,
-      location,
       damageAssets,
       finance,
       utilityAffected,
-      image: imagePaths,
-      signature: signaturePath,
+      image: imagePaths?.length ? imagePaths : undefined,
+      signature: signaturePath || undefined,
       createdBy: currentUser.id,
     });
 
     const savedIncident = await newIncident.save({ session });
 
+    // Conversation creation
     const friendlyName = `conversation-${savedIncident._id}`;
-
     const conversation = await conversationService.createConversation(
       friendlyName,
       currentUser.id,
@@ -131,57 +114,50 @@ export const createIncident = async (req: Request, res: Response) => {
     );
 
     if (!conversation) {
-      throw new Error("Failed to create conversation"); // ADDED ERROR THROWING
+      throw new Error("Failed to create conversation");
     }
 
     const conversationId = (conversation as { _id: string })._id;
 
-    const roles = await ProjectRoleModel.find({
-      project: projectId,
-    }).session(session);
-
+    const roles = await ProjectRoleModel.find({ project: projectId }).session(session);
     const employeeIds = roles.map((role) => role.employee);
 
     const employees = await EmployeeModel.find({
-      _id: {
-        $in: employeeIds,
-      },
+      _id: { $in: employeeIds },
     }).session(session);
 
     await Promise.all(
-      employees.map(async (employee) => {
-        await conversationService.addParticipant(
+      employees.map((employee) =>
+        conversationService.addParticipant(
           conversationId.toString(),
           employee.user.toString(),
           employee.user.toString(),
           session
-        );
-      })
+        )
+      )
     );
 
     await Promise.all(
-      roles.map(async (role) => {
-        await IncidentStatusHistoryModel.create(
+      roles.map((role) =>
+        IncidentStatusHistoryModel.create(
           [
             {
               old: null,
-              status: 'Not-Approved',
+              status: "Not-Approved",
               role: role._id,
               incident: savedIncident._id,
             },
           ],
           { session }
-        );
-      })
+        )
+      )
     );
 
     await session.commitTransaction();
 
     return res.status(201).json({
       success: true,
-      message: req.i18n.t(
-        "incidentValidationMessages.response.createIncident.success"
-      ),
+      message: req.i18n.t("incidentValidationMessages.response.createIncident.success"),
       data: savedIncident,
     });
   } catch (error: any) {
@@ -198,14 +174,13 @@ export const createIncident = async (req: Request, res: Response) => {
     console.log("error in createIncident", error);
     return res.status(500).json({
       success: false,
-      error: req.i18n.t(
-        "incidentValidationMessages.response.createIncident.server"
-      ),
+      error: req.i18n.t("incidentValidationMessages.response.createIncident.server"),
     });
   } finally {
     session.endSession();
   }
 };
+
 
 export const markedAsNearMiss = async (req: Request, res: Response) => {
 
@@ -353,6 +328,243 @@ export const approveIncidentById = async (req: Request, res: Response) => {
 
 }
 
+// export const updateIncidentById = async (req: Request, res: Response) => {
+//   const customReq = req as ICustomRequest;
+//   const currentUser = customReq.user;
+//   const incidentId = req.params.id;
+
+//   try {
+//     // Fetch the existing incident
+//     const existingIncident = await IncidentModel.findById(incidentId);
+//     if (!existingIncident) {
+//       return res.status(200).json({
+//         success: false,
+//         error: req.i18n.t(
+//           "incidentValidationMessages.response.getIncidentById.notFound"
+//         ),
+//       });
+//     }
+
+//     const {
+//       description,
+//       status,
+//       countOfInjuredPeople,
+//       countOfTotalPeople,
+//       location,
+//       damageAssets,
+//       finance,
+//       utilityAffected,
+//       images,
+//       signature,
+//     } = req.body;
+
+//     // Track changes
+//     const changes: { field: string; oldValue: any; newValue: any }[] = [];
+//     let statusChanged: boolean = false;
+//     let oldStatus: string = "";
+
+
+//     if (description && existingIncident.description !== description) {
+//       changes.push({
+//         field: "Description",
+//         oldValue: existingIncident.description,
+//         newValue: description,
+//       });
+//       existingIncident.description = description;
+//     }
+
+//     if (status && existingIncident.status !== status) {
+//       changes.push({
+//         field: "Status",
+//         oldValue: existingIncident.status,
+//         newValue: status,
+//       });
+//       statusChanged = true;
+//       oldStatus = existingIncident.status;
+//       existingIncident.status = status;
+//     }
+
+
+//     if (
+//       countOfInjuredPeople &&
+//       existingIncident.countOfInjuredPeople !== countOfInjuredPeople
+//     ) {
+//       changes.push({
+//         field: "Count of injured people",
+//         oldValue: existingIncident.countOfInjuredPeople,
+//         newValue: countOfInjuredPeople,
+//       });
+//       existingIncident.countOfInjuredPeople = countOfInjuredPeople;
+//     }
+
+//     if (
+//       countOfTotalPeople &&
+//       existingIncident.countOfTotalPeople !== countOfTotalPeople
+//     ) {
+//       changes.push({
+//         field: "Count of total people",
+//         oldValue: existingIncident.countOfTotalPeople,
+//         newValue: countOfTotalPeople,
+//       });
+//       existingIncident.countOfTotalPeople = countOfTotalPeople;
+//     }
+
+//     if (location && existingIncident.location !== location) {
+//       changes.push({
+//         field: "Location",
+//         oldValue: existingIncident.location,
+//         newValue: location,
+//       });
+//       existingIncident.location = location;
+//     }
+
+//     if (
+//       damageAssets &&
+//       Array.isArray(damageAssets) &&
+//       !damageAssets.every(
+//         (item: string, index: number) =>
+//           item === existingIncident.damageAssets[index]
+//       )
+//     ) {
+//       changes.push({
+//         field: "Damage Assets",
+//         oldValue: "old damage assets value",
+//         newValue: "new damage assets value",
+//       });
+//       existingIncident.damageAssets = damageAssets;
+//     }
+
+//     if (finance && existingIncident.finance !== finance) {
+//       changes.push({
+//         field: "Finance",
+//         oldValue: existingIncident.finance,
+//         newValue: finance,
+//       });
+//       existingIncident.finance = finance;
+//     }
+
+//     if (
+//       utilityAffected &&
+//       JSON.stringify(existingIncident.utilityAffected) !==
+//       JSON.stringify(utilityAffected)
+//     ) {
+//       changes.push({
+//         field: "Utility Affected",
+//         oldValue: existingIncident.utilityAffected,
+//         newValue: utilityAffected,
+//       });
+//       existingIncident.utilityAffected = utilityAffected;
+//     }
+
+
+//     if (
+//       images &&
+//       Array.isArray(images) &&
+//       !images.every((item: string) => item.startsWith("https"))
+//     ) {
+//       let imagePaths: string[] = images.filter((item: string) =>
+//         item.startsWith("https")
+//       );
+//       let imageToUpload: string[] = images.filter(
+//         (item: string) => !item.startsWith("https")
+//       );
+//       const uploadPromises = imageToUpload.map(async (base64String, index) => {
+//         const fileName = `incident_${existingIncident.id}_image_${index}_${Date.now()}.jpg`;
+//         const uploadResponse = await UploadBase64File(
+//           base64String,
+//           fileName,
+//           "incident"
+//         );
+//         return uploadResponse.Success ? uploadResponse.ImageURl : null;
+//       });
+
+//       const uploadedImages = await Promise.all(uploadPromises);
+//       const imagesUri = uploadedImages.filter(
+//         (url): url is string => url !== null
+//       );
+//       imagePaths = [...imagePaths, ...imagesUri];
+//       existingIncident.image = [...imagePaths];
+//       changes.push({
+//         field: "Images",
+//         newValue: `${existingIncident.image.length > imagePaths.length
+//           ? "Some images are deleted"
+//           : existingIncident.image.length < imagePaths.length
+//             ? "Some images added "
+//             : "Some images replaced"
+//           }`,
+//         oldValue: "old images",
+//       });
+//     }
+
+//     // Handle signature updates (if needed)
+//     let signaturePath = null;
+//     if (signature && !signature.startsWith("https://")) {
+//       const fileName = `incident_${incidentId}_signature_image_${Date.now()}.jpg`;
+//       const uploadResponse = await UploadBase64File(
+//         signature,
+//         fileName,
+//         "signature"
+//       );
+//       signaturePath = uploadResponse.Success ? uploadResponse.ImageURl : null;
+//       if (signaturePath) {
+//         existingIncident.signature = signaturePath;
+//         changes.push({
+//           field: "Signature",
+//           oldValue: "old signature",
+//           newValue: "new signature",
+//         });
+//       }
+//     }
+
+//     // Save the updated incident
+//     const updatedIncident = await existingIncident.save();
+
+//     const employee = await EmployeeModel.findOne({ user: currentUser.id });
+//     const role = await ProjectRoleModel.findOne({
+//       employee: employee?._id,
+//       project: existingIncident.project,
+//     });
+
+//     // Log changes to IncidentHistoryModel
+//     if (changes.length > 0) {
+//       const historyEntries = changes.map((change) => ({
+//         title: `${change.field} changed from ${change.oldValue} to ${change.newValue}`,
+//         role: role?.id,
+//         incident: incidentId,
+//       }));
+
+//       await IncidentHistoryModel.insertMany(historyEntries);
+//     }
+
+//     if (statusChanged && oldStatus !== status) {
+//       await IncidentStatusHistoryModel.create({
+//         incident: existingIncident._id,
+//         role: role?._id,
+//         old: oldStatus,
+//         status,
+//       });
+//     }
+
+//     // Return success response
+//     return res.status(200).json({
+//       success: true,
+//       message: req.i18n.t(
+//         "incidentValidationMessages.response.updateIncidentById.success"
+//       ),
+//       data: updatedIncident,
+//     });
+//   } catch (error) {
+//     console.error("Error in updateIncidentById:", error);
+//     return res.status(500).json({
+//       success: false,
+//       error: req.i18n.t(
+//         "incidentValidationMessages.response.updateIncidentById.server"
+//       ),
+//     });
+//   }
+// };
+
+
 export const updateIncidentById = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
@@ -362,7 +574,7 @@ export const updateIncidentById = async (req: Request, res: Response) => {
     // Fetch the existing incident
     const existingIncident = await IncidentModel.findById(incidentId);
     if (!existingIncident) {
-      return res.status(200).json({
+      return res.status(404).json({
         success: false,
         error: req.i18n.t(
           "incidentValidationMessages.response.getIncidentById.notFound"
@@ -385,11 +597,11 @@ export const updateIncidentById = async (req: Request, res: Response) => {
 
     // Track changes
     const changes: { field: string; oldValue: any; newValue: any }[] = [];
-    let statusChanged: boolean = false;
-    let oldStatus: string = "";
+    let statusChanged = false;
+    let oldStatus = "";
 
-
-    if (description && existingIncident.description !== description) {
+    // ✅ description (required field)
+    if (description !== undefined && existingIncident.description !== description) {
       changes.push({
         field: "Description",
         oldValue: existingIncident.description,
@@ -398,7 +610,8 @@ export const updateIncidentById = async (req: Request, res: Response) => {
       existingIncident.description = description;
     }
 
-    if (status && existingIncident.status !== status) {
+    // ✅ status (optional)
+    if (status !== undefined && existingIncident.status !== status) {
       changes.push({
         field: "Status",
         oldValue: existingIncident.status,
@@ -409,11 +622,8 @@ export const updateIncidentById = async (req: Request, res: Response) => {
       existingIncident.status = status;
     }
 
-
-    if (
-      countOfInjuredPeople &&
-      existingIncident.countOfInjuredPeople !== countOfInjuredPeople
-    ) {
+    // ✅ injured people
+    if (countOfInjuredPeople !== undefined && existingIncident.countOfInjuredPeople !== countOfInjuredPeople) {
       changes.push({
         field: "Count of injured people",
         oldValue: existingIncident.countOfInjuredPeople,
@@ -422,10 +632,8 @@ export const updateIncidentById = async (req: Request, res: Response) => {
       existingIncident.countOfInjuredPeople = countOfInjuredPeople;
     }
 
-    if (
-      countOfTotalPeople &&
-      existingIncident.countOfTotalPeople !== countOfTotalPeople
-    ) {
+    // ✅ total people
+    if (countOfTotalPeople !== undefined && existingIncident.countOfTotalPeople !== countOfTotalPeople) {
       changes.push({
         field: "Count of total people",
         oldValue: existingIncident.countOfTotalPeople,
@@ -434,7 +642,8 @@ export const updateIncidentById = async (req: Request, res: Response) => {
       existingIncident.countOfTotalPeople = countOfTotalPeople;
     }
 
-    if (location && existingIncident.location !== location) {
+    // ✅ location (required field)
+    if (location !== undefined && existingIncident.location !== location) {
       changes.push({
         field: "Location",
         oldValue: existingIncident.location,
@@ -443,23 +652,18 @@ export const updateIncidentById = async (req: Request, res: Response) => {
       existingIncident.location = location;
     }
 
-    if (
-      damageAssets &&
-      Array.isArray(damageAssets) &&
-      !damageAssets.every(
-        (item: string, index: number) =>
-          item === existingIncident.damageAssets[index]
-      )
-    ) {
+    // ✅ damageAssets (optional, array)
+    if (damageAssets !== undefined) {
+      existingIncident.damageAssets = damageAssets;
       changes.push({
         field: "Damage Assets",
-        oldValue: "old damage assets value",
-        newValue: "new damage assets value",
+        oldValue: "previous value",
+        newValue: "updated value",
       });
-      existingIncident.damageAssets = damageAssets;
     }
 
-    if (finance && existingIncident.finance !== finance) {
+    // ✅ finance (optional)
+    if (finance !== undefined && existingIncident.finance !== finance) {
       changes.push({
         field: "Finance",
         oldValue: existingIncident.finance,
@@ -468,11 +672,9 @@ export const updateIncidentById = async (req: Request, res: Response) => {
       existingIncident.finance = finance;
     }
 
-    if (
-      utilityAffected &&
-      JSON.stringify(existingIncident.utilityAffected) !==
-      JSON.stringify(utilityAffected)
-    ) {
+    // ✅ utilityAffected (optional, deep check)
+    if (utilityAffected !== undefined &&
+      JSON.stringify(existingIncident.utilityAffected) !== JSON.stringify(utilityAffected)) {
       changes.push({
         field: "Utility Affected",
         oldValue: existingIncident.utilityAffected,
@@ -481,76 +683,61 @@ export const updateIncidentById = async (req: Request, res: Response) => {
       existingIncident.utilityAffected = utilityAffected;
     }
 
+    // ✅ images (optional)
+    if (images !== undefined && Array.isArray(images)) {
+      let imagePaths: string[] = images.filter((item: string) => item.startsWith("https"));
+      const imageToUpload: string[] = images.filter((item: string) => !item.startsWith("https"));
 
-    if (
-      images &&
-      Array.isArray(images) &&
-      !images.every((item: string) => item.startsWith("https"))
-    ) {
-      let imagePaths: string[] = images.filter((item: string) =>
-        item.startsWith("https")
-      );
-      let imageToUpload: string[] = images.filter(
-        (item: string) => !item.startsWith("https")
-      );
-      const uploadPromises = imageToUpload.map(async (base64String, index) => {
-        const fileName = `incident_${existingIncident.id}_image_${index}_${Date.now()}.jpg`;
-        const uploadResponse = await UploadBase64File(
-          base64String,
-          fileName,
-          "incident"
-        );
-        return uploadResponse.Success ? uploadResponse.ImageURl : null;
-      });
-
-      const uploadedImages = await Promise.all(uploadPromises);
-      const imagesUri = uploadedImages.filter(
-        (url): url is string => url !== null
-      );
-      imagePaths = [...imagePaths, ...imagesUri];
-      existingIncident.image = [...imagePaths];
-      changes.push({
-        field: "Images",
-        newValue: `${existingIncident.image.length > imagePaths.length
-          ? "Some images are deleted"
-          : existingIncident.image.length < imagePaths.length
-            ? "Some images added "
-            : "Some images replaced"
-          }`,
-        oldValue: "old images",
-      });
-    }
-
-    // Handle signature updates (if needed)
-    let signaturePath = null;
-    if (signature && !signature.startsWith("https://")) {
-      const fileName = `incident_${incidentId}_signature_image_${Date.now()}.jpg`;
-      const uploadResponse = await UploadBase64File(
-        signature,
-        fileName,
-        "signature"
-      );
-      signaturePath = uploadResponse.Success ? uploadResponse.ImageURl : null;
-      if (signaturePath) {
-        existingIncident.signature = signaturePath;
-        changes.push({
-          field: "Signature",
-          oldValue: "old signature",
-          newValue: "new signature",
+      if (imageToUpload.length > 0) {
+        const uploadPromises = imageToUpload.map(async (base64String, index) => {
+          const fileName = `incident_${existingIncident.id}_image_${index}_${Date.now()}.jpg`;
+          const uploadResponse = await UploadBase64File(base64String, fileName, "incident");
+          return uploadResponse.Success ? uploadResponse.ImageURl : null;
         });
+
+        const uploadedImages = await Promise.all(uploadPromises);
+        const newImages = uploadedImages.filter((url): url is string => url !== null);
+        imagePaths = [...imagePaths, ...newImages];
+      }
+
+      if (imagePaths.length > 0) {
+        changes.push({
+          field: "Images",
+          oldValue: "old images",
+          newValue: "updated images",
+        });
+        existingIncident.image = imagePaths;
       }
     }
 
-    // Save the updated incident
+    // ✅ signature (optional)
+    if (signature !== undefined) {
+      if (!signature.startsWith("https://")) {
+        const fileName = `incident_${incidentId}_signature_image_${Date.now()}.jpg`;
+        const uploadResponse = await UploadBase64File(signature, fileName, "signature");
+        const signaturePath = uploadResponse.Success ? uploadResponse.ImageURl : null;
+
+        if (signaturePath) {
+          existingIncident.signature = signaturePath;
+          changes.push({
+            field: "Signature",
+            oldValue: "old signature",
+            newValue: "new signature",
+          });
+        }
+      }
+    }
+
+    // Save updated incident
     const updatedIncident = await existingIncident.save();
 
+    // Log changes
     const employee = await EmployeeModel.findOne({ user: currentUser.id });
     const role = await ProjectRoleModel.findOne({
       employee: employee?._id,
       project: existingIncident.project,
     });
 
-    // Log changes to IncidentHistoryModel
     if (changes.length > 0) {
       const historyEntries = changes.map((change) => ({
         title: `${change.field} changed from ${change.oldValue} to ${change.newValue}`,
@@ -570,7 +757,6 @@ export const updateIncidentById = async (req: Request, res: Response) => {
       });
     }
 
-    // Return success response
     return res.status(200).json({
       success: true,
       message: req.i18n.t(
@@ -588,6 +774,7 @@ export const updateIncidentById = async (req: Request, res: Response) => {
     });
   }
 };
+
 
 export const getAllIncidents = async (req: Request, res: Response) => {
   try {
