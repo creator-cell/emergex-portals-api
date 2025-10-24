@@ -89,13 +89,16 @@ exports.incidentValidationRules = [
         .notEmpty()
         .withMessage((_, { req }) => req.i18n.t("incidentValidationMessages.incidentValidationRules.signature.empty"))
         .isArray()
-        .withMessage((_, { req }) => req.i18n.t("incidentValidationMessages.incidentValidationRules.images.array"))
-        .custom((images) => {
-        if (!Array.isArray(images))
-            return false;
-        return images.every((img) => base64Regex.test(img));
-    })
-        .withMessage((_, { req }) => req.i18n.t("incidentValidationMessages.incidentValidationRules.images.base64")),
+        .withMessage((_, { req }) => req.i18n.t("incidentValidationMessages.incidentValidationRules.images.array")),
+    // .custom((images) => {
+    //   if (!Array.isArray(images)) return false;
+    //   return images.every((img) => base64Regex.test(img));
+    // })
+    // .withMessage((_, { req }) =>
+    //   req.i18n.t(
+    //     "incidentValidationMessages.incidentValidationRules.images.base64"
+    //   )
+    // ),
     (0, express_validator_1.body)("signature")
         .notEmpty()
         .withMessage((_, { req }) => req.i18n.t("incidentValidationMessages.incidentValidationRules.signature.empty"))

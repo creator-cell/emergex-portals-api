@@ -306,13 +306,14 @@ const updateIncidentById = async (req, res) => {
         //   existingIncident.project = projectId;
         // }
         // Handle image updates (if needed)
+        // console.log("images: ",images.map((img:string)=>img.slice(0,15)))
         if (images &&
             Array.isArray(images) &&
             !images.every((item) => item.startsWith("https"))) {
             let imagePaths = images.filter((item) => item.startsWith("https"));
             let imageToUpload = images.filter((item) => !item.startsWith("https"));
             const uploadPromises = imageToUpload.map(async (base64String, index) => {
-                const fileName = `incident_${incidentId}_image_${index}_${Date.now()}.jpg`;
+                const fileName = `incident_${existingIncident.id}_image_${index}_${Date.now()}.jpg`;
                 const uploadResponse = await (0, S3Bucket_1.UploadBase64File)(base64String, fileName, "incident");
                 return uploadResponse.Success ? uploadResponse.ImageURl : null;
             });

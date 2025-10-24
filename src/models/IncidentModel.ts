@@ -7,7 +7,6 @@ export interface IIncident extends Document {
   description: string;
   status: "Assigned" | "Delayed" | "In Progress" | "Completed" | "Cancelled";
   project: mongoose.Types.ObjectId;
-  // assignedTo: mongoose.Types.ObjectId;
   countOfInjuredPeople: number;
   countOfTotalPeople: number;
   location: string;
@@ -22,6 +21,8 @@ export interface IIncident extends Document {
   stoppedTime: Date;
   isDeleted?: boolean;
   isStopped?: boolean;
+  isApproved: boolean;
+  approvedAt: Date;
 }
 
 const IncidentSchema: Schema = new Schema(
@@ -30,41 +31,28 @@ const IncidentSchema: Schema = new Schema(
       type: String,
       required: [true, "Incident Id is required"],
     },
-    level: {
-      type: String,
-      enum: ["Level 1", "Level 2", "Level 3", "Level 4"],
-      required: true,
-    },
-    type: {
-      type: String,
-      required: true,
-    },
     description: {
       type: String,
       required: true,
     },
     status: {
       type: String,
-      enum: ["Assigned", "Delayed", "In Progress", "Completed", "Cancelled"],
-      required: true,
+      enum: ["Not-Approved", "Assigned", "Delayed", "In Progress", "Completed", "Cancelled"],
+      required: false,
+      default: 'Not-Approved'
     },
     project: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Project",
       required: true,
     },
-    // assignedTo: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: "Employee",
-    //   required: true,
-    // },
     countOfInjuredPeople: {
       type: Number,
-      required: true,
+      required: false,
     },
     countOfTotalPeople: {
       type: Number,
-      required: true,
+      required: false,
     },
     location: {
       type: String,
@@ -72,29 +60,21 @@ const IncidentSchema: Schema = new Schema(
     },
     damageAssets: {
       type: [String],
-      required: true,
+      required: false,
     },
     finance: {
       type: String,
-      required: true,
+      required: false,
     },
     utilityAffected: {
       type: [String],
-      required: true,
+      required: false,
     },
     image: {
       type: [String],
     },
     signature: {
       type: String,
-    },
-    informToTeam: {
-      type: Boolean,
-      required: true,
-    },
-    termsAndConditions: {
-      type: Boolean,
-      required: true,
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
@@ -112,6 +92,18 @@ const IncidentSchema: Schema = new Schema(
       type: Boolean,
       default: false,
     },
+    isApproved: {
+      type: Boolean,
+      default: false,
+      required: true
+    },
+    isNearMiss: {
+      type: Boolean,
+      default: false
+    },
+    approvedAt: {
+      type: Date
+    }
   },
   { timestamps: true }
 );
