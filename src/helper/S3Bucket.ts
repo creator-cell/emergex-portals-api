@@ -60,11 +60,11 @@ const UploadBase64File = async (base64String: string, fileName: string, folderPa
         const buffer = convertBase64ToBuffer(base64String);
         const contentType = getContentTypeFromBase64(base64String);
 
-         const s3Key = folderPath ? `${folderPath}/${fileName}` : fileName;
+        const s3Key = folderPath ? `${folderPath}/${fileName}` : fileName;
 
         const Params = {
             Bucket: config.aws_bucket_name as string,
-             Key: s3Key,
+            Key: s3Key,
             Body: buffer,
             ContentType: contentType
         };
@@ -206,9 +206,28 @@ const DeleteFile = async (FileName: string): Promise<DeleteFileResponse> => {
     }
 }
 
+const UploadBufferToS3 = async (buffer: Buffer, fileName: string): Promise<string> => {
+
+    const Params = {
+        Bucket: config.aws_bucket_name as string,
+        Key: `incident_reports/${fileName}`,
+        Body: buffer,
+        ContentType: "application/pdf",
+    };
+
+
+    const Command = new PutObjectCommand(Params);
+    await S3.send(Command);
+
+    const url = `https://${config.aws_bucket_name}.s3.${config.aws_region}.amazonaws.com/${Params.Key}`;
+
+    return url;
+};
+
 export {
     UploadBase64File,
     DeleteFile,
     UploadFile,
-    GetFile
+    GetFile,
+    UploadBufferToS3
 }

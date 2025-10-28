@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { approveIncidentById, createIncident, deleteIncidentById, getIncidentById, getIncidentsByProject, getIncidentStatistics, markedAsNearMiss, stopIncidentTimer, updateIncidentById, updateIncidentStatus } from "../controllers/IncidentControllers";
+import { approveIncidentById, createIncident, deleteIncidentById, generateIncidentReport, getIncidentById, getIncidentsByProject, getIncidentStatistics, markedAsNearMiss, stopIncidentTimer, updateIncidentById, updateIncidentStatus } from "../controllers/IncidentControllers";
 import { checkValidationResult } from "../middlewares/checkValidationsMiddleware";
 import { getIncidentsByProjectIdValidationRules, incidentsByIdValidationRules, incidentValidationRules, updateIncidentValidationRules, updateStatusValidation } from "../validations/incidentValidators";
 import { authenticate } from "../middlewares/authMiddleware";
@@ -37,5 +37,7 @@ router.get("/statistics", authenticate, authorizeRoles(GlobalAdminRoles.SuperAdm
 router.patch('/approve/:id', authenticate, authorizeRoles(GlobalAdminRoles.ClientAdmin, GlobalAdminRoles.SuperAdmin), approveIncidentById);
 
 router.patch('/near-miss/:id', authenticate, authorizeRoles(GlobalAdminRoles.ClientAdmin, GlobalAdminRoles.SuperAdmin), markedAsNearMiss);
+
+router.get('/report/:id', generateIncidentReport);
 
 export default router;
