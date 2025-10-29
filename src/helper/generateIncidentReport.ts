@@ -135,7 +135,7 @@ export const generateAndUploadReport = async (payload: Payload): Promise<string>
         },
         content: [
             {
-                text: `Report of Emerge-x Case - ${incident.project.name} - ${incident.id}`,
+                text: `Report of Emerge-x Case - ${incident?.project?.name} - ${incident?.id}`,
                 style: "header",
                 alignment: "center",
                 lineHeight: 1.5,
@@ -151,18 +151,18 @@ export const generateAndUploadReport = async (payload: Payload): Promise<string>
                 table: {
                     widths: ["40%", "60%"],
                     body: [
-                        ["Case Number", incident.id],
-                        ["Date", formatDate(incident.createdAt)],
-                        ["Case Categorisation", incident.isNearMiss ? 'Near Miss' : incident.isApproved ? 'Approval' : 'Normal'],
+                        ["Case Number", incident?.id],
+                        ["Date", formatDate(incident?.createdAt)],
+                        ["Case Categorisation", incident?.isNearMiss ? 'Near Miss' : incident?.isApproved ? 'Approval' : 'Normal'],
                         ["Business Unit", `${incident?.project?.location?.country?.name}, ${incident?.project?.location?.region?.name}, ${incident?.project?.location?.worksite?.name}`],
-                        ["Location", incident.location],
-                        ["Client/Project", incident.project.name],
-                        ["Status", incident.status ?? 'Completed'],
+                        ["Location", incident?.location],
+                        ["Client/Project", incident?.project.name],
+                        ["Status", incident?.status ?? 'Completed'],
                         ["Total People", incident?.countOfTotalPeople?.toString() ?? '0'],
                         ["Injured People", incident?.countOfInjuredPeople?.toString() ?? '0'],
-                        ["Finance", incident?.finance ? `${incident.finance}` : '0'],
-                        ["Case Completion Date", formatDate(incident.stoppedTime, { time: false })],
-                        ["Case Completion Time", incident?.approvedAt ? getDuration(incident.approvedAt, incident.stoppedTime) : "N/A"],
+                        ["Finance", incident?.finance ? `${incident?.finance}` : '0'],
+                        ["Case Completion Date", formatDate(incident?.stoppedTime, { time: false })],
+                        ["Case Completion Time", incident?.approvedAt ? getDuration(incident?.approvedAt, incident?.stoppedTime) : "N/A"],
                     ],
                 },
                 layout: {
@@ -216,7 +216,7 @@ export const generateAndUploadReport = async (payload: Payload): Promise<string>
                             { text: "Responsible", bold: true },
                             { text: "Completion Date & Time", bold: true },
                         ],
-                        ...incidentHistory?.map((log) => [log.title, log.role?.employee?.name, formatDate(log.createdAt)])
+                        ...incidentHistory?.map((log) => [log?.title, log?.role?.employee?.name, formatDate(log.createdAt)])
                     ],
                 },
                 layout: {
@@ -256,8 +256,8 @@ export const generateAndUploadReport = async (payload: Payload): Promise<string>
             },
             {
                 ul: [
-                    `Damaged Assets: ${incident.damageAssets.length > 0 ? incident.damageAssets?.map(asset => `${asset} `) : 'None'}`,
-                    `Utilities Affected: ${incident.utilityAffected.length > 0 ? incident.utilityAffected?.map(util => `${util} `) : 'None'}`
+                    `Damaged Assets: ${incident?.damageAssets?.length > 0 ? incident.damageAssets?.map(asset => `${asset} `) : 'None'}`,
+                    `Utilities Affected: ${incident?.utilityAffected?.length > 0 ? incident.utilityAffected?.map(util => `${util} `) : 'None'}`
                 ],
                 fontSize: 12,
                 lineHeight: 1.6,
@@ -278,7 +278,7 @@ export const generateAndUploadReport = async (payload: Payload): Promise<string>
                             { text: "Responsible", bold: true },
                             { text: "Date & Time", bold: true },
                         ],
-                        ...statustHistory?.map(log => [log.status, log.role?.employee?.name, formatDate(log.createdAt)])
+                        ...statustHistory?.map(log => [log?.status, log?.role?.employee?.name, formatDate(log.createdAt)])
                     ],
                 },
                 layout: {

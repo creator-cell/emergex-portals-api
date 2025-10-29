@@ -16,6 +16,7 @@ import {
   ConversationType,
 } from "../models/ConversationModel";
 import { generateAndUploadReport, Incident } from "../helper/generateIncidentReport";
+import { IncidentReportModel } from "../models/IncidentReportModel";
 
 
 export const createIncident = async (req: Request, res: Response) => {
@@ -1058,6 +1059,7 @@ export const stopIncidentTimer = async (req: Request, res: Response) => {
 
     incident.isStopped = true;
     incident.stoppedTime = new Date();
+    incident.status = "Completed";
     await incident.save();
 
     return res.status(200).json({
@@ -1353,9 +1355,13 @@ export const generateIncidentReport = async (req: Request, res: Response) => {
       incidentHistory: incidentHistory || []
     }
 
+    const url = await generateAndUploadReport(payload);
 
+    if (!url) {
+      return res.status(404).json({ status: false, error: 'Url not generated' })
+    }
 
-    const url = await generateAndUploadReport(payload)
+    await IncidentReportModel.create({ incidentId: incident[0]?._id, projectId: incident[0]?.project?._id, url })
 
     return res.json({ status: true, data: { url } })
 
@@ -1364,5 +1370,50 @@ export const generateIncidentReport = async (req: Request, res: Response) => {
     return res.status(500).json({ status: false, error: 'Internal Server Error' })
   }
 
+
+}
+
+export const getIncidentReportsGroupByProjects = async (req: Request, res: Response) => {
+
+  const { projectId } = req.params;
+
+  try {
+
+    const incidents = await IncidentModel.aggregate([
+      {
+        $match: {
+          project: new Types.ObjectId(projectId),
+          status: "Completed",
+          isStopped: true,
+        },
+      },
+      {
+        $lookup: {
+          from: "incident_reports",
+          localField: "_id",
+          foreignField: "incidentId",
+          as: "report",
+        },
+      },
+      {
+        $unwind: {
+          path: '$report',
+          preserveNullAndEmptyArrays: true
+        }
+      }
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: incidents,
+    });
+
+  } catch (error) {
+    console.error("Error fetching incidents:", error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal Server Error',
+    });
+  }
 
 }

@@ -20,4 +20,4 @@ const IncidentReportModel = mongoose.model<IIncidentReport>(
     IncidentReportSchema
 );
 
-export { IncidentReportSchema };
+export { IncidentReportSchema, IncidentReportModel };

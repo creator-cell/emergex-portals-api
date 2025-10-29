@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { approveIncidentById, createIncident, deleteIncidentById, generateIncidentReport, getIncidentById, getIncidentsByProject, getIncidentStatistics, markedAsNearMiss, stopIncidentTimer, updateIncidentById, updateIncidentStatus } from "../controllers/IncidentControllers";
+import { approveIncidentById, createIncident, deleteIncidentById, generateIncidentReport, getIncidentById, getIncidentReportsGroupByProjects, getIncidentsByProject, getIncidentStatistics, markedAsNearMiss, stopIncidentTimer, updateIncidentById, updateIncidentStatus } from "../controllers/IncidentControllers";
 import { checkValidationResult } from "../middlewares/checkValidationsMiddleware";
 import { getIncidentsByProjectIdValidationRules, incidentsByIdValidationRules, incidentValidationRules, updateIncidentValidationRules, updateStatusValidation } from "../validations/incidentValidators";
 import { authenticate } from "../middlewares/authMiddleware";
@@ -38,6 +38,8 @@ router.patch('/approve/:id', authenticate, authorizeRoles(GlobalAdminRoles.Clien
 
 router.patch('/near-miss/:id', authenticate, authorizeRoles(GlobalAdminRoles.ClientAdmin, GlobalAdminRoles.SuperAdmin), markedAsNearMiss);
 
-router.get('/report/:id', generateIncidentReport);
+router.post('/report/:id', authenticate, authorizeRoles(GlobalAdminRoles.ClientAdmin, GlobalAdminRoles.SuperAdmin), generateIncidentReport);
+
+router.get('/reports/:projectId', authenticate, authorizeRoles(GlobalAdminRoles.ClientAdmin, GlobalAdminRoles.SuperAdmin), getIncidentReportsGroupByProjects);
 
 export default router;
