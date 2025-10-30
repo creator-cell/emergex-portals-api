@@ -6,7 +6,7 @@ import EmployeeModel from "../models/EmployeeModel";
 import ProjectModel from "../models/ProjectModel";
 import { generateUniqueIncidentId } from "../helper/IncidentFunctions";
 import { UploadBase64File } from "../helper/S3Bucket";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import IncidentHistoryModel from "../models/IncidentHistoryModel";
 import IncidentStatusHistoryModel from "../models/IncidentStatusHistoryModel";
 import ProjectRoleModel from "../models/ProjectRoleModel";
@@ -15,6 +15,8 @@ import {
   ConversationIdentity,
   ConversationType,
 } from "../models/ConversationModel";
+import { generateAndUploadReport, Incident } from "../helper/generateIncidentReport";
+import { IncidentReportModel } from "../models/IncidentReportModel";
 
 
 export const createIncident = async (req: Request, res: Response) => {
@@ -1057,6 +1059,7 @@ export const stopIncidentTimer = async (req: Request, res: Response) => {
 
     incident.isStopped = true;
     incident.stoppedTime = new Date();
+    incident.status = "Completed";
     await incident.save();
 
     return res.status(200).json({
@@ -1152,3 +1155,265 @@ export const getIncidentStatistics = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const generateIncidentReport = async (req: Request, res: Response) => {
+
+  const { id }: { id?: Types.ObjectId } = req.params;
+
+  try {
+    const incident = await IncidentModel.aggregate([
+      {
+        $match: { _id: new Types.ObjectId(id) }
+      },
+      {
+        $lookup: {
+          from: "projects",
+          localField: "project",
+          foreignField: "_id",
+          as: "project",
+          pipeline: [
+            {
+              $lookup: {
+                from: "locations",
+                localField: "location",
+                foreignField: "_id",
+                as: "location",
+                pipeline: [
+                  {
+                    $lookup: {
+                      from: "countries",
+                      localField: "country",
+                      foreignField: "_id",
+                      as: "country",
+                    }
+                  },
+                  {
+                    $unwind: '$country'
+                  },
+                  {
+                    $lookup: {
+                      from: "regions",
+                      localField: "region",
+                      foreignField: "_id",
+                      as: "region",
+                    }
+                  },
+                  {
+                    $unwind: '$region'
+                  },
+                  {
+                    $lookup: {
+                      from: "worksites",
+                      localField: "worksite",
+                      foreignField: "_id",
+                      as: "worksite",
+                    }
+                  },
+                  {
+                    $unwind: '$worksite'
+                  },
+                  {
+                    $project: {
+                      'country.name': 1,
+                      'region.name': 1,
+                      'worksite.name': 1
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              $unwind: '$location'
+            },
+            {
+              $project: { 'location._id': 0 }
+            }
+          ]
+        },
+      },
+      {
+        $unwind: "$project",
+      }
+    ])
+
+    if (!incident) {
+      return res.json({ error: 'Invalid Incident Id', sucess: false })
+    }
+
+    const statustHistory = await IncidentStatusHistoryModel.aggregate([
+      {
+        $match: {
+          incident: new Types.ObjectId(id),
+        },
+      },
+      {
+        $lookup: {
+          from: "project_roles",
+          localField: "role",
+          foreignField: "_id",
+          as: "role",
+        },
+      },
+      {
+        $unwind: "$role",
+      },
+      {
+        $lookup: {
+          from: "employees",
+          localField: "role.employee",
+          foreignField: "_id",
+          as: "role.employee",
+        },
+      },
+      {
+        $unwind: "$role.employee",
+      },
+      {
+        $lookup: {
+          from: "roles",
+          localField: "role.role",
+          foreignField: "_id",
+          as: "role.role",
+        },
+      },
+      {
+        $unwind: "$role.role",
+      },
+      {
+        $lookup: {
+          from: "teams",
+          localField: "role.team",
+          foreignField: "_id",
+          as: "role.team",
+        },
+      },
+      {
+        $unwind: {
+          path: "$role.team",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+    ]);
+
+    const incidentHistory = await IncidentHistoryModel.aggregate([
+      {
+        $match: { incident: new Types.ObjectId(id as Types.ObjectId) },
+      },
+      {
+        $lookup: {
+          from: "project_roles",
+          localField: "role",
+          foreignField: "_id",
+          as: "role",
+        },
+      },
+      { $unwind: { path: "$role", preserveNullAndEmptyArrays: true } },
+      {
+        $lookup: {
+          from: "employees",
+          localField: "role.employee",
+          foreignField: "_id",
+          as: "employee",
+        },
+      },
+      { $unwind: { path: "$employee", preserveNullAndEmptyArrays: true } },
+      {
+        $lookup: {
+          from: "roles",
+          localField: "role.role",
+          foreignField: "_id",
+          as: "roleData",
+        },
+      },
+      { $unwind: { path: "$roleData", preserveNullAndEmptyArrays: true } },
+      {
+        $addFields: {
+          role: {
+            title: "$roleData.title",
+            employee: {
+              name: "$employee.name",
+            }
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          incident: 1,
+          role: 1,
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      },
+    ]);
+
+
+    const payload = {
+      incident: incident[0],
+      statustHistory: statustHistory || [],
+      incidentHistory: incidentHistory || []
+    }
+
+    const url = await generateAndUploadReport(payload);
+
+    if (!url) {
+      return res.status(404).json({ status: false, error: 'Url not generated' })
+    }
+
+    await IncidentReportModel.create({ incidentId: incident[0]?._id, projectId: incident[0]?.project?._id, url })
+
+    return res.json({ status: true, data: { url } })
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: false, error: 'Internal Server Error' })
+  }
+
+
+}
+
+export const getIncidentReportsGroupByProjects = async (req: Request, res: Response) => {
+
+  const { projectId } = req.params;
+
+  try {
+
+    const incidents = await IncidentModel.aggregate([
+      {
+        $match: {
+          project: new Types.ObjectId(projectId),
+          status: "Completed",
+          isStopped: true,
+        },
+      },
+      {
+        $lookup: {
+          from: "incident_reports",
+          localField: "_id",
+          foreignField: "incidentId",
+          as: "report",
+        },
+      },
+      {
+        $unwind: {
+          path: '$report',
+          preserveNullAndEmptyArrays: true
+        }
+      }
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: incidents,
+    });
+
+  } catch (error) {
+    console.error("Error fetching incidents:", error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal Server Error',
+    });
+  }
+
+}
