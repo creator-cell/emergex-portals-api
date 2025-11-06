@@ -145,7 +145,7 @@ export const createIncident = async (req: Request, res: Response) => {
           [
             {
               old: null,
-              status: "Not-Approved",
+              status: "Created",
               role: role._id,
               incident: savedIncident._id,
             },
@@ -216,7 +216,7 @@ export const markedAsNearMiss = async (req: Request, res: Response) => {
           await IncidentStatusHistoryModel.create(
             [
               {
-                old: 'Not-Approved',
+                old: 'Created',
                 status: 'Completed',
                 role: role._id,
                 incident: incident._id,
@@ -288,7 +288,7 @@ export const approveIncidentById = async (req: Request, res: Response) => {
         await IncidentStatusHistoryModel.create(
           [
             {
-              old: 'Not-Approved',
+              old: 'Created',
               status: 'Assigned',
               role: role._id,
               incident: incident._id,
