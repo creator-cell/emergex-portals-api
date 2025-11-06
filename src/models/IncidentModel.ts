@@ -37,9 +37,9 @@ const IncidentSchema: Schema = new Schema(
     },
     status: {
       type: String,
-      enum: ["Not-Approved", "Assigned", "Delayed", "In Progress", "Completed", "Cancelled"],
+      enum: ["Created", "Assigned", "Delayed", "In Progress", "Completed", "Cancelled"],
       required: false,
-      default: 'Not-Approved'
+      default: 'Created'
     },
     project: {
       type: mongoose.Schema.Types.ObjectId,
