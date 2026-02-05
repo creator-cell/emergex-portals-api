@@ -97,7 +97,7 @@ export const createEmployee = async (req: Request, res: Response) => {
     }
     await user.save({ session });
 
-    await EmailService.sendCredentialsEmail(email, firstName, password);
+    // await EmailService.sendCredentialsEmail(email, firstName, password);
 
     const friendlyName = `conversation-${currentUser.id}-${user._id}`;
     const conversation = await conversationService.createConversation(
@@ -392,7 +392,7 @@ export const getEmployeesNotInProject = async (req: Request, res: Response) => {
       user = data?.createdBy;
     }
 
-    const teams = await TeamModel.find({createdBy:user});
+    const teams = await TeamModel.find({ createdBy: user });
     const employeeInTeams = teams.map((team) => team.members).flat();
 
     const roles = await ProjectRoleModel.find({
@@ -403,9 +403,9 @@ export const getEmployeesNotInProject = async (req: Request, res: Response) => {
 
     const employeeNotInProject = await EmployeeModel.aggregate([
       {
-        $match:{
-          createdBy:new mongoose.Types.ObjectId(user)
-        }
+        $match: {
+          createdBy: new mongoose.Types.ObjectId(user),
+        },
       },
       {
         $match: {
