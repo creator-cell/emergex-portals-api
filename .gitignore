@@ -9,3 +9,5 @@ error.log
 dist
 /dist
 emerge-x-456909-210254103256.json
+resetinc.js
+seed-super-admin.js

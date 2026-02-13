@@ -39,6 +39,9 @@ const fileFilter = (
         )
       );
     }
+  } else if (file.fieldname === "documents") {
+    // Accept any file type for witness statements
+    cb(null, true);
   } else {
     cb(new Error("Unexpected field"));
   }
@@ -52,11 +55,12 @@ const upload = multer({ storage,
 
 export const handleMediaUpload = upload.array("media"); 
 export const handleAudioUpload = upload.single('audio');
+export const handleDocumentsUpload = upload.array("documents", 10); // Max 10 files
 
 export const multerConfig = {
   storage,
   fileFilter,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
+    fileSize: 50 * 1024 * 1024, // 50MB limit for documents
   },
 };

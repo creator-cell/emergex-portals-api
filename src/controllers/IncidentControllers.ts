@@ -11,13 +11,16 @@ import IncidentHistoryModel from "../models/IncidentHistoryModel";
 import IncidentStatusHistoryModel from "../models/IncidentStatusHistoryModel";
 import ProjectRoleModel from "../models/ProjectRoleModel";
 import conversationService from "../services/conversation.service";
+import investigationService from "../services/investigationService";
 import {
   ConversationIdentity,
   ConversationType,
 } from "../models/ConversationModel";
-import { generateAndUploadReport, Incident } from "../helper/generateIncidentReport";
+import {
+  generateAndUploadReport,
+  Incident,
+} from "../helper/generateIncidentReport";
 import { IncidentReportModel } from "../models/IncidentReportModel";
-
 
 export const createIncident = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
@@ -44,7 +47,9 @@ export const createIncident = async (req: Request, res: Response) => {
       await session.abortTransaction();
       return res.status(400).json({
         success: false,
-        error: req.i18n.t("incidentValidationMessages.response.createIncident.missingRequired"),
+        error: req.i18n.t(
+          "incidentValidationMessages.response.createIncident.missingRequired"
+        ),
       });
     }
 
@@ -56,12 +61,16 @@ export const createIncident = async (req: Request, res: Response) => {
     }
 
     // Check if project exists
-    const isProjectexist = await ProjectModel.findById(projectId).session(session);
+    const isProjectexist = await ProjectModel.findById(projectId).session(
+      session
+    );
     if (!isProjectexist) {
       await session.abortTransaction();
       return res.status(400).json({
         success: false,
-        error: req.i18n.t("projectValidationMessages.response.getProjectById.notFound"),
+        error: req.i18n.t(
+          "projectValidationMessages.response.getProjectById.notFound"
+        ),
       });
     }
 
@@ -70,7 +79,11 @@ export const createIncident = async (req: Request, res: Response) => {
     if (images && Array.isArray(images)) {
       const uploadPromises = images.map(async (base64String, index) => {
         const fileName = `incident_${id}_image_${index}_${Date.now()}.jpg`;
-        const uploadResponse = await UploadBase64File(base64String, fileName, "incident");
+        const uploadResponse = await UploadBase64File(
+          base64String,
+          fileName,
+          "incident"
+        );
         return uploadResponse.Success ? uploadResponse.ImageURl : null;
       });
 
@@ -82,7 +95,11 @@ export const createIncident = async (req: Request, res: Response) => {
     let signaturePath: string | null | undefined = null;
     if (signature) {
       const fileName = `incident_${id}_signature_image_${Date.now()}.jpg`;
-      const uploadResponse = await UploadBase64File(signature, fileName, "signature");
+      const uploadResponse = await UploadBase64File(
+        signature,
+        fileName,
+        "signature"
+      );
       signaturePath = uploadResponse.Success ? uploadResponse.ImageURl : null;
     }
 
@@ -121,7 +138,9 @@ export const createIncident = async (req: Request, res: Response) => {
 
     const conversationId = (conversation as { _id: string })._id;
 
-    const roles = await ProjectRoleModel.find({ project: projectId }).session(session);
+    const roles = await ProjectRoleModel.find({ project: projectId }).session(
+      session
+    );
     const employeeIds = roles.map((role) => role.employee);
 
     const employees = await EmployeeModel.find({
@@ -159,7 +178,9 @@ export const createIncident = async (req: Request, res: Response) => {
 
     return res.status(201).json({
       success: true,
-      message: req.i18n.t("incidentValidationMessages.response.createIncident.success"),
+      message: req.i18n.t(
+        "incidentValidationMessages.response.createIncident.success"
+      ),
       data: savedIncident,
     });
   } catch (error: any) {
@@ -176,128 +197,60 @@ export const createIncident = async (req: Request, res: Response) => {
     console.log("error in createIncident", error);
     return res.status(500).json({
       success: false,
-      error: req.i18n.t("incidentValidationMessages.response.createIncident.server"),
+      error: req.i18n.t(
+        "incidentValidationMessages.response.createIncident.server"
+      ),
     });
   } finally {
     session.endSession();
   }
 };
 
-
 export const markedAsNearMiss = async (req: Request, res: Response) => {
-
   const { id } = req.params;
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
 
-  if (!id) return res.status(404).json({ success: false, error: 'Id not Found' });
+  if (!id)
+    return res.status(404).json({ success: false, error: "Id not Found" });
 
   try {
-
     const incident = await IncidentModel.findById(id);
 
-    if (!incident) return res.status(404).json({ status: false, error: 'Incident not found with this Id' });
+    if (!incident)
+      return res
+        .status(404)
+        .json({ status: false, error: "Incident not found with this Id" });
 
-    if (incident.isApproved) return res.status(400).json({ status: false, error: 'Cannot Mark Incident as Near Miss after being approved' });
+    if (incident.isApproved)
+      return res.status(400).json({
+        status: false,
+        error: "Cannot Mark Incident as Near Miss after being approved",
+      });
 
-    await IncidentModel.findByIdAndUpdate(incident._id, { isNearMiss: true, status: 'Completed' });
-
+    await IncidentModel.findByIdAndUpdate(incident._id, {
+      isNearMiss: true,
+      status: "Completed",
+    });
 
     const roles = await ProjectRoleModel.find({
       project: incident.project,
-    })
-
+    });
 
     if (roles) {
-
       await Promise.all(
-
         roles.map(async (role) => {
-          await IncidentStatusHistoryModel.create(
-            [
-              {
-                old: 'Created',
-                status: 'Completed',
-                role: role._id,
-                incident: incident._id,
-              },
-            ],
-          );
-
-        })
-      );
-
-    }
-
-    const employee = await EmployeeModel.findOne({ user: currentUser.id });
-
-    const role = await ProjectRoleModel.findOne({
-      employee: employee?._id,
-      project: incident.project,
-    });
-
-    if (role) {
-
-      const historyEntry = [{
-        title: `Incident Marked as Near Miss By Admin`,
-        role: role.id,
-        incident: incident._id,
-      }]
-
-      await IncidentHistoryModel.insertMany(historyEntry);
-
-    }
-
-
-
-    return res.json({ succes: true, message: 'Incident has been marked as Near Miss' });
-
-  } catch (error) {
-    console.log(error)
-    return res.status(500).json({
-      success: false,
-      error: 'Internal Server Error'
-    });
-  }
-
-
-}
-
-export const approveIncidentById = async (req: Request, res: Response) => {
-
-  const { id } = req.params;
-  const customReq = req as ICustomRequest;
-  const currentUser = customReq.user;
-
-  if (!id) return res.status(404).json({ success: false, error: 'Id not Found' });
-
-  try {
-
-    const incident = await IncidentModel.findById(id);
-
-    if (!incident) return res.status(404).json({ status: false, error: 'Incident not. found with this Id' });
-
-    await IncidentModel.findByIdAndUpdate(id, { isApproved: true, approvedAt: Date.now(), status: 'Assigned' });
-
-    const roles = await ProjectRoleModel.find({
-      project: incident.project,
-    })
-
-    await Promise.all(
-      roles.map(async (role) => {
-        await IncidentStatusHistoryModel.create(
-          [
+          await IncidentStatusHistoryModel.create([
             {
-              old: 'Created',
-              status: 'Assigned',
+              old: "Created",
+              status: "Completed",
               role: role._id,
               incident: incident._id,
             },
-          ],
-        );
-      })
-    );
-
+          ]);
+        })
+      );
+    }
 
     const employee = await EmployeeModel.findOne({ user: currentUser.id });
 
@@ -307,28 +260,97 @@ export const approveIncidentById = async (req: Request, res: Response) => {
     });
 
     if (role) {
-
-      const historyEntry = [{
-        title: `Incident has been Approved by Admin`,
-        role: role.id,
-        incident: incident._id,
-      }]
+      const historyEntry = [
+        {
+          title: `Incident Marked as Near Miss By Admin`,
+          role: role.id,
+          incident: incident._id,
+        },
+      ];
 
       await IncidentHistoryModel.insertMany(historyEntry);
-
     }
 
-    return res.json({ succes: true, message: 'Incident has been approved' });
-
+    return res.json({
+      succes: true,
+      message: "Incident has been marked as Near Miss",
+    });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return res.status(500).json({
       success: false,
-      error: 'Internal Server Error'
+      error: "Internal Server Error",
     });
   }
+};
 
-}
+export const approveIncidentById = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
+  if (!id)
+    return res.status(404).json({ success: false, error: "Id not Found" });
+
+  try {
+    const incident = await IncidentModel.findById(id);
+
+    if (!incident)
+      return res
+        .status(404)
+        .json({ status: false, error: "Incident not. found with this Id" });
+
+    await IncidentModel.findByIdAndUpdate(id, {
+      isApproved: true,
+      approvedAt: Date.now(),
+      status: "Assigned",
+    });
+
+    const roles = await ProjectRoleModel.find({
+      project: incident.project,
+    });
+
+    await Promise.all(
+      roles.map(async (role) => {
+        await IncidentStatusHistoryModel.create([
+          {
+            old: "Created",
+            status: "Assigned",
+            role: role._id,
+            incident: incident._id,
+          },
+        ]);
+      })
+    );
+
+    const employee = await EmployeeModel.findOne({ user: currentUser.id });
+
+    const role = await ProjectRoleModel.findOne({
+      employee: employee?._id,
+      project: incident.project,
+    });
+
+    if (role) {
+      const historyEntry = [
+        {
+          title: `Incident has been Approved by Admin`,
+          role: role.id,
+          incident: incident._id,
+        },
+      ];
+
+      await IncidentHistoryModel.insertMany(historyEntry);
+    }
+
+    return res.json({ succes: true, message: "Incident has been approved" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      error: "Internal Server Error",
+    });
+  }
+};
 
 // export const updateIncidentById = async (req: Request, res: Response) => {
 //   const customReq = req as ICustomRequest;
@@ -365,7 +387,6 @@ export const approveIncidentById = async (req: Request, res: Response) => {
 //     let statusChanged: boolean = false;
 //     let oldStatus: string = "";
 
-
 //     if (description && existingIncident.description !== description) {
 //       changes.push({
 //         field: "Description",
@@ -385,7 +406,6 @@ export const approveIncidentById = async (req: Request, res: Response) => {
 //       oldStatus = existingIncident.status;
 //       existingIncident.status = status;
 //     }
-
 
 //     if (
 //       countOfInjuredPeople &&
@@ -457,7 +477,6 @@ export const approveIncidentById = async (req: Request, res: Response) => {
 //       });
 //       existingIncident.utilityAffected = utilityAffected;
 //     }
-
 
 //     if (
 //       images &&
@@ -566,7 +585,6 @@ export const approveIncidentById = async (req: Request, res: Response) => {
 //   }
 // };
 
-
 export const updateIncidentById = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
@@ -603,7 +621,10 @@ export const updateIncidentById = async (req: Request, res: Response) => {
     let oldStatus = "";
 
     // ✅ description (required field)
-    if (description !== undefined && existingIncident.description !== description) {
+    if (
+      description !== undefined &&
+      existingIncident.description !== description
+    ) {
       changes.push({
         field: "Description",
         oldValue: existingIncident.description,
@@ -625,7 +646,10 @@ export const updateIncidentById = async (req: Request, res: Response) => {
     }
 
     // ✅ injured people
-    if (countOfInjuredPeople !== undefined && existingIncident.countOfInjuredPeople !== countOfInjuredPeople) {
+    if (
+      countOfInjuredPeople !== undefined &&
+      existingIncident.countOfInjuredPeople !== countOfInjuredPeople
+    ) {
       changes.push({
         field: "Count of injured people",
         oldValue: existingIncident.countOfInjuredPeople,
@@ -635,7 +659,10 @@ export const updateIncidentById = async (req: Request, res: Response) => {
     }
 
     // ✅ total people
-    if (countOfTotalPeople !== undefined && existingIncident.countOfTotalPeople !== countOfTotalPeople) {
+    if (
+      countOfTotalPeople !== undefined &&
+      existingIncident.countOfTotalPeople !== countOfTotalPeople
+    ) {
       changes.push({
         field: "Count of total people",
         oldValue: existingIncident.countOfTotalPeople,
@@ -675,8 +702,11 @@ export const updateIncidentById = async (req: Request, res: Response) => {
     }
 
     // ✅ utilityAffected (optional, deep check)
-    if (utilityAffected !== undefined &&
-      JSON.stringify(existingIncident.utilityAffected) !== JSON.stringify(utilityAffected)) {
+    if (
+      utilityAffected !== undefined &&
+      JSON.stringify(existingIncident.utilityAffected) !==
+        JSON.stringify(utilityAffected)
+    ) {
       changes.push({
         field: "Utility Affected",
         oldValue: existingIncident.utilityAffected,
@@ -687,18 +717,32 @@ export const updateIncidentById = async (req: Request, res: Response) => {
 
     // ✅ images (optional)
     if (images !== undefined && Array.isArray(images)) {
-      let imagePaths: string[] = images.filter((item: string) => item.startsWith("https"));
-      const imageToUpload: string[] = images.filter((item: string) => !item.startsWith("https"));
+      let imagePaths: string[] = images.filter((item: string) =>
+        item.startsWith("https")
+      );
+      const imageToUpload: string[] = images.filter(
+        (item: string) => !item.startsWith("https")
+      );
 
       if (imageToUpload.length > 0) {
-        const uploadPromises = imageToUpload.map(async (base64String, index) => {
-          const fileName = `incident_${existingIncident.id}_image_${index}_${Date.now()}.jpg`;
-          const uploadResponse = await UploadBase64File(base64String, fileName, "incident");
-          return uploadResponse.Success ? uploadResponse.ImageURl : null;
-        });
+        const uploadPromises = imageToUpload.map(
+          async (base64String, index) => {
+            const fileName = `incident_${
+              existingIncident.id
+            }_image_${index}_${Date.now()}.jpg`;
+            const uploadResponse = await UploadBase64File(
+              base64String,
+              fileName,
+              "incident"
+            );
+            return uploadResponse.Success ? uploadResponse.ImageURl : null;
+          }
+        );
 
         const uploadedImages = await Promise.all(uploadPromises);
-        const newImages = uploadedImages.filter((url): url is string => url !== null);
+        const newImages = uploadedImages.filter(
+          (url): url is string => url !== null
+        );
         imagePaths = [...imagePaths, ...newImages];
       }
 
@@ -716,8 +760,14 @@ export const updateIncidentById = async (req: Request, res: Response) => {
     if (signature !== undefined) {
       if (!signature.startsWith("https://")) {
         const fileName = `incident_${incidentId}_signature_image_${Date.now()}.jpg`;
-        const uploadResponse = await UploadBase64File(signature, fileName, "signature");
-        const signaturePath = uploadResponse.Success ? uploadResponse.ImageURl : null;
+        const uploadResponse = await UploadBase64File(
+          signature,
+          fileName,
+          "signature"
+        );
+        const signaturePath = uploadResponse.Success
+          ? uploadResponse.ImageURl
+          : null;
 
         if (signaturePath) {
           existingIncident.signature = signaturePath;
@@ -777,7 +827,6 @@ export const updateIncidentById = async (req: Request, res: Response) => {
   }
 };
 
-
 export const getAllIncidents = async (req: Request, res: Response) => {
   try {
     const incidents = await IncidentModel.find();
@@ -803,28 +852,31 @@ export const getIncidentsByProject = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
   try {
-
     const employee = await EmployeeModel.findOne({
-      user: currentUser.id
-    })
+      user: currentUser.id,
+    });
 
     if (!employee) {
       return res.status(200).json({
         success: false,
-        message: req.i18n.t("employeeValidationMessages.response.getEmployeeById.notFound")
-      })
+        message: req.i18n.t(
+          "employeeValidationMessages.response.getEmployeeById.notFound"
+        ),
+      });
     }
 
     const userRole = await ProjectRoleModel.findOne({
       project: id,
-      employee: employee._id
-    })
+      employee: employee._id,
+    });
 
     if (!userRole) {
       return res.status(200).json({
         success: false,
-        message: req.i18n.t("projectRoleValidationMessages.response.notFoundInIncident")
-      })
+        message: req.i18n.t(
+          "projectRoleValidationMessages.response.notFoundInIncident"
+        ),
+      });
     }
 
     const incidents = await IncidentModel.aggregate([
@@ -852,7 +904,7 @@ export const getIncidentsByProject = async (req: Request, res: Response) => {
                 },
               },
             },
-            { $limit: 1 } // Only need one role per user in project
+            { $limit: 1 }, // Only need one role per user in project
           ],
           as: "currentUserRole",
         },
@@ -903,13 +955,12 @@ export const getIncidentsByProject = async (req: Request, res: Response) => {
       },
     ]);
 
-
     return res.status(200).json({
       success: true,
       message: req.i18n.t(
         "incidentValidationMessages.response.getIncidentByProjectId.success"
       ),
-      data: incidents
+      data: incidents,
     });
   } catch (error) {
     return res.status(500).json({
@@ -988,20 +1039,44 @@ export const updateIncidentStatus = async (req: Request, res: Response) => {
   const { status } = req.body;
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
+  
   try {
     const incident = await IncidentModel.findById(id);
     if (!incident) {
-      return res.status(200).json({
+      return res.status(404).json({
         success: false,
-        error: `${req.i18n.t(
-          "incidentValidationMessages.response.notExist"
-        )} ${id}`,
+        error: `Incident not found: ${id}`,
       });
     }
 
     const old = incident.status;
-
     incident.status = status;
+    
+    // Auto-stop timer and create investigation if status is "Completed"
+    if (status === "Completed" && !incident.isStopped) {
+      console.log(`[IncidentController] Creating investigation for incident: ${id}`);
+      incident.isStopped = true;
+      incident.stoppedTime = new Date();
+      
+      // Create investigation if it doesn't exist
+      if (!incident.investigationId) {
+        console.log(`[IncidentController] No existing investigation, creating new one`);
+        try {
+          const investigation = await investigationService.createInvestigation(
+            id,
+            currentUser.id
+          );
+          console.log(`[IncidentController] Investigation created successfully: ${investigation._id}`);
+          incident.investigationId = investigation._id;
+          await incident.save();
+        } catch (investigationError) {
+          console.error("[IncidentController] Error creating investigation:", investigationError);
+        }
+      } else {
+        console.log(`[IncidentController] Investigation already exists: ${incident.investigationId}`);
+      }
+    }
+    
     await incident.save();
 
     const employee = await EmployeeModel.findOne({ user: currentUser.id });
@@ -1020,60 +1095,72 @@ export const updateIncidentStatus = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       success: true,
-      message: req.i18n.t(
-        "incidentValidationMessages.response.updateIncidentStatus.success"
-      ),
+      message: "Incident status updated successfully",
     });
   } catch (error) {
     console.log("error: ", error);
     return res.status(500).json({
       success: false,
-      message: req.i18n.t(
-        "incidentValidationMessages.response.updateIncidentStatus.server"
-      ),
+      message: "Failed to update incident status",
     });
   }
 };
 
 export const stopIncidentTimer = async (req: Request, res: Response) => {
   const { id } = req.params;
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
+  if (!id) return res.status(404).json({ success: false, error: 'Id not Found' });
+
   try {
     const incident = await IncidentModel.findById(id);
     if (!incident) {
-      return res.status(200).json({
-        success: false,
-        error: `${req.i18n.t(
-          "incidentValidationMessages.response.notExist"
-        )} ${id}`,
-      });
+      return res.status(404).json({ success: false, error: 'Incident not found' });
     }
 
+    // Check if incident is already stopped
     if (incident.isStopped) {
       return res.status(400).json({
         success: false,
-        error: req.i18n.t(
-          "incidentValidationMessages.response.stopIncidentTimer.alreadyStopped"
-        ),
+        error: 'Incident is already completed'
       });
     }
 
+    // Update incident status to completed
     incident.isStopped = true;
     incident.stoppedTime = new Date();
     incident.status = "Completed";
     await incident.save();
+    console.log(`[IncidentController] Timer stopped for incident: ${id}`);
+
+    // Create investigation with timer already started
+    if (!incident.investigationId) {
+      console.log(`[IncidentController] Creating investigation for stopped timer`);
+      try {
+        const investigation = await investigationService.createInvestigation(
+          id,
+          currentUser.id
+        );
+        incident.investigationId = investigation._id;
+        await incident.save();
+        console.log(`[IncidentController] Investigation created: ${investigation._id}`);
+      } catch (investigationError) {
+        console.error("[IncidentController] Error creating investigation:", investigationError);
+      }
+    } else {
+      console.log(`[IncidentController] Investigation already exists: ${incident.investigationId}`);
+    }
 
     return res.status(200).json({
       success: true,
-      message: req.i18n.t(
-        "incidentValidationMessages.response.stopIncidentTimer.success"
-      ),
+      message: 'Incident timer stopped successfully',
     });
   } catch (error) {
-    return res.status(200).json({
+    console.error("Error stopping incident timer:", error);
+    return res.status(500).json({
       success: false,
-      error: req.i18n.t(
-        "incidentValidationMessages.response.stopIncidentTimer.server"
-      ),
+      error: 'Internal server error'
     });
   }
 };
@@ -1157,13 +1244,12 @@ export const getIncidentStatistics = async (req: Request, res: Response) => {
 };
 
 export const generateIncidentReport = async (req: Request, res: Response) => {
-
   const { id }: { id?: Types.ObjectId } = req.params;
 
   try {
     const incident = await IncidentModel.aggregate([
       {
-        $match: { _id: new Types.ObjectId(id) }
+        $match: { _id: new Types.ObjectId(id) },
       },
       {
         $lookup: {
@@ -1185,10 +1271,10 @@ export const generateIncidentReport = async (req: Request, res: Response) => {
                       localField: "country",
                       foreignField: "_id",
                       as: "country",
-                    }
+                    },
                   },
                   {
-                    $unwind: '$country'
+                    $unwind: "$country",
                   },
                   {
                     $lookup: {
@@ -1196,10 +1282,10 @@ export const generateIncidentReport = async (req: Request, res: Response) => {
                       localField: "region",
                       foreignField: "_id",
                       as: "region",
-                    }
+                    },
                   },
                   {
-                    $unwind: '$region'
+                    $unwind: "$region",
                   },
                   {
                     $lookup: {
@@ -1207,37 +1293,37 @@ export const generateIncidentReport = async (req: Request, res: Response) => {
                       localField: "worksite",
                       foreignField: "_id",
                       as: "worksite",
-                    }
+                    },
                   },
                   {
-                    $unwind: '$worksite'
+                    $unwind: "$worksite",
                   },
                   {
                     $project: {
-                      'country.name': 1,
-                      'region.name': 1,
-                      'worksite.name': 1
-                    }
-                  }
-                ]
-              }
+                      "country.name": 1,
+                      "region.name": 1,
+                      "worksite.name": 1,
+                    },
+                  },
+                ],
+              },
             },
             {
-              $unwind: '$location'
+              $unwind: "$location",
             },
             {
-              $project: { 'location._id': 0 }
-            }
-          ]
+              $project: { "location._id": 0 },
+            },
+          ],
         },
       },
       {
         $unwind: "$project",
-      }
-    ])
+      },
+    ]);
 
     if (!incident) {
-      return res.json({ error: 'Invalid Incident Id', sucess: false })
+      return res.json({ error: "Invalid Incident Id", sucess: false });
     }
 
     const statustHistory = await IncidentStatusHistoryModel.aggregate([
@@ -1332,7 +1418,7 @@ export const generateIncidentReport = async (req: Request, res: Response) => {
             title: "$roleData.title",
             employee: {
               name: "$employee.name",
-            }
+            },
           },
         },
       },
@@ -1348,37 +1434,42 @@ export const generateIncidentReport = async (req: Request, res: Response) => {
       },
     ]);
 
-
     const payload = {
       incident: incident[0],
       statustHistory: statustHistory || [],
-      incidentHistory: incidentHistory || []
-    }
+      incidentHistory: incidentHistory || [],
+    };
 
     const url = await generateAndUploadReport(payload);
 
     if (!url) {
-      return res.status(404).json({ status: false, error: 'Url not generated' })
+      return res
+        .status(404)
+        .json({ status: false, error: "Url not generated" });
     }
 
-    await IncidentReportModel.create({ incidentId: incident[0]?._id, projectId: incident[0]?.project?._id, url })
+    await IncidentReportModel.create({
+      incidentId: incident[0]?._id,
+      projectId: incident[0]?.project?._id,
+      url,
+    });
 
-    return res.json({ status: true, data: { url } })
-
+    return res.json({ status: true, data: { url } });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ status: false, error: 'Internal Server Error' })
+    return res
+      .status(500)
+      .json({ status: false, error: "Internal Server Error" });
   }
+};
 
-
-}
-
-export const getIncidentReportsGroupByProjects = async (req: Request, res: Response) => {
-
+export const getIncidentReportsGroupByProjects = async (
+  req: Request,
+  res: Response
+) => {
   const { projectId } = req.params;
 
   try {
-
     const incidents = await IncidentModel.aggregate([
       {
         $match: {
@@ -1397,23 +1488,21 @@ export const getIncidentReportsGroupByProjects = async (req: Request, res: Respo
       },
       {
         $unwind: {
-          path: '$report',
-          preserveNullAndEmptyArrays: true
-        }
-      }
+          path: "$report",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
     ]);
 
     res.status(200).json({
       success: true,
       data: incidents,
     });
-
   } catch (error) {
     console.error("Error fetching incidents:", error);
     res.status(500).json({
       success: false,
-      error: 'Internal Server Error',
+      error: "Internal Server Error",
     });
   }
-
-}
+};
