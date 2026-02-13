@@ -26,6 +26,8 @@ import conversationRoutes from "./routes/ConversationRoutes";
 import webhookRoutes from "./routes/webhookRoutes";
 import callRoutes from './routes/CallRoutes';
 import speechRoutes from './routes/SpeechRoutes';
+import investigationRoutes from './routes/InvestigationRoutes';
+import witnessStatementRoutes from './routes/WitnessStatementRoutes';
 
 import path from "path";
 import { validateTwilioWebhook } from "./middlewares/webhookAuthMiddleware";
@@ -76,6 +78,8 @@ app.use('/api/conversations', conversationRoutes);
 app.use('/api/calls', callRoutes);
 app.use('/api/webhook', validateTwilioWebhook, webhookRoutes);
 app.use('/api/speech', speechRoutes);
+app.use('/api/investigations', investigationRoutes);
+app.use('/api/witness-statements', witnessStatementRoutes);
 
 const httpServer = createServer(app);
 

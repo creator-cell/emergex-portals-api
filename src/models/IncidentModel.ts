@@ -23,6 +23,9 @@ export interface IIncident extends Document {
   isStopped?: boolean;
   isApproved: boolean;
   approvedAt: Date;
+  isNearMiss: boolean;
+  investigationStatus: "Assigned" | "In Progress" | "Delayed" | "Completed" | null;
+  investigationId: mongoose.Types.ObjectId | null;
 }
 
 const IncidentSchema: Schema = new Schema(
@@ -103,6 +106,16 @@ const IncidentSchema: Schema = new Schema(
     },
     approvedAt: {
       type: Date
+    },
+    investigationStatus: {
+      type: String,
+      enum: ["Assigned", "In Progress", "Delayed", "Completed", null],
+      default: null
+    },
+    investigationId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Investigation",
+      default: null
     }
   },
   { timestamps: true }
