@@ -13,6 +13,7 @@ import ConversationModel, {
 } from "../models/ConversationModel";
 import conversationService from "../services/conversation.service";
 import { updateDownstreamNodePriorities } from "../helper/ProjectRoleFunctions";
+import { InvestigationRoles } from "../config/global-enum";
 
 // add roles in projects
 export const addRolesInProject = async (req: Request, res: Response) => {
@@ -1029,6 +1030,158 @@ export const getAvailableRolesInProject = async (
       error: req.i18n.t(
         "projectRoleValidationMessages.response.getUserRoleInIncident.server"
       ),
+    });
+  }
+};
+
+// get investigation roles by incident id
+export const getInvestigationRolesByIncidentId = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+  const currentUserId = currentUser.id;
+
+  try {
+    const incident = await IncidentModel.findById(id);
+    if (!incident) {
+      return res.status(200).json({
+        success: false,
+        error: req.i18n.t("incidentValidationMessages.response.notExist") + " " + id,
+      });
+    }
+
+    const project = await ProjectModel.findById(incident.project);
+    if (!project) {
+      return res.status(200).json({
+        success: false,
+        error: req.i18n.t("projectValidationMessages.response.notExist") + " " + incident.project,
+      });
+    }
+
+    const investigationRole = await RoleModel.findOne({
+      title: InvestigationRoles.INVESTIGATION_SPECIALIST,
+    });
+
+    if (!investigationRole) {
+      return res.status(200).json({
+        success: true,
+        message: req.i18n.t("projectRoleValidationMessages.response.getRolesByIncidentId.success"),
+        data: [],
+      });
+    }
+
+    const rolesPipeline = [
+      {
+        $match: {
+          project: project._id,
+          role: investigationRole._id,
+        },
+      },
+      {
+        $lookup: {
+          from: "roles",
+          localField: "role",
+          foreignField: "_id",
+          as: "roleData",
+        },
+      },
+      {
+        $lookup: {
+          from: "employees",
+          localField: "employee",
+          foreignField: "_id",
+          as: "employeeData",
+        },
+      },
+      {
+        $unwind: {
+          path: "$roleData",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $unwind: {
+          path: "$employeeData",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $group: {
+          _id: "$role",
+          role: { $first: "$roleData" },
+          employees: {
+            $push: {
+              _id: "$employeeData._id",
+              name: "$employeeData.name",
+              email: "$employeeData.email",
+              designation: "$employeeData.designation",
+              description: "$description",
+              title: "$roleData.title",
+              user: "$employeeData.user",
+              isCurrentUser: {
+                $eq: ["$employeeData.user", new mongoose.Types.ObjectId(currentUserId)],
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          role: 1,
+          employees: 1,
+        },
+      },
+    ];
+
+    let roles = await ProjectRoleModel.aggregate(rolesPipeline);
+
+    roles = await Promise.all(
+      roles.map(async (role) => {
+        const employeesWithConversations = await Promise.all(
+          role.employees.map(async (employee: any) => {
+            if (employee.isCurrentUser) {
+              const { isCurrentUser, ...employeeData } = employee;
+              return employeeData;
+            }
+
+            if (!employee.user) return employee;
+
+            const conversation = await ConversationModel.findOne({
+              type: ConversationType.SINGLE,
+              participants: {
+                $all: [
+                  { $elemMatch: { user: currentUserId } },
+                  { $elemMatch: { user: employee.user } },
+                ],
+              },
+            }).select("twilioSid name type identity");
+
+            return {
+              ...employee,
+              conversation: conversation ?? null,
+              isCurrentUser: undefined,
+            };
+          })
+        );
+
+        return {
+          ...role,
+          employees: employeesWithConversations,
+        };
+      })
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: req.i18n.t("projectRoleValidationMessages.response.getRolesByIncidentId.success"),
+      data: roles,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      error: req.i18n.t("projectRoleValidationMessages.response.getRolesByIncidentId.server"),
     });
   }
 };

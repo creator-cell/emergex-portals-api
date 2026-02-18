@@ -8,3 +8,7 @@ export enum AccountProviderType {
   Google = "Google",
   Facebook = "Facebook",
 }
+
+export const InvestigationRoles = {
+  INVESTIGATION_SPECIALIST: "Investigation Specialist",
+} as const;
