@@ -21,13 +21,13 @@ import regionRoutes from "./routes/RegionRoutes";
 import worksiteRoutes from "./routes/WorksiteRoutes";
 import incidentRoutes from "./routes/IncidentRoutes";
 import incidentHistoryRoutes from "./routes/IncidentHistoryRoutes";
-import transcriptionRoutes from "./routes/transcriptionRoutes"
+import transcriptionRoutes from "./routes/transcriptionRoutes";
 import conversationRoutes from "./routes/ConversationRoutes";
 import webhookRoutes from "./routes/webhookRoutes";
-import callRoutes from './routes/CallRoutes';
-import speechRoutes from './routes/SpeechRoutes';
-import investigationRoutes from './routes/InvestigationRoutes';
-import witnessStatementRoutes from './routes/WitnessStatementRoutes';
+import callRoutes from "./routes/CallRoutes";
+import speechRoutes from "./routes/SpeechRoutes";
+import investigationRoutes from "./routes/InvestigationRoutes";
+import witnessStatementRoutes from "./routes/WitnessStatementRoutes";
 
 import path from "path";
 import { validateTwilioWebhook } from "./middlewares/webhookAuthMiddleware";
@@ -41,7 +41,7 @@ const port = config.port;
 
 app.use(
   cors({
-    origin: '*',
+    origin: "*",
     credentials: true,
   })
 );
@@ -51,7 +51,7 @@ app.use(express.urlencoded({ limit: "10mb", extended: true }));
 app.use(cookieParser());
 app.use(middleware.handle(i18next));
 app.use(setLanguageMiddleware);
-app.use(logger)
+app.use(logger);
 
 const uploads = path.join(__dirname, "../uploads/");
 app.use("/uploads", express.static(uploads));
@@ -74,30 +74,28 @@ app.use("/api/worksites", worksiteRoutes);
 app.use("/api/incidents", incidentRoutes);
 app.use("/api/incidents-history", incidentHistoryRoutes);
 app.use("/api/transcription", transcriptionRoutes);
-app.use('/api/conversations', conversationRoutes);
-app.use('/api/calls', callRoutes);
-app.use('/api/webhook', validateTwilioWebhook, webhookRoutes);
-app.use('/api/speech', speechRoutes);
-app.use('/api/investigations', investigationRoutes);
-app.use('/api/witness-statements', witnessStatementRoutes);
+app.use("/api/conversations", conversationRoutes);
+app.use("/api/calls", callRoutes);
+app.use("/api/webhook", validateTwilioWebhook, webhookRoutes);
+app.use("/api/speech", speechRoutes);
+app.use("/api/investigations", investigationRoutes);
+app.use("/api/witness-statements", witnessStatementRoutes);
 
 const httpServer = createServer(app);
 
 export const WebsocketServer = new Server(httpServer, {
   cors: {
-    origin: '*',
+    origin: "*",
     credentials: true,
-  }
+  },
 });
-
 
 WebsocketServer.use(socketAuthorizer);
 
-WebsocketServer.on('connection', socketConnectionHandler);
+WebsocketServer.on("connection", socketConnectionHandler);
 
 httpServer.listen(port, () => {
   console.log("Server is running @ " + port);
 });
-
 
 export default app;
