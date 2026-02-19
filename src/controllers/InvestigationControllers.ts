@@ -7,9 +7,10 @@ import InvestigationStatusHistoryModel from "../models/InvestigationStatusHistor
 
 export const getInvestigations = async (req: Request, res: Response) => {
   try {
-    const { status } = req.query;
+    const { status, project } = req.query;
     const investigations = await investigationService.getInvestigations(
-      status as string
+      status as string,
+      project as string
     );
 
     return res.status(200).json({
