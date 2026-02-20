@@ -213,13 +213,13 @@ export const updateInvestigationStatus = async (
   }
 };
 
-export const getInvestigations = async (status?: string) => {
+export const getInvestigations = async (status?: string, projectId?: string) => {
   const query: any = {};
   if (status) {
     query.status = status;
   }
 
-  return InvestigationModel.find(query)
+  const investigations = await InvestigationModel.find(query)
     .populate({
       path: "incident",
       populate: {
@@ -231,6 +231,14 @@ export const getInvestigations = async (status?: string) => {
     .populate("assignedRole", "title description")
     .populate("assignedTeam", "name")
     .sort({ createdAt: -1 });
+
+  if (projectId) {
+    return investigations.filter(
+      (inv: any) => inv.incident?.project?._id?.toString() === projectId
+    );
+  }
+
+  return investigations;
 };
 
 export const getInvestigationById = async (investigationId: string) => {
