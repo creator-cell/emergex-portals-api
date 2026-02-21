@@ -1172,10 +1172,13 @@ export const getInvestigationRolesByIncidentId = async (req: Request, res: Respo
       })
     );
 
+    const isCurrentUserSuperAdmin = currentUser.role === "super-admin";
+
     return res.status(200).json({
       success: true,
       message: req.i18n.t("projectRoleValidationMessages.response.getRolesByIncidentId.success"),
       data: roles,
+      isCurrentUserSuperAdmin,
     });
   } catch (error) {
     console.error(error);
