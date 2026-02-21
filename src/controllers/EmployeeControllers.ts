@@ -216,17 +216,49 @@ export const getEmployeeById = async (req: Request, res: Response) => {
   }
 };
 
-// Update a employee
+// Update an employee
 export const updateEmployee = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { name, email, designation, contactNo, userId } = req.body;
+  const { name, email, designation, contactNo, userId, makeSuperAdmin = false } = req.body;
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+  
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  
   try {
-    if (email) {
-      const isExist = (await EmployeeModel.findOne({
-        email,
-      })) as IEmployee | null;
+    // If trying to promote to superadmin, check permissions
+    if (makeSuperAdmin === true) {
+      if (currentUser.role !== GlobalAdminRoles.SuperAdmin) {
+        await session.abortTransaction();
+        return res.status(403).json({
+          success: false,
+          error: "Only superadmins can promote employees to superadmin"
+        });
+      }
+    }
 
-      if (isExist && isExist._id.toString() !== id) {
+    // Check if employee exists
+    const existingEmployee = await EmployeeModel.findById(id).session(session);
+    if (!existingEmployee) {
+      await session.abortTransaction();
+      return res.status(200).json({
+        success: false,
+        error: req.i18n.t(
+          "employeeValidationMessages.response.updateEmployeeById.notFound"
+        ),
+      });
+    }
+
+    // Validate email uniqueness (if provided)
+    if (email) {
+      const isExist = await EmployeeModel.findOne({ 
+        email,
+        _id: { $ne: id }
+      }).session(session);
+
+      if (isExist) {
+        await session.abortTransaction();
         return res.status(400).json({
           success: false,
           error: req.i18n.t(
@@ -236,32 +268,23 @@ export const updateEmployee = async (req: Request, res: Response) => {
       }
     }
 
-    if (userId) {
-      const checkUserExist = await UserModel.findById(id);
-      if (!checkUserExist) {
-        return res.status(200).json({
-          success: false,
-          error: req.i18n.t(
-            "employeeValidationMessages.response.createEmployee.userNotFound"
-          ),
-        });
-      }
+    // If trying to promote to superadmin
+    if (makeSuperAdmin === true && existingEmployee.user) {
+      await UserModel.findByIdAndUpdate(
+        existingEmployee.user,
+        { role: GlobalAdminRoles.SuperAdmin },
+        { session }
+      );
     }
 
+    // Update employee
     const updatedEmployee = await EmployeeModel.findByIdAndUpdate(
       id,
       { name, email, designation, contactNo, user: userId },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true, session }
     );
 
-    if (!updatedEmployee) {
-      return res.status(200).json({
-        success: false,
-        error: req.i18n.t(
-          "employeeValidationMessages.response.updateEmployeeById.notFound"
-        ),
-      });
-    }
+    await session.commitTransaction();
 
     return res.status(200).json({
       success: true,
@@ -271,6 +294,7 @@ export const updateEmployee = async (req: Request, res: Response) => {
       data: updatedEmployee,
     });
   } catch (error: any) {
+    await session.abortTransaction();
     console.log("error in updating employee: ", error);
     return res.status(500).json({
       success: false,
@@ -278,6 +302,8 @@ export const updateEmployee = async (req: Request, res: Response) => {
         "employeeValidationMessages.response.updateEmployeeById.server"
       ),
     });
+  } finally {
+    session.endSession();
   }
 };
 

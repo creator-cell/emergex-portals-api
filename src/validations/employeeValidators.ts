@@ -59,4 +59,8 @@ export const validateUpdateEmployee = [
     .optional()
     .isEmail()
     .withMessage((_,{req})=>req.i18n.t("employeeValidationMessages.email.notEmail")),
+  body("makeSuperAdmin")
+    .optional()
+    .isBoolean()
+    .withMessage("makeSuperAdmin must be a boolean"),
 ];
