@@ -59,8 +59,8 @@ export const validateUpdateEmployee = [
     .optional()
     .isEmail()
     .withMessage((_,{req})=>req.i18n.t("employeeValidationMessages.email.notEmail")),
-  body("makeSuperAdmin")
+  body("role")
     .optional()
-    .isBoolean()
-    .withMessage("makeSuperAdmin must be a boolean"),
+    .isIn(["super-admin", "client-admin"])
+    .withMessage("Role must be either super-admin or client-admin"),
 ];
