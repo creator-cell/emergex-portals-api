@@ -164,6 +164,9 @@ export const getEmployees = async (req: Request, res: Response) => {
         isDeleted: false,
         createdBy: new mongoose.Types.ObjectId(user),
       },
+      populate: [
+        { path: 'user', select: 'role' }
+      ]
     });
 
     const result = await paginate(EmployeeModel, options);
@@ -219,7 +222,7 @@ export const getEmployeeById = async (req: Request, res: Response) => {
 // Update an employee
 export const updateEmployee = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { name, email, designation, contactNo, userId, makeSuperAdmin = false } = req.body;
+  const { name, email, designation, contactNo, userId, role } = req.body;
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
   
@@ -227,13 +230,22 @@ export const updateEmployee = async (req: Request, res: Response) => {
   session.startTransaction();
   
   try {
-    // If trying to promote to superadmin, check permissions
-    if (makeSuperAdmin === true) {
+    // If trying to change role, check permissions
+    if (role) {
       if (currentUser.role !== GlobalAdminRoles.SuperAdmin) {
         await session.abortTransaction();
         return res.status(403).json({
           success: false,
-          error: "Only superadmins can promote employees to superadmin"
+          error: "Only superadmins can change employee roles"
+        });
+      }
+      
+      // Validate role value
+      if (!["super-admin", "client-admin"].includes(role)) {
+        await session.abortTransaction();
+        return res.status(400).json({
+          success: false,
+          error: "Invalid role. Must be either 'super-admin' or 'client-admin'"
         });
       }
     }
@@ -268,11 +280,11 @@ export const updateEmployee = async (req: Request, res: Response) => {
       }
     }
 
-    // If trying to promote to superadmin
-    if (makeSuperAdmin === true && existingEmployee.user) {
+    // Handle role change
+    if (role && existingEmployee.user) {
       await UserModel.findByIdAndUpdate(
         existingEmployee.user,
-        { role: GlobalAdminRoles.SuperAdmin },
+        { role },
         { session }
       );
     }
