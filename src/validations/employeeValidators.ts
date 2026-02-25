@@ -19,6 +19,10 @@ export const validateCreateEmployee = [
     .withMessage((_, { req }) => req.i18n.t("employeeValidationMessages.contactNo.length"))
     .matches(/^\d{10}$/)
     .withMessage((_, { req }) => req.i18n.t("employeeValidationMessages.contactNo.containCharacters")),
+  body("role")
+    .optional()
+    .isIn(["super-admin", "client-admin"])
+    .withMessage("Role must be either super-admin or client-admin"),
 ];
 
 
