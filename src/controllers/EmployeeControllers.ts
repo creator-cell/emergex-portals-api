@@ -21,7 +21,7 @@ import ProjectRoleModel from "../models/ProjectRoleModel";
 
 // Create a new employee
 export const createEmployee = async (req: Request, res: Response) => {
-  const { name, email, designation, contactNo } = req.body;
+  const { name, email, designation, contactNo, role } = req.body;
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
   const session = await mongoose.startSession();
@@ -63,6 +63,10 @@ export const createEmployee = async (req: Request, res: Response) => {
 
     const [firstName, lastName] = name.split(" ");
 
+    const userRole = (role && ["super-admin", "client-admin"].includes(role)) 
+      ? role 
+      : GlobalAdminRoles.ClientAdmin;
+
     const user = new UserModel({
       username,
       firstName,
@@ -70,7 +74,7 @@ export const createEmployee = async (req: Request, res: Response) => {
       email,
       password,
       phoneNumber: contactNo,
-      role: GlobalAdminRoles.ClientAdmin,
+      role: userRole,
       accounts: [],
       createdBy: currentUser.id,
     });
