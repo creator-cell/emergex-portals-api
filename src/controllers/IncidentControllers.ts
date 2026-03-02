@@ -21,6 +21,7 @@ import {
   Incident,
 } from "../helper/generateIncidentReport";
 import { IncidentReportModel } from "../models/IncidentReportModel";
+import { GlobalAdminRoles } from "../config/global-enum";
 
 export const createIncident = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
@@ -1169,58 +1170,117 @@ export const getIncidentStatistics = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
   try {
-    const { project } = req.query;
+    const { project, filterType, startDate, endDate } = req.query;
     const matchStage: any = {};
 
     if (project) {
       matchStage.project = new mongoose.Types.ObjectId(project as string);
+    } else if (currentUser) {
+      if (currentUser.role === GlobalAdminRoles.SuperAdmin) {
+        // Super Admin sees all incidents - no filter needed
+      } else if (currentUser.role === GlobalAdminRoles.ClientAdmin) {
+        // Client Admin sees incidents from their projects
+        const employee = await EmployeeModel.findOne({
+          user: new mongoose.Types.ObjectId(currentUser.id),
+        });
+
+        const roles = await ProjectRoleModel.find({
+          employee: employee?._id,
+        }).select("project");
+
+        const projectIds = roles.map((role: any) => role.project);
+
+        const createdByProjects = await ProjectModel.find({
+          createdBy: new mongoose.Types.ObjectId(currentUser.id),
+        }).select("_id");
+
+        const allProjectIds = [
+          ...projectIds,
+          ...createdByProjects.map((p: any) => p._id),
+        ];
+
+        // If user has no projects, return empty
+        if (allProjectIds.length === 0) {
+          matchStage._id = null; // Will return no results
+        } else {
+          matchStage.project = { $in: allProjectIds };
+        }
+      } else {
+        // Regular users see only their created incidents
+        matchStage.createdBy = new mongoose.Types.ObjectId(currentUser.id);
+      }
     }
 
-    if (!project && currentUser) {
-      matchStage.createdBy = new mongoose.Types.ObjectId(currentUser.id);
+    const now = new Date();
+    let start: Date = new Date(now.getFullYear(), now.getMonth(), 1);
+    let end: Date = now;
+
+    const filterTypeStr = filterType as string;
+
+    if (filterTypeStr && filterTypeStr !== "custom") {
+      if (filterTypeStr === "last30days") {
+        start = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      } else if (filterTypeStr === "last3months") {
+        start = new Date(now.getTime() - 3 * 30 * 24 * 60 * 60 * 1000);
+      } else if (filterTypeStr === "last6months") {
+        start = new Date(now.getTime() - 6 * 30 * 24 * 60 * 60 * 1000);
+      }
+    } else if (filterTypeStr === "custom" && startDate && endDate) {
+      start = new Date(startDate as string);
+      end = new Date(endDate as string);
     }
+
+    matchStage.createdAt = {
+      $gte: start,
+      $lte: end,
+    };
+
+    // Always group by month for consistent display
+    const groupStage = {
+      _id: { $month: "$createdAt" },
+      totalIncidents: { $sum: 1 },
+    };
+
+    const projectStage = {
+      month: {
+        $arrayElemAt: [
+          [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
+          ],
+          { $subtract: ["$_id", 1] },
+        ],
+      },
+      totalIncidents: 1,
+      _id: 0,
+    };
 
     const pipeline = [
       {
         $match: matchStage,
       },
       {
-        $group: {
-          _id: { $month: "$createdAt" },
-          totalIncidents: { $sum: 1 },
-        },
+        $group: groupStage,
       },
       {
         $sort: { _id: 1 as 1 },
       },
       {
-        $project: {
-          month: {
-            $arrayElemAt: [
-              [
-                "January",
-                "February",
-                "March",
-                "April",
-                "May",
-                "June",
-                "July",
-                "August",
-                "September",
-                "October",
-                "November",
-                "December",
-              ],
-              { $subtract: ["$_id", 1] },
-            ],
-          },
-          totalIncidents: 1,
-          _id: 0,
-        },
+        $project: projectStage,
       },
     ];
 
-    const incidentsByMonth = await IncidentModel.aggregate(pipeline);
+    const incidentsByPeriod = await IncidentModel.aggregate(pipeline);
 
     const totalIncidents = await IncidentModel.countDocuments(matchStage);
 
@@ -1230,7 +1290,8 @@ export const getIncidentStatistics = async (req: Request, res: Response) => {
         "incidentValidationMessages.response.getIncidentStatistics.success"
       ),
       totalIncidents,
-      incidentsByMonth,
+      incidentsByMonth: incidentsByPeriod,
+      responseTime: 15,
     });
   } catch (error) {
     console.error("Error fetching incident statistics:", error);
