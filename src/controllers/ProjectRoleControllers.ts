@@ -978,11 +978,19 @@ export const getAvailableRolesInProject = async (
       });
     }
 
-    const roles = await ProjectRoleModel.find({
-      project: project._id,
-      priority: { $exists: priority },
-      // employee: { $ne: currentUser.id },
-    }).populate("employee role");
+    let query: any = { project: project._id };
+    
+    if (priority === "true") {
+      query.priority = { $exists: true, $ne: null };
+    } else if (priority === "false") {
+      query.$or = [
+        { priority: { $exists: false } },
+        { priority: null },
+        { priority: { $eq: 0 } }
+      ];
+    }
+
+    const roles = await ProjectRoleModel.find(query).populate("employee role");
 
     if (!roles) {
       return res.status(200).json({
