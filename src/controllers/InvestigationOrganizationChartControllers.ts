@@ -51,7 +51,6 @@ export const getInvestigationOrgChart = async (req: Request, res: Response) => {
             {
                 $match: {
                     project: projectId,
-                    role: investigationRole._id,
                     isDeleted: { $ne: true },
                 },
             },
@@ -235,6 +234,27 @@ export const addInvestigationOrgChart = async (req: Request, res: Response) => {
             isDeleted: { $ne: true } 
         });
 
+        // Calculate priority similar to Project Organization Chart
+        let priority = 1;
+        
+        if (from && !to) {
+            // If "from" is specified, priority = fromEmployee.priority + 1
+            const fromChart = await InvestigationOrganizationChartModel.findOne({
+                project: projectId,
+                employee: from,
+                isDeleted: { $ne: true }
+            });
+            if (fromChart && fromChart.priority) {
+                priority = fromChart.priority + 1;
+            }
+        } else if (!from && !to) {
+            // If no from/to, this becomes the Owner (priority = 1)
+            priority = 1;
+        } else {
+            // For other cases, use existing logic
+            priority = existingCount + 1;
+        }
+
         // Find team for employee
         let teamId;
         const teams = await TeamModel.find({ members: employee });
@@ -247,7 +267,7 @@ export const addInvestigationOrgChart = async (req: Request, res: Response) => {
         console.log("employee:", employee);
         console.log("role:", role);
         console.log("investigationRole._id:", investigationRole._id);
-        console.log("priority:", existingCount + 1);
+        console.log("priority:", priority);
 
         const newChart = new InvestigationOrganizationChartModel({
             project: projectId,
@@ -257,7 +277,7 @@ export const addInvestigationOrgChart = async (req: Request, res: Response) => {
             team: teamId,
             employee: new mongoose.Types.ObjectId(employee),
             role: new mongoose.Types.ObjectId(role), // Use the role sent from frontend
-            priority: existingCount + 1,
+            priority: priority,
         });
 
         console.log("Saving newChart...");
