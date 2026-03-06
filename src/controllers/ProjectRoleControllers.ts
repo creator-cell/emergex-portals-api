@@ -979,14 +979,14 @@ export const getAvailableRolesInProject = async (
     }
 
     let query: any = { project: project._id };
-    
+
     if (priority === "true") {
       query.priority = { $exists: true, $ne: null };
     } else if (priority === "false") {
       query.$or = [
         { priority: { $exists: false } },
         { priority: null },
-        { priority: { $eq: 0 } }
+        { priority: { $eq: 0 } },
       ];
     }
 
@@ -1043,7 +1043,10 @@ export const getAvailableRolesInProject = async (
 };
 
 // get investigation roles by incident id
-export const getInvestigationRolesByIncidentId = async (req: Request, res: Response) => {
+export const getInvestigationRolesByIncidentId = async (
+  req: Request,
+  res: Response
+) => {
   const { id } = req.params;
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
@@ -1054,7 +1057,8 @@ export const getInvestigationRolesByIncidentId = async (req: Request, res: Respo
     if (!incident) {
       return res.status(200).json({
         success: false,
-        error: req.i18n.t("incidentValidationMessages.response.notExist") + " " + id,
+        error:
+          req.i18n.t("incidentValidationMessages.response.notExist") + " " + id,
       });
     }
 
@@ -1062,7 +1066,10 @@ export const getInvestigationRolesByIncidentId = async (req: Request, res: Respo
     if (!project) {
       return res.status(200).json({
         success: false,
-        error: req.i18n.t("projectValidationMessages.response.notExist") + " " + incident.project,
+        error:
+          req.i18n.t("projectValidationMessages.response.notExist") +
+          " " +
+          incident.project,
       });
     }
 
@@ -1073,7 +1080,9 @@ export const getInvestigationRolesByIncidentId = async (req: Request, res: Respo
     if (!investigationRole) {
       return res.status(200).json({
         success: true,
-        message: req.i18n.t("projectRoleValidationMessages.response.getRolesByIncidentId.success"),
+        message: req.i18n.t(
+          "projectRoleValidationMessages.response.getRolesByIncidentId.success"
+        ),
         data: [],
       });
     }
@@ -1127,7 +1136,10 @@ export const getInvestigationRolesByIncidentId = async (req: Request, res: Respo
               title: "$roleData.title",
               user: "$employeeData.user",
               isCurrentUser: {
-                $eq: ["$employeeData.user", new mongoose.Types.ObjectId(currentUserId)],
+                $eq: [
+                  "$employeeData.user",
+                  new mongoose.Types.ObjectId(currentUserId),
+                ],
               },
             },
           },
@@ -1182,14 +1194,18 @@ export const getInvestigationRolesByIncidentId = async (req: Request, res: Respo
 
     return res.status(200).json({
       success: true,
-      message: req.i18n.t("projectRoleValidationMessages.response.getRolesByIncidentId.success"),
+      message: req.i18n.t(
+        "projectRoleValidationMessages.response.getRolesByIncidentId.success"
+      ),
       data: roles,
     });
   } catch (error) {
     console.error(error);
     return res.status(500).json({
       success: false,
-      error: req.i18n.t("projectRoleValidationMessages.response.getRolesByIncidentId.server"),
+      error: req.i18n.t(
+        "projectRoleValidationMessages.response.getRolesByIncidentId.server"
+      ),
     });
   }
 };
