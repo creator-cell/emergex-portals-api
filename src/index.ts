@@ -29,6 +29,7 @@ import speechRoutes from "./routes/SpeechRoutes";
 import investigationRoutes from "./routes/InvestigationRoutes";
 import witnessStatementRoutes from "./routes/WitnessStatementRoutes";
 import emergexChartRoutes from "./routes/EmergexChartRoutes";
+import investigationChartRoutes from "./routes/InvestigationChartRoutes";
 
 
 
@@ -84,6 +85,7 @@ app.use("/api/speech", speechRoutes);
 app.use("/api/investigations", investigationRoutes);
 app.use("/api/witness-statements", witnessStatementRoutes);
 app.use("/api/emergex-chart", emergexChartRoutes);
+app.use("/api/investigation-chart", investigationChartRoutes);
 
 
 
