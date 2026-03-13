@@ -9,6 +9,10 @@ export enum AccountProviderType {
   Facebook = "Facebook",
 }
 
+export enum ConversationIdentity {
+  INCIDENT = "incident",
+}
+
 export const InvestigationRoles = {
   INVESTIGATION_SPECIALIST: "Investigation Specialist",
 } as const;
