@@ -4,6 +4,7 @@ export interface ICustomRequest extends Request {
     user:{
       id: string;
       role:string;
+      companyId?: string;
       iat:Number;
       exp:Number;
       email?: string;

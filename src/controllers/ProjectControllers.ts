@@ -16,10 +16,26 @@ import UserModel from "../models/UserModel";
 
 // Create a project only by getting name
 export const createProjectByName = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
     const { name, description } = req.body;
 
-    const isExist = await ProjectModel.findOne({ name });
+    const isExist = await ProjectModel.findOne({ 
+      name,
+      companyId: new mongoose.Types.ObjectId(companyId),
+    });
     if (isExist) {
       return res.status(400).json({
         success: false,
@@ -32,6 +48,8 @@ export const createProjectByName = async (req: Request, res: Response) => {
     const newProject = await ProjectModel.create({
       name,
       description,
+      companyId: companyId,
+      createdBy: currentUser.id,
     });
 
     return res.status(201).json({
@@ -135,6 +153,9 @@ export const createProject = async (req: Request, res: Response) => {
 
       const id = await generateUniqueId();
 
+      const user = await UserModel.findById(currentUser.id).session(session);
+      const companyId = user?.companyId;
+
       const projectData = {
         id,
         name: parentProject ? parentProject.name : name?.trim(),
@@ -144,6 +165,7 @@ export const createProject = async (req: Request, res: Response) => {
         location: projectLocation?._id,
         parentProjectId: parentProjectId || null,
         createdBy: currentUser.id,
+        companyId: companyId || null,
       };
 
       const [newProject] = await ProjectModel.create([projectData], {
@@ -247,6 +269,16 @@ export const getAllProjects = async (req: Request, res: Response) => {
   const currentUser = customReq.user;
   const role = currentUser.role;
   try {
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
     let result;
     const { search } = req.query;
     const projectPopulateOptions = [
@@ -265,13 +297,16 @@ export const getAllProjects = async (req: Request, res: Response) => {
       },
     ];
 
+    const baseFilter = {
+      companyId: new mongoose.Types.ObjectId(companyId),
+      isDeleted: false,
+    };
+
     if (role === GlobalAdminRoles.SuperAdmin) {
       let options = getPaginationOptions(req, {
         populate: projectPopulateOptions,
         sort: { createdAt: -1 },
-        filter: {
-          createdBy: new mongoose.Types.ObjectId(currentUser.id),
-        },
+        filter: baseFilter,
       });
 
       if (search) {
@@ -279,8 +314,7 @@ export const getAllProjects = async (req: Request, res: Response) => {
           populate: projectPopulateOptions,
           sort: { createdAt: -1 },
           filter: {
-            createdBy: new mongoose.Types.ObjectId(currentUser.id),
-            isDeleted: false,
+            ...baseFilter,
             $or: [
               { name: { $regex: search, $options: "i" } },
               { id: { $regex: search, $options: "i" } },
@@ -304,8 +338,8 @@ export const getAllProjects = async (req: Request, res: Response) => {
         populate: projectPopulateOptions,
         sort: { createdAt: -1 },
         filter: {
+          ...baseFilter,
           $or: [{ _id: { $in: projectIds } }, { createdBy: currentUser.id }],
-          isDeleted: false,
         },
       });
 
@@ -314,8 +348,8 @@ export const getAllProjects = async (req: Request, res: Response) => {
           populate: projectPopulateOptions,
           sort: { createdAt: -1 },
           filter: {
+            ...baseFilter,
             _id: { $in: projectIds },
-            isDeleted: false,
             $or: [
               { name: { $regex: search, $options: "i" } },
               { id: { $regex: search, $options: "i" } },
@@ -350,8 +384,19 @@ export const getAllProjectsForUser = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
   try {
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
     const projects = await ProjectModel.find({
-      createdBy:currentUser.id
+      companyId: new mongoose.Types.ObjectId(companyId),
+      isDeleted: false,
     })
 
     return res.status(200).json({
@@ -468,11 +513,24 @@ export const getAllProjectsForUser = async (req: Request, res: Response) => {
 
 export const getProjectById = async (req: Request, res: Response) => {
   const { id } = req.params;
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
 
   try {
-    // Check if project exists
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
+    // Check if project exists and belongs to user's company
     const project = await ProjectModel.findOne({
       _id: id,
+      companyId: new mongoose.Types.ObjectId(companyId),
       isDeleted: false,
     }).populate({
       path: "location",
@@ -574,9 +632,25 @@ export const getProjectById = async (req: Request, res: Response) => {
 export const updateProject = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { name, description, location, parentProjectId } = req.body;
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
     if (parentProjectId) {
-      const isParentProjectExist = await ProjectModel.findById(parentProjectId);
+      const isParentProjectExist = await ProjectModel.findOne({
+        _id: parentProjectId,
+        companyId: new mongoose.Types.ObjectId(companyId),
+      });
       if (!isParentProjectExist) {
         throw new Error(
           `${req.i18n.t(
@@ -598,8 +672,8 @@ export const updateProject = async (req: Request, res: Response) => {
       }
     }
 
-    const updatedProject = await ProjectModel.findByIdAndUpdate(
-      id,
+    const updatedProject = await ProjectModel.findOneAndUpdate(
+      { _id: id, companyId: new mongoose.Types.ObjectId(companyId) },
       { name, description, location, parentProjectId },
       { new: true, runValidators: true }
     );
@@ -634,12 +708,24 @@ export const updateProject = async (req: Request, res: Response) => {
 // Delete a project by ID
 export const deleteProject = async (req: Request, res: Response) => {
   const { id } = req.params;
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
-    const project = await ProjectModel.findByIdAndUpdate(id, {
-      $set: {
-        isDeleted: true,
-      },
-    });
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
+    const project = await ProjectModel.findOneAndUpdate(
+      { _id: id, companyId: new mongoose.Types.ObjectId(companyId) },
+      { $set: { isDeleted: true } }
+    );
 
     if (!project) {
       return res.status(200).json({
@@ -871,7 +957,20 @@ export const deleteProject = async (req: Request, res: Response) => {
 // };
 
 export const getProjectsByLocation = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
     const { country, region, worksite } = req.query;
 
     const location = await LocationModel.findOne({
@@ -900,6 +999,7 @@ export const getProjectsByLocation = async (req: Request, res: Response) => {
 
     const projects = await ProjectModel.find({
       location: new mongoose.Types.ObjectId(location._id),
+      companyId: new mongoose.Types.ObjectId(companyId),
       isDeleted: false,
     }).populate({
       path: "location",
@@ -942,13 +1042,37 @@ export const getAllEmployeesInProjectOrganization = async (
   req: Request,
   res: Response
 ) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
     const { id } = req.params;
     const { priority } = req.query;
 
+    const project = await ProjectModel.findOne({
+      _id: id,
+      companyId: new mongoose.Types.ObjectId(companyId),
+    });
+
+    if (!project) {
+      return res.status(200).json({
+        success: false,
+        error: "Project not found or does not belong to your company",
+      });
+    }
+
     const matchCondition: any = {
       project: new mongoose.Types.ObjectId(id),
-      // isDeleted:false,
     };
 
     if (priority === "true") {
