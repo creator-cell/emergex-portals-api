@@ -44,7 +44,9 @@ const parseUserAgent = (userAgent: string): { browser: string; os: string } => {
 
 const getDeviceType = (req: Request): string => {
   const userAgent = req.headers["user-agent"] || "";
-  const isMobile = /Mobile|Android|iPhone|iPad|iPod|Windows Phone/i.test(userAgent);
+  const isMobile = /Mobile|Android|iPhone|iPad|iPod|Windows Phone/i.test(
+    userAgent
+  );
   return isMobile ? "mobile" : "desktop";
 };
 
@@ -87,7 +89,7 @@ export const register = async (
       [
         {
           username,
-          firstName:username,
+          firstName: username,
           email,
           provider: AccountProviderType.Local,
           providerId: providerId || user._id,
@@ -108,30 +110,36 @@ export const register = async (
       await session.abortTransaction();
       return res.status(400).json({
         success: false,
-        error: req.i18n.t("employeeValidationMessages.response.createEmployee.exist"),
+        error: req.i18n.t(
+          "employeeValidationMessages.response.createEmployee.exist"
+        ),
       });
     }
 
-    const employee = new EmployeeModel({
-      _id: new mongoose.Types.ObjectId(),
-      user: user._id,
-      name: username,
-      email,
-      isDeleted:false,
-      contactNo: phoneNumber,
-      designation: role,
-      createdBy: user._id
-    }, { session })
+    const employee = new EmployeeModel(
+      {
+        _id: new mongoose.Types.ObjectId(),
+        user: user._id,
+        name: username,
+        email,
+        isDeleted: false,
+        contactNo: phoneNumber,
+        designation: role,
+        createdBy: user._id,
+      },
+      { session }
+    );
 
     await employee.save({ session });
     await session.commitTransaction();
 
     return res.status(201).json({
       success: true,
-      message: `${role === GlobalAdminRoles.SuperAdmin
-        ? GlobalAdminRoles.SuperAdmin
-        : GlobalAdminRoles.ClientAdmin
-        } ${req.i18n.t("authValidationMessages.response.register.success")}`,
+      message: `${
+        role === GlobalAdminRoles.SuperAdmin
+          ? GlobalAdminRoles.SuperAdmin
+          : GlobalAdminRoles.ClientAdmin
+      } ${req.i18n.t("authValidationMessages.response.register.success")}`,
     });
   } catch (error: any) {
     console.log("error in register client admin: ", error);
@@ -197,12 +205,12 @@ export const register = async (
 //     const date = new Date();
 //     date.setDate(date.getDate() + 30);
 
-//     res.cookie('auth_emergex', token, { 
-//       path: '/', 
-//       expires: date, 
-//       domain: process.env.NODE_ENV === 'production' 
-//       ? process.env.PROD_AUTHORIZED_DOMAIN 
-//       : process.env.DEV_AUTHORIZED_DOMAIN || 'localhost' 
+//     res.cookie('auth_emergex', token, {
+//       path: '/',
+//       expires: date,
+//       domain: process.env.NODE_ENV === 'production'
+//       ? process.env.PROD_AUTHORIZED_DOMAIN
+//       : process.env.DEV_AUTHORIZED_DOMAIN || 'localhost'
 //     });
 
 //     return res.status(200).json({
@@ -242,12 +250,17 @@ export const register = async (
 //   }
 // };
 
-
 export const login = async (req: Request, res: Response): Promise<Response> => {
   try {
     const { email, password } = req.body;
 
-    const user = await UserModel.findOne({ email });
+    const user = await UserModel.findOne({
+      email,
+      role: { $in: ["super-admin", "client-admin"] },
+    });
+
+    console.log(user);
+
     if (!user) {
       return res.status(200).json({
         success: false,
@@ -259,13 +272,22 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
     if (!isMatch) {
       return res.status(401).json({
         success: false,
-        error: req.i18n.t("authValidationMessages.response.login.invalidCredentials"),
+        error: req.i18n.t(
+          "authValidationMessages.response.login.invalidCredentials"
+        ),
       });
     }
 
-    await SessionModel.updateMany({ userId: user._id }, { $set: { isActive: false } });
+    await SessionModel.updateMany(
+      { userId: user._id },
+      { $set: { isActive: false } }
+    );
 
-    const ip = req.ip || req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown";
+    const ip =
+      req.ip ||
+      req.headers["x-forwarded-for"] ||
+      req.socket.remoteAddress ||
+      "unknown";
     const userAgent = req.headers["user-agent"] || "unknown";
     const { browser, os } = parseUserAgent(userAgent);
     const device = getDeviceType(req);
@@ -281,13 +303,18 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
     });
 
     const token = jwt.sign(
-      { id: user._id, role: user.role, os: session.os, device: session.device },
+      {
+        id: user._id,
+        role: user.role,
+        companyId: user.companyId,
+        os: session.os,
+        device: session.device,
+      },
       config.jwtSecret,
       { expiresIn: "30d" }
     );
 
-
-    let redirectUrl: "/"|"/admin" = "/";
+    let redirectUrl: "/" | "/admin" = "/";
     if (user.role === GlobalAdminRoles.SuperAdmin) {
       redirectUrl = "/admin";
     } else if (user.role === GlobalAdminRoles.ClientAdmin) {
@@ -301,9 +328,8 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
       message: req.i18n.t("authValidationMessages.response.login.success"),
       token,
       redirectUrl,
-      admin: user
+      admin: user,
     });
-    
   } catch (error: any) {
     console.log("Login error:", error);
     return res.status(500).json({
@@ -322,51 +348,51 @@ export const changePassword = async (req: Request, res: Response) => {
 
     // Validate input
     if (!currentPassword || !newPassword || !confirmPassword) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: "All fields are required" 
+        message: "All fields are required",
       });
     }
 
     if (newPassword !== confirmPassword) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: "New password and confirm password do not match" 
+        message: "New password and confirm password do not match",
       });
     }
 
     // Validate password strength
     const passwordError = validatePassword(newPassword);
     if (passwordError) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: passwordError 
+        message: passwordError,
       });
     }
 
     // Find user
     const user = await UserModel.findById(userId);
     if (!user) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: "User not found" 
+        message: "User not found",
       });
     }
 
     // Verify current password
     const isMatch = await user.comparePassword(currentPassword);
     if (!isMatch) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: "Current password is incorrect" 
+        message: "Current password is incorrect",
       });
     }
 
     // Check if new password is same as current
     if (await user.comparePassword(newPassword)) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: "New password cannot be same as current password" 
+        message: "New password cannot be same as current password",
       });
     }
 
@@ -374,16 +400,15 @@ export const changePassword = async (req: Request, res: Response) => {
     user.password = newPassword;
     await user.save();
 
-    return res.status(200).json({ 
+    return res.status(200).json({
       success: true,
-      message: "Password changed successfully" 
+      message: "Password changed successfully",
     });
-
   } catch (error) {
     console.error("Error changing password:", error);
-    return res.status(500).json({ 
+    return res.status(500).json({
       success: false,
-      message: "Internal server error" 
+      message: "Internal server error",
     });
   }
 };

@@ -10,6 +10,7 @@ export interface AuthenticatedRequest extends Request {
     id: string;
     role: string;
     email?: string;
+    companyId?: string;
   };
   room?:string;
 }
@@ -49,6 +50,7 @@ export const authenticate = (
       id: decoded.id,
       role: decoded.role,
       email: decoded.email,
+      companyId: decoded.companyId,
     };
 
     next();

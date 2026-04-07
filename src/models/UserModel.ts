@@ -15,6 +15,7 @@ export interface IUser extends Document {
   phoneNumber?: string;
   image?: string;
   accounts?: [mongoose.Types.ObjectId];
+  companyId?: mongoose.Types.ObjectId;
   createdBy?:mongoose.Types.ObjectId;
   comparePassword(password: string): Promise<boolean>;
   generateChatToken(identity: string): Promise<string>;
@@ -78,6 +79,10 @@ const userSchema = new Schema<IUser>(
     accounts: { 
       type: [mongoose.Schema.Types.ObjectId], 
       ref: "Account" 
+    },
+    companyId: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: "Company" 
     },
   },
   {
