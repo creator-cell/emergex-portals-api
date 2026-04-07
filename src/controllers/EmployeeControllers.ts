@@ -26,7 +26,19 @@ export const createEmployee = async (req: Request, res: Response) => {
   const currentUser = customReq.user;
   const session = await mongoose.startSession();
   session.startTransaction();
+
   try {
+    const user = await UserModel.findById(currentUser.id).session(session);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      await session.abortTransaction();
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
     const checkExist = await EmployeeModel.findOne({ email }).session(session);
 
     if (checkExist) {
@@ -45,6 +57,7 @@ export const createEmployee = async (req: Request, res: Response) => {
       designation,
       contactNo,
       createdBy: currentUser.id,
+      companyId,
     });
     const savedEmployee = await employee.save({ session });
 
@@ -67,7 +80,7 @@ export const createEmployee = async (req: Request, res: Response) => {
       ? role 
       : GlobalAdminRoles.ClientAdmin;
 
-    const user = new UserModel({
+    const newUser = new UserModel({
       username,
       firstName,
       lastName,
@@ -77,10 +90,11 @@ export const createEmployee = async (req: Request, res: Response) => {
       role: userRole,
       accounts: [],
       createdBy: currentUser.id,
+      companyId,
     });
-    await user.save({ session });
+    await newUser.save({ session });
 
-    savedEmployee.user = user._id as mongoose.Types.ObjectId;
+    savedEmployee.user = newUser._id as mongoose.Types.ObjectId;
     await savedEmployee.save({ session });
 
     const account: IAccount = await AccountModel.create(
@@ -104,17 +118,20 @@ export const createEmployee = async (req: Request, res: Response) => {
 
     // await EmailService.sendCredentialsEmail(email, firstName, password);
 
-    const friendlyName = `conversation-${currentUser.id}-${user._id}`;
+    const friendlyName = `conversation-${currentUser.id}-${newUser._id}`;
     const conversation = await conversationService.createConversation(
       friendlyName,
       currentUser.id,
       ConversationIdentity.EMPLOYEE,
       ConversationType.SINGLE,
-      user._id as mongoose.Types.ObjectId,
-      session
+      newUser._id as mongoose.Types.ObjectId,
+      session,
+      companyId
     );
 
     const conversationId = (conversation as { _id: string })._id;
+    
+    // Add current user (admin) as participant
     await conversationService.addParticipant(
       conversationId.toString(),
       currentUser.id,
@@ -122,10 +139,12 @@ export const createEmployee = async (req: Request, res: Response) => {
       session
     );
 
+    // Add new employee as participant
+    const newUserIdStr = (newUser._id as mongoose.Types.ObjectId).toString();
     await conversationService.addParticipant(
       conversationId.toString(),
-      user._id!.toString(),
-      user._id!.toString(),
+      newUserIdStr,
+      newUserIdStr,
       session
     );
 
@@ -156,17 +175,22 @@ export const createEmployee = async (req: Request, res: Response) => {
 export const getEmployees = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
+
   try {
-    let user: any = currentUser.id;
-    if (currentUser.role === GlobalAdminRoles.ClientAdmin) {
-      const data = await UserModel.findOne({ _id: currentUser.id });
-      user = data?.createdBy;
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
     }
 
     const options = getPaginationOptions(req, {
       filter: {
         isDeleted: false,
-        createdBy: new mongoose.Types.ObjectId(user),
+        companyId: new mongoose.Types.ObjectId(companyId),
       },
       populate: [
         { path: 'user', select: 'role' }
@@ -196,8 +220,21 @@ export const getEmployees = async (req: Request, res: Response) => {
 // Get a single employee by ID
 export const getEmployeeById = async (req: Request, res: Response) => {
   const { id } = req.params;
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
-    const employee = await EmployeeModel.findById(id);
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
+    const employee = await EmployeeModel.findOne({ _id: id, companyId });
     if (!employee) {
       return res.status(200).json({
         success: false,
@@ -234,6 +271,17 @@ export const updateEmployee = async (req: Request, res: Response) => {
   session.startTransaction();
   
   try {
+    const user = await UserModel.findById(currentUser.id).session(session);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      await session.abortTransaction();
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
     // If trying to change role, check permissions
     if (role) {
       if (currentUser.role !== GlobalAdminRoles.SuperAdmin) {
@@ -255,7 +303,7 @@ export const updateEmployee = async (req: Request, res: Response) => {
     }
 
     // Check if employee exists
-    const existingEmployee = await EmployeeModel.findById(id).session(session);
+    const existingEmployee = await EmployeeModel.findOne({ _id: id, companyId }).session(session);
     if (!existingEmployee) {
       await session.abortTransaction();
       return res.status(200).json({
@@ -266,7 +314,7 @@ export const updateEmployee = async (req: Request, res: Response) => {
       });
     }
 
-    // Validate email uniqueness (if provided)
+    // Validate email uniqueness (if provided) - globally unique
     if (email) {
       const isExist = await EmployeeModel.findOne({ 
         email,
@@ -294,8 +342,8 @@ export const updateEmployee = async (req: Request, res: Response) => {
     }
 
     // Update employee
-    const updatedEmployee = await EmployeeModel.findByIdAndUpdate(
-      id,
+    const updatedEmployee = await EmployeeModel.findOneAndUpdate(
+      { _id: id, companyId },
       { name, email, designation, contactNo, user: userId },
       { new: true, runValidators: true, session }
     );
@@ -326,9 +374,22 @@ export const updateEmployee = async (req: Request, res: Response) => {
 // Delete a employee
 export const deleteEmployee = async (req: Request, res: Response) => {
   const { id } = req.params;
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
-    const deletedEmployee = await EmployeeModel.findByIdAndUpdate(
-      id,
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
+    const deletedEmployee = await EmployeeModel.findOneAndUpdate(
+      { _id: id, companyId },
       {
         isDeleted: true,
       },

@@ -209,6 +209,7 @@ export const createProject = async (req: Request, res: Response) => {
               email: user?.email || "",
               user: currentUser.id,
               createdBy: currentUser.id,
+              companyId,
             },
           ],
           { session }

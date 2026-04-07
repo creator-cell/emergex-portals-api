@@ -9,6 +9,7 @@ export interface IEmployee extends Document {
   email: string;
   user: mongoose.Types.ObjectId;
   createdBy: mongoose.Types.ObjectId;
+  companyId?: mongoose.Types.ObjectId;
   isDeleted:boolean;
 }
 
@@ -53,6 +54,10 @@ export const EmployeeSchema = new Schema<IEmployee>(
     createdBy:{
       type:Schema.Types.ObjectId,
       ref:'User'
+    },
+    companyId:{
+      type:Schema.Types.ObjectId,
+      ref:'Company',
     },
   },
   {

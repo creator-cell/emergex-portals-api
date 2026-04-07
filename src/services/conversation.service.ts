@@ -77,6 +77,16 @@ class ConversationService {
         throw new Error("Conversation not found");
       }
 
+      // Check if participant already exists in our database
+      const existingParticipant = conversation.participants.find(
+        (p) => p.user.toString() === userId
+      );
+      
+      if (existingParticipant) {
+        // Participant already exists, just return the conversation
+        return conversation;
+      }
+
       // Add participant to Twilio conversation
       const participant = await conversationsClient
         .conversations(conversation.twilioSid)
@@ -84,7 +94,7 @@ class ConversationService {
 
       // Add participant to our database
       conversation.participants.push({
-        _id: new mongoose.Types.ObjectId(), // Add a unique ID for the participant
+        _id: new mongoose.Types.ObjectId(),
         user: new mongoose.Types.ObjectId(userId),
         participantSid: participant.sid,
         identity,
@@ -92,7 +102,16 @@ class ConversationService {
 
       await conversation.save(sessionOptions);
       return conversation;
-    } catch (error) {
+    } catch (error: any) {
+      // Handle Twilio "participant already exists" error
+      if (error.code === 50433 || (error.details && error.details.code === 50433)) {
+        console.log("Participant already exists in Twilio, skipping...");
+        // Try to find and return the conversation
+        const existingConversation = await ConversationModel.findById(conversationId);
+        if (existingConversation) {
+          return existingConversation;
+        }
+      }
       console.error("Error adding participant:", error);
       throw error;
     }
