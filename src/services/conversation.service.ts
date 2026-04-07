@@ -18,7 +18,8 @@ class ConversationService {
     identity: ConversationIdentity,
     type: ConversationType = ConversationType.SINGLE,
     identityId?: mongoose.Types.ObjectId,
-    session?: mongoose.ClientSession
+    session?: mongoose.ClientSession,
+    companyId?: mongoose.Types.ObjectId
   ): Promise<IConversation> {
     const sessionOptions = session ? { session } : {};
     let twilioConversation;
@@ -38,6 +39,7 @@ class ConversationService {
         type: type || ConversationType.SINGLE,
         identity,
         identityId,
+        companyId,
       });
 
       await conversation.save(sessionOptions);

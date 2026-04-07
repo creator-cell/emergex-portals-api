@@ -4,6 +4,7 @@ export interface IWorksite extends Document {
   _id: mongoose.Types.ObjectId;
   name: string;
   region: mongoose.Types.ObjectId;
+  companyId?: mongoose.Types.ObjectId;
   isDeleted: boolean;
 }
 
@@ -19,6 +20,10 @@ const worksiteSchema = new Schema<IWorksite>(
       ref: 'Region',
       required: true,
     },
+    companyId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Company',
+    },
     isDeleted: {
       type: Boolean,
       default: false,
@@ -28,6 +33,8 @@ const worksiteSchema = new Schema<IWorksite>(
     timestamps: true,
   }
 );
+
+worksiteSchema.index({ name: 1, region: 1, companyId: 1 }, { unique: true });
 
 const WorksiteModel: Model<IWorksite> = mongoose.model<IWorksite>('Worksite', worksiteSchema);
 export default WorksiteModel;

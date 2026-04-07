@@ -3,11 +3,27 @@ import CountryModel from "../models/CountryModel";
 import { getPaginationOptions, paginate } from "../helper/pagination";
 import RegionModel from "../models/RegionModel";
 import WorksiteModel from "../models/WorksiteModel";
+import mongoose from "mongoose";
+import { ICustomRequest } from "../types/express";
+import UserModel from "../models/UserModel";
 
 export const addCountry = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
     const { name } = req.body;
-    const isExist = await CountryModel.findOne({ name });
+    const isExist = await CountryModel.findOne({ name, companyId });
 
     if (isExist) {
       return res.status(400).json({
@@ -16,7 +32,7 @@ export const addCountry = async (req: Request, res: Response) => {
       });
     }
 
-    const country = new CountryModel({ name });
+    const country = new CountryModel({ name, companyId });
     await country.save();
 
     return res.status(201).json({
@@ -33,19 +49,26 @@ export const addCountry = async (req: Request, res: Response) => {
 };
 
 export const getAllCountries = async (req: Request, res: Response) => {
-  try {
-    // const options = getPaginationOptions(req,{
-    //     sort: { name: 1 },
-    // });
-    // const countries = await paginate(CountryModel, options);
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
 
-    const countries = await CountryModel.find()
-      .sort({ name: 1 }) // Sort by name in ascending order
+  try {
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
+    const countries = await CountryModel.find({ companyId })
+      .sort({ name: 1 });
 
     return res.status(200).json({
       success: true,
       message:  req.i18n.t("countryValidationMessages.response.getAllCountries.success"),
-      // ...countries,
       data:countries
     });
   } catch (error) {
@@ -57,12 +80,26 @@ export const getAllCountries = async (req: Request, res: Response) => {
 };
 
 export const updateCountryById = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
     const { id } = req.params;
     const { name } = req.body;
 
     const isExist = await CountryModel.findOne({
       name,
+      companyId,
       _id: { $ne: id },
     });
 
@@ -73,8 +110,8 @@ export const updateCountryById = async (req: Request, res: Response) => {
       });
     }
 
-    const country = await CountryModel.findByIdAndUpdate(
-      id,
+    const country = await CountryModel.findOneAndUpdate(
+      { _id: id, companyId },
       { name },
       { new: true }
     );
@@ -100,11 +137,24 @@ export const updateCountryById = async (req: Request, res: Response) => {
 };
 
 export const deleteCountryById = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
     const { id } = req.params;
 
-    const country = await CountryModel.findByIdAndUpdate(
-      id,
+    const country = await CountryModel.findOneAndUpdate(
+      { _id: id, companyId },
       { isDeleted: true },
       { new: true }
     );
@@ -130,10 +180,23 @@ export const deleteCountryById = async (req: Request, res: Response) => {
 };
 
 export const getCountryById = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
     const { id } = req.params;
 
-    const country = await CountryModel.findById(id);
+    const country = await CountryModel.findOne({ _id: id, companyId });
 
     if (!country) {
       return res.status(200).json({
@@ -156,16 +219,29 @@ export const getCountryById = async (req: Request, res: Response) => {
 };
 
 export const getCountryRegionsWorksites = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
-    const countries = await CountryModel.find().lean(); // Fetch all countries
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
+    const countries = await CountryModel.find({ companyId }).lean();
     const result = [];
 
     for (const country of countries) {
-      const regions = await RegionModel.find({ country: country._id }).lean();
+      const regions = await RegionModel.find({ country: country._id, companyId }).lean();
       const regionDetails = [];
 
       for (const region of regions) {
-        const worksites = await WorksiteModel.find({ region: region._id })
+        const worksites = await WorksiteModel.find({ region: region._id, companyId })
           .select('_id name')
           .lean(); 
         regionDetails.push({

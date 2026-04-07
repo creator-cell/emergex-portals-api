@@ -2,12 +2,28 @@ import { Request, Response } from "express";
 import RegionModel from "../models/RegionModel";
 import { getPaginationOptions, paginate } from "../helper/pagination";
 import CountryModel from "../models/CountryModel";
+import mongoose from "mongoose";
+import { ICustomRequest } from "../types/express";
+import UserModel from "../models/UserModel";
 
 export const addRegion = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
     const { name, countryId } = req.body;
 
-    const isExist = await RegionModel.findOne({ name, country: countryId });
+    const isExist = await RegionModel.findOne({ name, country: countryId, companyId });
     if (isExist) {
       return res.status(400).json({
         success: false,
@@ -15,7 +31,7 @@ export const addRegion = async (req: Request, res: Response) => {
       });
     }
 
-    const isCountryExist = await CountryModel.findById(countryId);
+    const isCountryExist = await CountryModel.findOne({ _id: countryId, companyId });
     if (!isCountryExist) {
       return res.status(200).json({
         success: false,
@@ -23,7 +39,7 @@ export const addRegion = async (req: Request, res: Response) => {
       });
     } 
 
-    const region = new RegionModel({ name, country: countryId });
+    const region = new RegionModel({ name, country: countryId, companyId });
     await region.save();
 
     return res.status(201).json({
@@ -41,7 +57,20 @@ export const addRegion = async (req: Request, res: Response) => {
 };
 
 export const getAllRegions = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
     const options = getPaginationOptions(req, {
       populate: [
         {
@@ -50,6 +79,7 @@ export const getAllRegions = async (req: Request, res: Response) => {
         },
       ],
       sort: { name: 1 },
+      filter: { companyId },
     });
     const regions = await paginate(RegionModel, options);
 
@@ -67,22 +97,31 @@ export const getAllRegions = async (req: Request, res: Response) => {
 };
 
 export const getRegionsByCountry = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
     const { id } = req.params;
 
-    // const options = getPaginationOptions(req, {
-    //   populate: [
-    //     {
-    //       path: "country",
-    //       "select": "name _id",
-    //     },
-    //   ],
-    //   sort: { name: 1 },
-    //   filter: { country: id },
-    // });
-    // const regions = await paginate(RegionModel, options);
+    const isCountryExist = await CountryModel.findOne({ _id: id, companyId });
+    if (!isCountryExist) {
+      return res.status(200).json({
+        success: false,
+        message: req.i18n.t("CountryValidationMessages.response.CountryNotExist"),
+      });
+    }
 
-    const regions = await RegionModel.find({ country: id })
+    const regions = await RegionModel.find({ country: id, companyId })
       .populate("country", "name _id")
       .select("name country")
       .sort({ name: 1 });
@@ -98,7 +137,6 @@ export const getRegionsByCountry = async (req: Request, res: Response) => {
     return res.status(200).json({
       success: true,
       message: req.i18n.t("regionValidationMessages.response.getRegionsByCountry.success"),
-      // ...regions,
       data:regions
     });
   } catch (error) {
@@ -110,12 +148,26 @@ export const getRegionsByCountry = async (req: Request, res: Response) => {
 };
 
 export const updateRegionById = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
     const { id } = req.params;
     const { name } = req.body;
 
     const isExist = await RegionModel.findOne({
       name,
+      companyId,
       _id: { $ne: id },
     });
 
@@ -126,8 +178,8 @@ export const updateRegionById = async (req: Request, res: Response) => {
       });
     }
 
-    const region = await RegionModel.findByIdAndUpdate(
-      id,
+    const region = await RegionModel.findOneAndUpdate(
+      { _id: id, companyId },
       { name },
       { new: true }
     );
@@ -153,10 +205,23 @@ export const updateRegionById = async (req: Request, res: Response) => {
 };
 
 export const getRegionById = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
     const { id } = req.params;
 
-    const region = await RegionModel.findById(id);
+    const region = await RegionModel.findOne({ _id: id, companyId });
 
     if (!region) {
       return res.status(200).json({
@@ -180,11 +245,24 @@ export const getRegionById = async (req: Request, res: Response) => {
 };
 
 export const deleteRegionById = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
     const { id } = req.params;
 
-    const region = await RegionModel.findByIdAndUpdate(
-      id,
+    const region = await RegionModel.findOneAndUpdate(
+      { _id: id, companyId },
       { isDeleted: true },
       { new: true }
     );

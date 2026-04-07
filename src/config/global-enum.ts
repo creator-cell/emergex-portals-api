@@ -16,3 +16,7 @@ export enum ConversationIdentity {
 export const InvestigationRoles = {
   INVESTIGATION_SPECIALIST: "Investigation Specialist",
 } as const;
+
+export const EmergexRoles = {
+  EMERGEX: "Emergex",
+} as const;

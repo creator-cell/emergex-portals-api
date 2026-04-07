@@ -5,6 +5,7 @@ export interface ILocation extends Document {
   country: mongoose.Types.ObjectId;
   region: mongoose.Types.ObjectId;
   worksite: mongoose.Types.ObjectId;
+  companyId?: mongoose.Types.ObjectId;
   isDeleted: boolean;
 }
 
@@ -25,6 +26,10 @@ const locationSchema = new Schema<ILocation>(
       ref: 'Worksite',
       required: true,
     },
+    companyId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Company',
+    },
     isDeleted: {
       type: Boolean,
       default: false,
@@ -34,6 +39,8 @@ const locationSchema = new Schema<ILocation>(
     timestamps: true,
   }
 );
+
+locationSchema.index({ country: 1, region: 1, worksite: 1, companyId: 1 }, { unique: true });
 
 const LocationModel: Model<ILocation> = mongoose.model<ILocation>('Location', locationSchema);
 export default LocationModel;

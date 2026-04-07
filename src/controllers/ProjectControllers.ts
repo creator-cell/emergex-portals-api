@@ -111,11 +111,18 @@ export const createProject = async (req: Request, res: Response) => {
         }
       }
 
+      const user = await UserModel.findById(currentUser.id).session(session);
+      const companyId = user?.companyId;
+
+      if (!companyId) {
+        throw new Error("User is not associated with any company");
+      }
+
       const [isCountryExist, isRegionExist, isWorksiteExist] =
         await Promise.all([
-          CountryModel.exists({ _id: country }).session(session),
-          RegionModel.exists({ _id: region }).session(session),
-          WorksiteModel.exists({ _id: worksite }).session(session),
+          CountryModel.exists({ _id: country, companyId }).session(session),
+          RegionModel.exists({ _id: region, companyId }).session(session),
+          WorksiteModel.exists({ _id: worksite, companyId }).session(session),
         ]);
 
       if (!isCountryExist || !isRegionExist || !isWorksiteExist) {
@@ -136,25 +143,22 @@ export const createProject = async (req: Request, res: Response) => {
         country,
         region,
         worksite,
+        companyId,
       }).session(session);
 
       if (!projectLocation) {
         [projectLocation] = await LocationModel.create(
-          [
-            {
-              country,
-              region,
-              worksite,
-            },
-          ],
+          {
+            country,
+            region,
+            worksite,
+            companyId,
+          },
           { session }
         );
       }
 
       const id = await generateUniqueId();
-
-      const user = await UserModel.findById(currentUser.id).session(session);
-      const companyId = user?.companyId;
 
       const projectData = {
         id,
@@ -165,7 +169,7 @@ export const createProject = async (req: Request, res: Response) => {
         location: projectLocation?._id,
         parentProjectId: parentProjectId || null,
         createdBy: currentUser.id,
-        companyId: companyId || null,
+        companyId: companyId,
       };
 
       const [newProject] = await ProjectModel.create([projectData], {
