@@ -226,21 +226,27 @@ class ConversationService {
    */
   async getUserConversations(
     userId: string,
-    incident?: string
+    incident?: string,
+    companyId?: mongoose.Types.ObjectId
   ): Promise<IConversation[]> {
     try {
+      const userObjectId = new mongoose.Types.ObjectId(userId);
+      const baseQuery: any = { "participants.user": userObjectId };
+
+      if (companyId) {
+        baseQuery.companyId = companyId;
+      }
+
       if (incident) {
         const conversations = await ConversationModel.find({
+          ...baseQuery,
           incident: new mongoose.Types.ObjectId(incident),
-          "participants.user": new mongoose.Types.ObjectId(userId),
         })
           .populate("lastMessage")
           .sort({ updatedAt: -1 });
         return conversations;
       } else {
-        const conversations = await ConversationModel.find({
-          "participants.user": new mongoose.Types.ObjectId(userId),
-        })
+        const conversations = await ConversationModel.find(baseQuery)
           .populate("lastMessage")
           .populate("participants.user", "firstName lastName email")
           .sort({ updatedAt: -1 });

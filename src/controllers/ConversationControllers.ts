@@ -22,6 +22,7 @@ export const createConversation = async (req: Request, res: Response) => {
   try {
     const { participant } = req.body;
     const userId = currentUser.id;
+    const currentUserCompanyId = currentUser.companyId;
 
     if (!participant) {
       await session.abortTransaction();
@@ -38,9 +39,21 @@ export const createConversation = async (req: Request, res: Response) => {
         .json({ success: false, message: "Participant not found" });
     }
 
+    // Check if employee belongs to same company
+    if (currentUserCompanyId && employee.companyId && 
+        employee.companyId.toString() !== currentUserCompanyId.toString()) {
+      await session.abortTransaction();
+      return res
+        .status(403)
+        .json({ success: false, message: "Cannot create conversation with employee from different company" });
+    }
+
+    const companyIdObj = currentUserCompanyId ? new mongoose.Types.ObjectId(currentUserCompanyId) : undefined;
+
     const isConversationExist = await ConversationModel.findOne({
       type: ConversationType.SINGLE,
       isActive: true,
+      companyId: companyIdObj,
       "participants.user": {
         $all: [userId, employee.user],
       },
@@ -66,7 +79,8 @@ export const createConversation = async (req: Request, res: Response) => {
         : ConversationIdentity.EMPLOYEE,
       ConversationType.SINGLE,
       participant,
-      session
+      session,
+      currentUserCompanyId ? new mongoose.Types.ObjectId(currentUserCompanyId) : undefined
     );
 
     // Ensure conversation has a known type
@@ -129,9 +143,12 @@ export const getUserConversations = async (req: Request, res: Response) => {
     }
 
     const userId = currentUser.id;
+    const companyId = currentUser.companyId ? new mongoose.Types.ObjectId(currentUser.companyId) : undefined;
+    
     const conversations = await conversationService.getUserConversations(
       userId,
-      incident ? (incident?._id as string) : undefined
+      incident ? (incident?._id as string) : undefined,
+      companyId
     );
 
     return res.status(200).json({
@@ -157,11 +174,14 @@ export const getTeamsWithMembersAndConversations = async (
   const { teamId } = req.query;
 
   try {
+    const companyId = currentUser.companyId;
+
     // First fetch teams with their members
     const pipeline: mongoose.PipelineStage[] = [
       {
         $match: {
           isDeleted: false,
+          companyId: companyId ? new mongoose.Types.ObjectId(companyId) : undefined,
           ...(teamId
             ? { _id: new mongoose.Types.ObjectId(teamId as string) }
             : {}),
@@ -219,6 +239,7 @@ export const getTeamsWithMembersAndConversations = async (
               $match: {
                 isActive: true,
                 identity: ConversationIdentity.TEAM,
+                companyId: companyId ? new mongoose.Types.ObjectId(companyId) : undefined,
               },
             },
             { $limit: 1 },
@@ -279,6 +300,7 @@ export const getTeamsWithMembersAndConversations = async (
             const memberConversation = await ConversationModel.findOne({
               type: ConversationType.SINGLE,
               isActive: true,
+              companyId: companyId ? new mongoose.Types.ObjectId(companyId) : undefined,
               "participants.user": {
                 $all: [member.user._id, currentUser.id],
               },
@@ -292,8 +314,9 @@ export const getTeamsWithMembersAndConversations = async (
     }
 
     // Get all employees - reusing the same pipeline as in the teams lookup for consistency
+    const companyIdObj = companyId ? new mongoose.Types.ObjectId(companyId) : undefined;
     const allEmployeesResult = await EmployeeModel.aggregate([
-      { $match: { isDeleted: false } },
+      { $match: { isDeleted: false, companyId: companyIdObj } },
       // Lookup user for each employee
       {
         $lookup: {
@@ -340,6 +363,7 @@ export const getTeamsWithMembersAndConversations = async (
         const employeeConversation = await ConversationModel.findOne({
           type: ConversationType.SINGLE,
           isActive: true,
+          companyId: companyIdObj,
           "participants.user": {
             $all: [employee.user._id, currentUser.id],
           },
@@ -387,9 +411,13 @@ export const getAvailableConversations = async (
   const currentUser = customReq.user;
 
   try {
+    const companyId = currentUser.companyId;
+    const companyIdObj = companyId ? new mongoose.Types.ObjectId(companyId) : undefined;
+
     const conversations = await ConversationModel.find({
       "participants.user": currentUser.id,
       isActive: true,
+      companyId: companyIdObj,
     })
       .populate({
         path: "participants.user",
@@ -690,9 +718,13 @@ export const getCurrentConversationDetails = async (
   const currentUser = customReq.user;
   const { sid } = req.query;
   try {
+    const companyId = currentUser.companyId;
+    const companyIdObj = companyId ? new mongoose.Types.ObjectId(companyId) : undefined;
+
     const conversation = await ConversationModel.find({
       twilioSid: sid,
       isActive: true,
+      companyId: companyIdObj,
     })
       .populate({
         path: "participants.user",
@@ -745,6 +777,7 @@ export const getCurrentConversationDetails = async (
       let notCurrentUser = notCurrentUserArray[0];
       currentChatUser = await EmployeeModel.findOne({
         user: notCurrentUser.user._id,
+        companyId: companyIdObj,
       }).select("name designation");
     }
 
@@ -794,10 +827,11 @@ export const getClientAdminChats = async (req: Request, res: Response) => {
       });
     }
 
-    // Get all employees created by this super admin
+    // Get all employees created by this super admin within the same company
     const allEmployees = await EmployeeModel.find({
       createdBy: superAdmin._id,
       isDeleted: false,
+      companyId: clientAdmin.companyId,
     })
       .populate("user")
       .lean();
@@ -820,6 +854,7 @@ export const getClientAdminChats = async (req: Request, res: Response) => {
 
     // Get conversation between current user and super admin
     let superAdminConversation = null;
+    const companyId = clientAdmin.companyId;
     if (superAdminEmployee) {
       superAdminConversation = await ConversationModel.findOne({
         type: ConversationType.SINGLE,
@@ -827,6 +862,7 @@ export const getClientAdminChats = async (req: Request, res: Response) => {
           $elemMatch: { user: clientAdmin._id },
         },
         "participants.user": superAdmin._id,
+        companyId: companyId,
       })
         .populate({
           path: "lastMessage",
@@ -869,6 +905,7 @@ export const getClientAdminChats = async (req: Request, res: Response) => {
       participants: {
         $elemMatch: { user: clientAdmin._id },
       },
+      companyId: companyId,
     })
       .populate({
         path: "lastMessage",
@@ -883,6 +920,7 @@ export const getClientAdminChats = async (req: Request, res: Response) => {
     const userTeams = await TeamModel.find({
       _id: { $in: teamIds },
       isDeleted: false,
+      companyId: companyId,
     }).lean();
 
     // Process each team where the current user is a participant
@@ -910,6 +948,7 @@ export const getClientAdminChats = async (req: Request, res: Response) => {
             // Find conversation between client admin and this member
             const conversation = await ConversationModel.findOne({
               type: ConversationType.SINGLE,
+              companyId: companyId,
               participants: {
                 $elemMatch: { user: clientAdmin._id },
               },
@@ -948,6 +987,7 @@ export const getClientAdminChats = async (req: Request, res: Response) => {
         // Find conversation between client admin and this employee
         const conversation = await ConversationModel.findOne({
           type: ConversationType.SINGLE,
+          companyId: companyId,
           participants: {
             $elemMatch: { user: clientAdmin._id },
           },
@@ -1027,6 +1067,9 @@ export const getIncidentChats = async (req: Request, res: Response) => {
   const currentUser = customReq.user;
   const { id } = req.query;
   try {
+    const companyId = currentUser.companyId;
+    const companyIdObj = companyId ? new mongoose.Types.ObjectId(companyId) : undefined;
+
     // Find the incident by ID
     const incident = await IncidentModel.findById(id);
     if (!incident) {
@@ -1050,6 +1093,7 @@ export const getIncidentChats = async (req: Request, res: Response) => {
         $in: projectEmployeesIds,
       },
       isDeleted: false,
+      companyId: companyIdObj,
     });
 
     // Get all user IDs of the project employees (except current user)
@@ -1062,12 +1106,14 @@ export const getIncidentChats = async (req: Request, res: Response) => {
       identity: ConversationIdentity.INCIDENT,
       identityId: incident._id,
       isActive: true,
+      companyId: companyIdObj,
     }).populate("lastMessage");
 
     // Find one-on-one conversations between current user and each project employee
     const employeeConversations = await ConversationModel.find({
       type: ConversationType.SINGLE,
       isActive: true,
+      companyId: companyIdObj,
       $and: [
         { "participants.user": currentUser.id },
         { "participants.user": { $in: projectUserIds } },

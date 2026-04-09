@@ -122,6 +122,9 @@ export const createIncident = async (req: Request, res: Response) => {
 
     const savedIncident = await newIncident.save({ session });
 
+    // Get companyId from project
+    const projectCompanyId = isProjectexist.companyId;
+
     // Conversation creation
     const friendlyName = `conversation-${savedIncident._id}`;
     const conversation = await conversationService.createConversation(
@@ -130,7 +133,8 @@ export const createIncident = async (req: Request, res: Response) => {
       ConversationIdentity.INCIDENT,
       ConversationType.GROUP,
       savedIncident._id as mongoose.Types.ObjectId,
-      session
+      session,
+      projectCompanyId
     );
 
     if (!conversation) {

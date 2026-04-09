@@ -103,18 +103,18 @@ export const createEmployee = async (req: Request, res: Response) => {
           username,
           email,
           provider: AccountProviderType.Local,
-          providerId: user._id,
+          providerId: newUser._id,
         },
       ],
       { session }
     ).then((accounts) => accounts[0]);
 
-    if (!user.accounts) {
-      user.accounts = [account._id as mongoose.Types.ObjectId];
+    if (!newUser.accounts) {
+      newUser.accounts = [account._id as mongoose.Types.ObjectId];
     } else {
-      user.accounts.push(account._id as mongoose.Types.ObjectId);
+      newUser.accounts.push(account._id as mongoose.Types.ObjectId);
     }
-    await user.save({ session });
+    await newUser.save({ session });
 
     // await EmailService.sendCredentialsEmail(email, firstName, password);
 

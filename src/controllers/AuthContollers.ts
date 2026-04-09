@@ -344,7 +344,14 @@ export const changePassword = async (req: Request, res: Response) => {
     const { currentPassword, newPassword, confirmPassword } = req.body;
     const customReq = req as ICustomRequest;
     const currentUser = customReq.user;
-    const userId = currentPassword.id;
+    const userId = currentUser?.id;
+    
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized - User ID not found",
+      });
+    }
 
     // Validate input
     if (!currentPassword || !newPassword || !confirmPassword) {

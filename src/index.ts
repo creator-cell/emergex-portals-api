@@ -32,7 +32,6 @@ import emergexChartRoutes from "./routes/EmergexChartRoutes";
 import investigationChartRoutes from "./routes/InvestigationChartRoutes";
 import companyRoutes from "./routes/CompanyRoutes";
 
-
 import path from "path";
 import { validateTwilioWebhook } from "./middlewares/webhookAuthMiddleware";
 import { Server } from "socket.io";
@@ -87,7 +86,6 @@ app.use("/api/witness-statements", witnessStatementRoutes);
 app.use("/api/emergex-chart", emergexChartRoutes);
 app.use("/api/investigation-chart", investigationChartRoutes);
 app.use("/api/companies", companyRoutes);
-
 
 const httpServer = createServer(app);
 

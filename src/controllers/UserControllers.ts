@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 import { config } from "../config";
 import mongoose from "mongoose";
 import { UploadBase64File } from "../helper/S3Bucket";
+import { validatePassword } from "../helper/UserFunctions";
 
 export const getAllUsers = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
@@ -72,9 +73,11 @@ export const verifyToken = async (req: Request, res: Response) => {
 export const updateUserById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { image, firstName, lastName, phoneNumber } = req.body;
+    const { image, firstName, lastName, phoneNumber, currentPassword, newPassword } = req.body;
+    const customReq = req as ICustomRequest;
+    const currentUser = customReq.user;
 
-    const user = await UserModel.findById(id).select("-password");
+    const user = await UserModel.findById(id);
     if (!user) {
       return res
         .status(404)
@@ -94,12 +97,49 @@ export const updateUserById = async (req: Request, res: Response) => {
     user.lastName=lastName;
     user.phoneNumber=phoneNumber;
 
+    if (currentPassword || newPassword) {
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({
+          success: false,
+          message: "Current password and new password are required to change password",
+        });
+      }
+
+      const isMatch = await user.comparePassword(currentPassword);
+      if (!isMatch) {
+        return res.status(400).json({
+          success: false,
+          message: "Current password is incorrect",
+        });
+      }
+
+      if (await user.comparePassword(newPassword)) {
+        return res.status(400).json({
+          success: false,
+          message: "New password cannot be the same as current password",
+        });
+      }
+
+      const passwordError = validatePassword(newPassword);
+      if (passwordError) {
+        return res.status(400).json({
+          success: false,
+          message: passwordError,
+        });
+      }
+
+      user.password = newPassword;
+    }
+
     await user.save();
 
+    const userResponse = user.toObject() as unknown as Record<string, unknown>;
+    delete userResponse.password;
+
     return res.status(200).json({
-      success: false,
+      success: true,
       message: req.i18n.t("userValidationMessages.response.updateUserById.success"),
-      user: user,
+      user: userResponse,
     });
   } catch (error) {
     console.error("Error updating user:", error);
