@@ -213,18 +213,21 @@ export const updateInvestigationStatus = async (
   }
 };
 
-export const getInvestigations = async (status?: string, projectId?: string) => {
+export const getInvestigations = async (status?: string, projectId?: string, companyProjectIds?: mongoose.Types.ObjectId[]) => {
   const query: any = {};
   if (status) {
     query.status = status;
   }
+
+  // Note: Company filtering is done AFTER population in JavaScript (see below)
+  // because incident.project requires population to access
 
   const investigations = await InvestigationModel.find(query)
     .populate({
       path: "incident",
       populate: {
         path: "project",
-        select: "name",
+        select: "name companyId",
       },
     })
     .populate("assignedInvestigator", "name email designation")
@@ -238,6 +241,14 @@ export const getInvestigations = async (status?: string, projectId?: string) => 
     );
   }
 
+  // Filter for company isolation (after population)
+  if (companyProjectIds && companyProjectIds.length > 0) {
+    return investigations.filter((inv: any) => {
+      const projectId = inv.incident?.project?._id?.toString();
+      return companyProjectIds.some((id: mongoose.Types.ObjectId) => id.toString() === projectId);
+    });
+  }
+
   return investigations;
 };
 
@@ -247,7 +258,7 @@ export const getInvestigationById = async (investigationId: string) => {
       path: "incident",
       populate: {
         path: "project",
-        select: "name location",
+        select: "name location companyId",
       },
     })
     .populate("assignedInvestigator", "name email designation")

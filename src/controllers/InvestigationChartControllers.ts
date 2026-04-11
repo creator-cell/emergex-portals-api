@@ -6,18 +6,38 @@ import RoleModel from "../models/RoleModel";
 import ProjectRoleModel from "../models/ProjectRoleModel";
 import EmployeeModel from "../models/EmployeeModel";
 import TeamModel from "../models/TeamModel";
+import UserModel from "../models/UserModel";
 import { updateDownstreamNodePriorities } from "../helper/InvestigationChartFunctions";
+import { ICustomRequest } from "../types/express";
+import { GlobalAdminRoles } from "../config/global-enum";
 
 export const getInvestigationEmployeesByProject = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
   const { projectId } = req.params;
 
   try {
+    // Get user's companyId for validation
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+    const isGlobalSuperAdmin = currentUser.role === GlobalAdminRoles.SuperAdmin && !companyId;
+
     const project = await ProjectModel.findById(projectId);
     if (!project) {
       return res.status(404).json({
         success: false,
         message: "Project not found.",
       });
+    }
+
+    // Validate project belongs to user's company
+    if (!isGlobalSuperAdmin && companyId) {
+      if (!project.companyId || project.companyId.toString() !== companyId.toString()) {
+        return res.status(403).json({
+          success: false,
+          message: "Access denied: Project does not belong to your company",
+        });
+      }
     }
 
     const investigationRole = await RoleModel.findOne({ title: "Investigation Specialist" });
@@ -72,7 +92,15 @@ export const getInvestigationEmployeesByProject = async (req: Request, res: Resp
 };
 
 export const addInvestigationChart = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
+    // Get user's companyId for validation
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+    const isGlobalSuperAdmin = currentUser.role === GlobalAdminRoles.SuperAdmin && !companyId;
+
     const { from, to, role: roleId, employee } = req.body;
     const { id } = req.params;
 
@@ -84,6 +112,16 @@ export const addInvestigationChart = async (req: Request, res: Response) => {
         success: false,
         error: `Project not found with ID: ${id}`,
       });
+    }
+
+    // Validate project belongs to user's company
+    if (!isGlobalSuperAdmin && companyId) {
+      if (!isProjectExist.companyId || isProjectExist.companyId.toString() !== companyId.toString()) {
+        return res.status(403).json({
+          success: false,
+          message: "Access denied: Project does not belong to your company",
+        });
+      }
     }
 
     let investigationChartEntry = await InvestigationChartModel.findOne({ project: id, employee });
@@ -274,9 +312,16 @@ export const addInvestigationChart = async (req: Request, res: Response) => {
 };
 
 export const getInvestigationChartByPriority = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
   const { id } = req.params;
 
   try {
+    // Get user's companyId for validation
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+    const isGlobalSuperAdmin = currentUser.role === GlobalAdminRoles.SuperAdmin && !companyId;
+
     const projectId = new mongoose.Types.ObjectId(id);
     const isProjectExist = await ProjectModel.findById(projectId);
 
@@ -285,6 +330,16 @@ export const getInvestigationChartByPriority = async (req: Request, res: Respons
         success: false,
         error: `Project not found with ID: ${id}`,
       });
+    }
+
+    // Validate project belongs to user's company
+    if (!isGlobalSuperAdmin && companyId) {
+      if (!isProjectExist.companyId || isProjectExist.companyId.toString() !== companyId.toString()) {
+        return res.status(403).json({
+          success: false,
+          message: "Access denied: Project does not belong to your company",
+        });
+      }
     }
 
     const roles = await InvestigationChartModel.aggregate([
