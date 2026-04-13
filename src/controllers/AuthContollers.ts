@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import { Request, Response } from "express";
 import UserModel from "../models/UserModel";
+import CompanyModel from "../models/CompanyModel";
 import { config } from "../config";
 import { AccountProviderType, GlobalAdminRoles } from "../config/global-enum";
 import AccountModel, { IAccount } from "../models/AccountModel";
@@ -276,6 +277,16 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
           "authValidationMessages.response.login.invalidCredentials"
         ),
       });
+    }
+
+    if (user.companyId) {
+      const company = await CompanyModel.findById(user.companyId);
+      if (!company || !company.isActive) {
+        return res.status(403).json({
+          success: false,
+          error: "Your company account has been deactivated. Please contact support.",
+        });
+      }
     }
 
     await SessionModel.updateMany(
