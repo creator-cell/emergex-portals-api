@@ -18,7 +18,8 @@ class ConversationService {
     identity: ConversationIdentity,
     type: ConversationType = ConversationType.SINGLE,
     identityId?: mongoose.Types.ObjectId,
-    session?: mongoose.ClientSession
+    session?: mongoose.ClientSession,
+    companyId?: mongoose.Types.ObjectId
   ): Promise<IConversation> {
     const sessionOptions = session ? { session } : {};
     let twilioConversation;
@@ -38,6 +39,7 @@ class ConversationService {
         type: type || ConversationType.SINGLE,
         identity,
         identityId,
+        companyId,
       });
 
       await conversation.save(sessionOptions);
@@ -75,6 +77,16 @@ class ConversationService {
         throw new Error("Conversation not found");
       }
 
+      // Check if participant already exists in our database
+      const existingParticipant = conversation.participants.find(
+        (p) => p.user.toString() === userId
+      );
+      
+      if (existingParticipant) {
+        // Participant already exists, just return the conversation
+        return conversation;
+      }
+
       // Add participant to Twilio conversation
       const participant = await conversationsClient
         .conversations(conversation.twilioSid)
@@ -82,7 +94,7 @@ class ConversationService {
 
       // Add participant to our database
       conversation.participants.push({
-        _id: new mongoose.Types.ObjectId(), // Add a unique ID for the participant
+        _id: new mongoose.Types.ObjectId(),
         user: new mongoose.Types.ObjectId(userId),
         participantSid: participant.sid,
         identity,
@@ -90,7 +102,16 @@ class ConversationService {
 
       await conversation.save(sessionOptions);
       return conversation;
-    } catch (error) {
+    } catch (error: any) {
+      // Handle Twilio "participant already exists" error
+      if (error.code === 50433 || (error.details && error.details.code === 50433)) {
+        console.log("Participant already exists in Twilio, skipping...");
+        // Try to find and return the conversation
+        const existingConversation = await ConversationModel.findById(conversationId);
+        if (existingConversation) {
+          return existingConversation;
+        }
+      }
       console.error("Error adding participant:", error);
       throw error;
     }
@@ -205,21 +226,27 @@ class ConversationService {
    */
   async getUserConversations(
     userId: string,
-    incident?: string
+    incident?: string,
+    companyId?: mongoose.Types.ObjectId
   ): Promise<IConversation[]> {
     try {
+      const userObjectId = new mongoose.Types.ObjectId(userId);
+      const baseQuery: any = { "participants.user": userObjectId };
+
+      if (companyId) {
+        baseQuery.companyId = companyId;
+      }
+
       if (incident) {
         const conversations = await ConversationModel.find({
+          ...baseQuery,
           incident: new mongoose.Types.ObjectId(incident),
-          "participants.user": new mongoose.Types.ObjectId(userId),
         })
           .populate("lastMessage")
           .sort({ updatedAt: -1 });
         return conversations;
       } else {
-        const conversations = await ConversationModel.find({
-          "participants.user": new mongoose.Types.ObjectId(userId),
-        })
+        const conversations = await ConversationModel.find(baseQuery)
           .populate("lastMessage")
           .populate("participants.user", "firstName lastName email")
           .sort({ updatedAt: -1 });

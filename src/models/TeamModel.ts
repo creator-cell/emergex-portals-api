@@ -4,14 +4,14 @@ export interface ITeam extends Document{
     name:string;
     members:mongoose.Types.ObjectId[],
     isDeleted:boolean;
-    createdBy:mongoose.Types.ObjectId
+    createdBy:mongoose.Types.ObjectId;
+    companyId?: mongoose.Types.ObjectId;
 }
 
 const TeamSchema = new Schema<ITeam>({
     name:{
         type:String,
         trim:true,
-        unique:true,
         required:true,
     },
     members:{
@@ -27,10 +27,16 @@ const TeamSchema = new Schema<ITeam>({
         type:Schema.Types.ObjectId,
         ref:'User',
         required:true
+    },
+    companyId:{
+        type:Schema.Types.ObjectId,
+        ref:'Company',
     }
 },{
     timestamps:true
 })
+
+TeamSchema.index({ name: 1, companyId: 1 }, { unique: true });
 
 const TeamModel:Model<ITeam> = mongoose.model<ITeam>('Team',TeamSchema);
 

@@ -4,12 +4,27 @@ import RegionModel from "../models/RegionModel";
 import { getPaginationOptions, paginate } from "../helper/pagination";
 import CountryModel from "../models/CountryModel";
 import mongoose from "mongoose";
+import { ICustomRequest } from "../types/express";
+import UserModel from "../models/UserModel";
 
 export const addWorksite = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
     const { name, regionId } = req.body;
 
-    const isExist = await WorksiteModel.findOne({ name, region: regionId });
+    const isExist = await WorksiteModel.findOne({ name, region: regionId, companyId });
 
     if (isExist) {
       return res.status(400).json({
@@ -18,7 +33,7 @@ export const addWorksite = async (req: Request, res: Response) => {
       });
     }
 
-    const isRegionExist = await RegionModel.findById(regionId);
+    const isRegionExist = await RegionModel.findOne({ _id: regionId, companyId });
     if (!isRegionExist) {
       return res.status(400).json({
         success: false,
@@ -26,7 +41,7 @@ export const addWorksite = async (req: Request, res: Response) => {
       });
     }
 
-    const worksite = new WorksiteModel({ name, region: regionId });
+    const worksite = new WorksiteModel({ name, region: regionId, companyId });
     await worksite.save();
 
     return res.status(201).json({
@@ -43,7 +58,20 @@ export const addWorksite = async (req: Request, res: Response) => {
 };
 
 export const getAllWorksites = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
     const options = getPaginationOptions(req, {
       populate: [
         {
@@ -53,6 +81,7 @@ export const getAllWorksites = async (req: Request, res: Response) => {
           }]
         },
       ],
+      filter: { companyId },
     });
     const worksites = await paginate(WorksiteModel, options);
 
@@ -70,8 +99,30 @@ export const getAllWorksites = async (req: Request, res: Response) => {
 };
 
 export const getWorksitesByRegion = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
+    const { id } = req.params;
+
+    const isRegionExist = await RegionModel.findOne({ _id: id, companyId });
+    if (!isRegionExist) {
+      return res.status(200).json({
+        success: false,
+        message: req.i18n.t("regionValidationMessages.response.regionNotExist"),
+      });
+    }
+
     const options = getPaginationOptions(req, {
       populate: [
         {
@@ -81,7 +132,7 @@ export const getWorksitesByRegion = async (req: Request, res: Response) => {
           }]
         },
       ],
-      filter: { region: id,isDeleted:false },
+      filter: { region: id, companyId, isDeleted: false },
     });
     const worksites = await paginate(WorksiteModel, options);
 
@@ -100,17 +151,30 @@ export const getWorksitesByRegion = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      error:  req.i18n.t("worksiteValidationMessages.response.getWorksitesByRegion.server") + id
+      error:  req.i18n.t("worksiteValidationMessages.response.getWorksitesByRegion.server")
     });
   }
 };
 
 export const updateWorksiteById = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
     const { id } = req.params;
     const { name, regionId } = req.body;
 
-    const worksite = await WorksiteModel.findById(id);
+    const worksite = await WorksiteModel.findOne({ _id: id, companyId });
     if (!worksite) {
       return res.status(200).json({
         success: false,
@@ -122,6 +186,7 @@ export const updateWorksiteById = async (req: Request, res: Response) => {
       const isExist = await WorksiteModel.findOne({
         name,
         region: regionId,
+        companyId,
         _id: { $ne: id },
       });
 
@@ -135,7 +200,7 @@ export const updateWorksiteById = async (req: Request, res: Response) => {
     }
 
     if (regionId) {
-      const isRegionExist = await RegionModel.findById(regionId);
+      const isRegionExist = await RegionModel.findOne({ _id: regionId, companyId });
       if (!isRegionExist) {
         return res.status(400).json({
           success: false,
@@ -148,8 +213,8 @@ export const updateWorksiteById = async (req: Request, res: Response) => {
     if (name) updatedFields.name = name;
     if (regionId) updatedFields.region = regionId;
 
-    const updatedWorksite = await WorksiteModel.findByIdAndUpdate(
-      id,
+    const updatedWorksite = await WorksiteModel.findOneAndUpdate(
+      { _id: id, companyId },
       updatedFields,
       { new: true }
     );
@@ -168,10 +233,23 @@ export const updateWorksiteById = async (req: Request, res: Response) => {
 };
 
 export const getWorksiteById = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
     const { id } = req.params;
 
-    const worksite = await WorksiteModel.findById(id).populate({
+    const worksite = await WorksiteModel.findOne({ _id: id, companyId }).populate({
       path:"region",
       populate: {
         path:"country"
@@ -187,24 +265,37 @@ export const getWorksiteById = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       success: true,
-      message: "Worksite deleted successfully",
+      message: "Worksite fetched successfully",
       data: worksite,
     });
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "Error deleting worksite",
+      message: "Error fetching worksite",
       error,
     });
   }
 };
 
 export const deleteWorksiteById = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
     const { id } = req.params;
 
-    const worksite = await WorksiteModel.findByIdAndUpdate(
-      id,
+    const worksite = await WorksiteModel.findOneAndUpdate(
+      { _id: id, companyId },
       { isDeleted: true },
       { new: true }
     );
@@ -231,10 +322,24 @@ export const deleteWorksiteById = async (req: Request, res: Response) => {
 };
 
 export const addCountryRegionWorksites = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      await session.abortTransaction();
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
     const { country, region, worksites } = req.body;
     let isCountryExist = false;
     let isRegionExist = false;
@@ -243,19 +348,21 @@ export const addCountryRegionWorksites = async (req: Request, res: Response) => 
 
     const existingCountry = await CountryModel.findOne({
       name: { $regex: `^${country}$`, $options: 'i' },
+      companyId,
     }).session(session);
 
     if (existingCountry) {
       isCountryExist = true;
       countryDoc = existingCountry; 
     } else {
-      const createdCountry = await CountryModel.create([{ name: country }], { session });
+      const createdCountry = await CountryModel.create([{ name: country, companyId }], { session });
       countryDoc = createdCountry[0];
     }
 
     const existingRegion = await RegionModel.findOne({
       name: { $regex: `^${region}$`, $options: 'i' },
       country: countryDoc._id,
+      companyId,
     }).session(session);
 
     if (existingRegion) {
@@ -263,7 +370,7 @@ export const addCountryRegionWorksites = async (req: Request, res: Response) => 
       regionDoc = existingRegion;
     } else {
       const createdRegion = await RegionModel.create(
-        [{ name: region, country: countryDoc._id }],
+        [{ name: region, country: countryDoc._id, companyId }],
         { session }
       );
       regionDoc = createdRegion[0]; 
@@ -274,6 +381,7 @@ export const addCountryRegionWorksites = async (req: Request, res: Response) => 
       const existingWorksite = await WorksiteModel.findOne({
         name: { $regex: `^${worksite}$`, $options: 'i' },
         region: regionDoc._id,
+        companyId,
       }).session(session);
 
       if (!existingWorksite) {
@@ -285,6 +393,7 @@ export const addCountryRegionWorksites = async (req: Request, res: Response) => 
       const worksiteDocs = notExistWorksites.map((worksite: string) => ({
         name: worksite,
         region: regionDoc._id,
+        companyId,
       }));
       await WorksiteModel.insertMany(worksiteDocs, { session });
     }

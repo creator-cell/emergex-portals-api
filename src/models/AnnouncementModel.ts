@@ -6,6 +6,7 @@ export interface IAnnouncement extends Document {
   description: string;
   location?: mongoose.Types.ObjectId | ILocation;
   team: mongoose.Types.ObjectId;
+  companyId?: mongoose.Types.ObjectId;
   isActive: boolean;
   isDeleted:boolean;
   createdBy: mongoose.Types.ObjectId;
@@ -35,6 +36,10 @@ const announcementSchema = new Schema<IAnnouncement>(
       ref:'Team',
       required: [true, 'Team is required'],
       trim: true
+    },
+    companyId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Company',
     },
     isActive: {
       type: Boolean,

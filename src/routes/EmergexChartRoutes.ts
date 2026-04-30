@@ -2,10 +2,14 @@ import express from "express";
 import { checkValidationResult } from "../middlewares/checkValidationsMiddleware";
 import { body, param } from "express-validator";
 import { authorizeRoles } from "../middlewares/roleMiddleware";
+import { authenticate } from "../middlewares/authMiddleware";
 import { GlobalAdminRoles } from "../config/global-enum";
 import { addEmergexChart, getEmergexChartByPriority, getEmergexEmployeesByProject } from "../controllers/EmergexChartControllers";
 
 const router = express.Router();
+
+router.use(authenticate);
+router.use(authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin));
 
 const validateEmergexChart = [
   param("id")
@@ -29,8 +33,5 @@ router.route('/:id')
 
 router.route('/employees/:projectId')
 .get(getEmergexEmployeesByProject);
-
-// Apply authorization middleware if needed
-router.use(authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin));
 
 export default router;

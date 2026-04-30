@@ -8,6 +8,7 @@ interface IProject extends Document {
   name: string;
   description: string;
   createdBy:mongoose.Types.ObjectId;
+  companyId?: mongoose.Types.ObjectId;
   isDeleted?:boolean;
 }
 
@@ -39,6 +40,10 @@ export const ProjectSchema = new Schema<IProject>(
     createdBy:{
       type:Schema.Types.ObjectId,
       ref:"User"
+    },
+    companyId: {
+      type: Schema.Types.ObjectId,
+      ref: "Company"
     },
     isDeleted:{
       type:Boolean,

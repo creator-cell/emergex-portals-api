@@ -32,6 +32,7 @@ export interface IConversation extends Document {
   name: string;
   participants: IParticipant[];
   createdBy: mongoose.Types.ObjectId;
+  companyId?: mongoose.Types.ObjectId;
   attributes: Record<string, any>;
   lastMessage?: mongoose.Types.ObjectId;
   isActive: boolean;
@@ -78,7 +79,6 @@ const conversationSchema = new Schema<IConversation>(
     name: {
       type: String,
       trim: true,
-      unique: true,
       required: true,
     },
     participants: [ParticipantSchema],
@@ -86,6 +86,10 @@ const conversationSchema = new Schema<IConversation>(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+    },
+    companyId: {
+      type: Schema.Types.ObjectId,
+      ref: "Company",
     },
     isActive: {
       type: Boolean,
@@ -99,6 +103,7 @@ const conversationSchema = new Schema<IConversation>(
 // Add index for faster queries
 conversationSchema.index({ participants: 1 });
 conversationSchema.index({ createdBy: 1 });
+conversationSchema.index({ name: 1, companyId: 1 }, { unique: true });
 // conversationSchema.index({ twilioSid: 1 });
 
 const ConversationModel: Model<IConversation> = mongoose.model<IConversation>(

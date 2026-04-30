@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import TeamModel from "../models/TeamModel";
 import EmployeeModel from "../models/EmployeeModel";
+import UserModel from "../models/UserModel";
 import mongoose from "mongoose";
 import { getPaginationOptions, paginate } from "../helper/pagination";
 import { ICustomRequest } from "../types/express";
@@ -10,6 +11,7 @@ import ConversationModel, {
   ConversationType,
 } from "../models/ConversationModel";
 import ProjectRoleModel from "../models/ProjectRoleModel";
+import { logger } from "../config/logger";
 
 // Create a new Team
 export const createTeam = async (req: Request, res: Response) => {
@@ -17,16 +19,29 @@ export const createTeam = async (req: Request, res: Response) => {
   const currentUser = customReq.user;
   const session = await mongoose.startSession();
   session.startTransaction();
+  let aborted = false;
 
   try {
+    const user = await UserModel.findById(currentUser.id).session(session);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      aborted = true;
+      await session.abortTransaction();
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
     const { name } = req.body;
-    // Check if a team with the same name (case-insensitive, trimmed) exists for the current user
     const isExist = await TeamModel.findOne({
       name: { $regex: new RegExp(`^${name.trim()}$`, "i") },
-      createdBy: currentUser.id,
+      companyId,
     }).session(session);
 
     if (isExist) {
+      aborted = true;
       await session.abortTransaction();
       return res.status(403).json({
         success: false,
@@ -34,7 +49,11 @@ export const createTeam = async (req: Request, res: Response) => {
       });
     }
 
-    const newTeam = new TeamModel({ name, createdBy: currentUser.id });
+    const newTeam = new TeamModel({
+      name,
+      createdBy: currentUser.id,
+      companyId,
+    });
     const savedTeam = await newTeam.save({ session });
 
     const friendlyName = `conversation-${savedTeam._id}`;
@@ -45,12 +64,12 @@ export const createTeam = async (req: Request, res: Response) => {
       ConversationIdentity.TEAM,
       ConversationType.GROUP,
       savedTeam._id as mongoose.Types.ObjectId,
-      session
+      session,
+      companyId
     );
 
     const conversationId = (conversation as { _id: string })._id;
 
-    // Add the creator as the first participant
     await conversationService.addParticipant(
       conversationId.toString(),
       currentUser.id,
@@ -66,7 +85,11 @@ export const createTeam = async (req: Request, res: Response) => {
       data: savedTeam,
     });
   } catch (error: any) {
-    session.abortTransaction();
+    if (!aborted) {
+      await session.abortTransaction();
+    }
+
+    logger.error("Error creating team:", error);
     return res.status(500).json({
       success: false,
       error: req.i18n.t("teamValidationMessages.response.createTeam.server"),
@@ -80,7 +103,18 @@ export const createTeam = async (req: Request, res: Response) => {
 export const getAllTeams = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
+
   try {
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
     const limit = req.query.limit ? Number(req.query.limit) : 10;
     const page = req.query.page ? Number(req.query.page) : 1;
     const populateOptions = [
@@ -96,10 +130,10 @@ export const getAllTeams = async (req: Request, res: Response) => {
       sort: { createdAt: -1 },
       filter: {
         isDeleted: false,
-        createdBy: currentUser.id,
+        companyId: new mongoose.Types.ObjectId(companyId),
       },
       limit,
-      page
+      page,
     });
 
     const result = await paginate(TeamModel, options);
@@ -126,11 +160,26 @@ export const addNewMemberToTeam = async (req: Request, res: Response) => {
   const currentUser = customReq.user;
   const session = await mongoose.startSession();
   session.startTransaction();
+  let aborted = false;
+
   try {
-    const team = await TeamModel.findById(id)
+    const user = await UserModel.findById(currentUser.id).session(session);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      aborted = true;
+      await session.abortTransaction();
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
+    const team = await TeamModel.findOne({ _id: id, companyId })
       .populate("members")
       .session(session);
     if (!team) {
+      aborted = true;
       await session.abortTransaction();
       return res.status(200).json({
         success: false,
@@ -199,7 +248,12 @@ export const addNewMemberToTeam = async (req: Request, res: Response) => {
       user: currentUser.id,
     }).session(session);
 
-    if (adminEmployee && employeeMongoIds.some((id)=>id.toString()===adminEmployee._id.toString())) {
+    if (
+      adminEmployee &&
+      employeeMongoIds.some(
+        (id) => id.toString() === adminEmployee._id.toString()
+      )
+    ) {
       const adminProjectRoles = await ProjectRoleModel.find({
         employee: adminEmployee?._id,
       }).session(session);
@@ -221,7 +275,9 @@ export const addNewMemberToTeam = async (req: Request, res: Response) => {
       ),
     });
   } catch (error: any) {
-    await session.abortTransaction();
+    if (!aborted) {
+      await session.abortTransaction();
+    }
     return res.status(500).json({
       success: false,
       error: error.message,
@@ -235,8 +291,23 @@ export const addNewMemberToTeam = async (req: Request, res: Response) => {
 export const removeMemberFromTeam = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { employeeId } = req.body;
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
-    const team = await TeamModel.findById(id).populate("members");
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
+    const team = await TeamModel.findOne({ _id: id, companyId }).populate(
+      "members"
+    );
     if (!team) {
       return res.status(200).json({
         success: false,
@@ -256,8 +327,8 @@ export const removeMemberFromTeam = async (req: Request, res: Response) => {
       });
     }
 
-    const isExist = team.members.some((member) =>{
-     return  member._id.toString()===employeeId.toString();
+    const isExist = team.members.some((member) => {
+      return member._id.toString() === employeeId.toString();
     });
 
     if (!isExist) {
@@ -305,8 +376,23 @@ export const removeMemberFromTeam = async (req: Request, res: Response) => {
 // Get details of team
 export const getTeamDetails = async (req: Request, res: Response) => {
   const { id } = req.params;
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
-    const team = await TeamModel.findById(id).populate("members");
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
+    const team = await TeamModel.findOne({ _id: id, companyId }).populate(
+      "members"
+    );
     if (!team) {
       return res.status(200).json({
         success: false,
@@ -334,9 +420,22 @@ export const getTeamDetails = async (req: Request, res: Response) => {
 export const updateTeamDetail = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { name } = req.body;
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
-    const team = await TeamModel.findByIdAndUpdate(
-      id,
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
+    const team = await TeamModel.findOneAndUpdate(
+      { _id: id, companyId },
       { name },
       { new: true, runValidators: true }
     );
@@ -369,9 +468,20 @@ export const updateTeamDetail = async (req: Request, res: Response) => {
 export const getTeamNames = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
+
   try {
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
     const teams = await TeamModel.find({
-      // createdBy: currentUser.id,
+      companyId: new mongoose.Types.ObjectId(companyId),
       isDeleted: false,
     }).select("name");
 
@@ -401,9 +511,22 @@ export const getTeamNames = async (req: Request, res: Response) => {
 
 // get team employees data
 export const getTeamEmployees = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({
+        success: false,
+        error: "User is not associated with any company",
+      });
+    }
+
     const { id } = req.params;
-    const team = await TeamModel.findById(id).populate(
+    const team = await TeamModel.findOne({ _id: id, companyId }).populate(
       "members",
       "name contactNo designation email"
     );

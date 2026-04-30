@@ -78,3 +78,17 @@ export const validateLogin = [
     ),
   // checkExact([], { message: 'Only email and password are allowed' }),
 ];
+
+export const validateChangePassword = [
+  body("currentPassword")
+    .notEmpty()
+    .withMessage("Current password is required"),
+  body("newPassword")
+    .notEmpty()
+    .withMessage("New password is required")
+    .isLength({ min: 6 })
+    .withMessage("New password must be at least 6 characters"),
+  body("confirmPassword")
+    .notEmpty()
+    .withMessage("Confirm password is required"),
+];

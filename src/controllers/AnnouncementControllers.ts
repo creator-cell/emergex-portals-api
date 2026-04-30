@@ -20,7 +20,20 @@ export const createAnnouncement = async (req: Request, res: Response) => {
   const currentUser = customReq.user;
   try {
     const { title, description, team, country, worksite, region } = req.body;
-    const isExist = await AnnouncementModel.findOne({ title }).session(session);
+    
+    // Get companyId from the team
+    const teamWithCompany = await TeamModel.findById(team).select("companyId").session(session);
+    if (!teamWithCompany) {
+      await session.abortTransaction();
+      return res.status(400).json({
+        success: false,
+        error: `${req.i18n.t(
+          "announcementValidationMessages.response.createAnnouncement.teamNotExist"
+        )} ${team}`,
+      });
+    }
+
+    const isExist = await AnnouncementModel.findOne({ title, companyId: teamWithCompany.companyId }).session(session);
 
     if (isExist) {
       await session.abortTransaction();
@@ -105,7 +118,8 @@ export const createAnnouncement = async (req: Request, res: Response) => {
           description,
           location: location?location?._id:null,
           team,
-          createdBy:currentUser.id
+          createdBy:currentUser.id,
+          companyId: teamWithCompany.companyId
         },
       ],
       { session }
@@ -151,7 +165,16 @@ export const createAnnouncement = async (req: Request, res: Response) => {
 // Get all announcements
 export const getAnnouncements = async (req: Request, res: Response) => {
   try {
+    const customReq = req as ICustomRequest;
+    const currentUser = customReq.user;
+    const companyId = currentUser.companyId;
+    const companyIdObj = companyId ? new mongoose.Types.ObjectId(companyId) : undefined;
+
     const options = getPaginationOptions(req, {
+      filter: { 
+        companyId: companyIdObj,
+        isDeleted: false 
+      },
       populate: [
         {
           path: "location",
@@ -191,7 +214,16 @@ export const getAnnouncements = async (req: Request, res: Response) => {
 export const getAnnouncementById = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
-    const announcement = await AnnouncementModel.findById(id);
+    const customReq = req as ICustomRequest;
+    const currentUser = customReq.user;
+    const companyId = currentUser.companyId;
+    const companyIdObj = companyId ? new mongoose.Types.ObjectId(companyId) : undefined;
+
+    const announcement = await AnnouncementModel.findOne({
+      _id: id,
+      companyId: companyIdObj,
+      isDeleted: false
+    });
     if (!announcement) {
       return res.status(200).json({
         success: true,
@@ -351,8 +383,17 @@ export const getAnnouncementById = async (req: Request, res: Response) => {
 export const deleteAnnouncement = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const deletedAnnouncement = await AnnouncementModel.findByIdAndUpdate(
-      id,
+    const customReq = req as ICustomRequest;
+    const currentUser = customReq.user;
+    const companyId = currentUser.companyId;
+    const companyIdObj = companyId ? new mongoose.Types.ObjectId(companyId) : undefined;
+
+    const deletedAnnouncement = await AnnouncementModel.findOneAndUpdate(
+      {
+        _id: id,
+        companyId: companyIdObj,
+        isDeleted: false
+      },
       {
         $set: { isDeleted: true },
       },

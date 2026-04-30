@@ -12,19 +12,38 @@ import ConversationModel from "../models/ConversationModel";
 import { ConversationIdentity } from "../config/global-enum";
 import conversationService from "../services/conversation.service";
 import UserModel from "../models/UserModel";
+import { ICustomRequest } from "../types/express";
+import { GlobalAdminRoles } from "../config/global-enum";
 
 
 // Fetch employees for a project who have the 'Emergex' role
 export const getEmergexEmployeesByProject = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
   const { projectId } = req.params;
 
   try {
+    // Get user's companyId for validation
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+    const isGlobalSuperAdmin = currentUser.role === GlobalAdminRoles.SuperAdmin && !companyId;
+
     const project = await ProjectModel.findById(projectId);
     if (!project) {
       return res.status(404).json({
         success: false,
         message: "Project not found.",
       });
+    }
+
+    // Validate project belongs to user's company
+    if (!isGlobalSuperAdmin && companyId) {
+      if (!project.companyId || project.companyId.toString() !== companyId.toString()) {
+        return res.status(403).json({
+          success: false,
+          message: "Access denied: Project does not belong to your company",
+        });
+      }
     }
 
     const emergexRole = await RoleModel.findOne({ title: "Emergex" });
@@ -84,7 +103,15 @@ export const getEmergexEmployeesByProject = async (req: Request, res: Response) 
 
 // Add Emergex Chart entry
 export const addEmergexChart = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
+    // Get user's companyId for validation
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+    const isGlobalSuperAdmin = currentUser.role === GlobalAdminRoles.SuperAdmin && !companyId;
+
     const { from, to, role: roleId, employee } = req.body;
     const { id } = req.params; // Project ID
 
@@ -97,6 +124,16 @@ export const addEmergexChart = async (req: Request, res: Response) => {
         success: false,
         error: `Project not found with ID: ${id}`,
       });
+    }
+
+    // Validate project belongs to user's company
+    if (!isGlobalSuperAdmin && companyId) {
+      if (!isProjectExist.companyId || isProjectExist.companyId.toString() !== companyId.toString()) {
+        return res.status(403).json({
+          success: false,
+          message: "Access denied: Project does not belong to your company",
+        });
+      }
     }
 
     let emergexChartEntry = await EmergexChartModel.findOne({ project: id, employee });
@@ -318,9 +355,16 @@ export const addEmergexChart = async (req: Request, res: Response) => {
 
 // Get Emergex Chart roles according to priority
 export const getEmergexChartByPriority = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
   const { id } = req.params; // Project ID
 
   try {
+    // Get user's companyId for validation
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+    const isGlobalSuperAdmin = currentUser.role === GlobalAdminRoles.SuperAdmin && !companyId;
+
     const projectId = new mongoose.Types.ObjectId(id);
     const isProjectExist = await ProjectModel.findById(projectId);
 
@@ -329,6 +373,16 @@ export const getEmergexChartByPriority = async (req: Request, res: Response) => 
         success: false,
         error: `Project not found with ID: ${id}`,
       });
+    }
+
+    // Validate project belongs to user's company
+    if (!isGlobalSuperAdmin && companyId) {
+      if (!isProjectExist.companyId || isProjectExist.companyId.toString() !== companyId.toString()) {
+        return res.status(403).json({
+          success: false,
+          message: "Access denied: Project does not belong to your company",
+        });
+      }
     }
 
     const roles = await EmergexChartModel.aggregate([

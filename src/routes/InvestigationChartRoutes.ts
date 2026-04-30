@@ -2,10 +2,14 @@ import express from "express";
 import { checkValidationResult } from "../middlewares/checkValidationsMiddleware";
 import { body, param } from "express-validator";
 import { authorizeRoles } from "../middlewares/roleMiddleware";
+import { authenticate } from "../middlewares/authMiddleware";
 import { GlobalAdminRoles } from "../config/global-enum";
 import { addInvestigationChart, getInvestigationChartByPriority, getInvestigationEmployeesByProject } from "../controllers/InvestigationChartControllers";
 
 const router = express.Router();
+
+router.use(authenticate);
+router.use(authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin));
 
 const validateInvestigationChart = [
   param("id")
@@ -29,7 +33,5 @@ router.route('/:id')
 
 router.route('/employees/:projectId')
   .get(getInvestigationEmployeesByProject);
-
-router.use(authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin));
 
 export default router;

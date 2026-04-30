@@ -4,6 +4,7 @@ import fs from "fs";
 import { ICustomRequest } from "../types/express";
 import EmployeeModel from "../models/EmployeeModel";
 import ProjectModel from "../models/ProjectModel";
+import UserModel from "../models/UserModel";
 import { generateUniqueIncidentId } from "../helper/IncidentFunctions";
 import { UploadBase64File } from "../helper/S3Bucket";
 import mongoose, { Types } from "mongoose";
@@ -61,6 +62,11 @@ export const createIncident = async (req: Request, res: Response) => {
       id = await generateUniqueIncidentId();
     }
 
+    // Get user's companyId for validation
+    const user = await UserModel.findById(currentUser.id).session(session);
+    const companyId = user?.companyId;
+    const isGlobalSuperAdmin = currentUser.role === GlobalAdminRoles.SuperAdmin && !companyId;
+
     // Check if project exists
     const isProjectexist = await ProjectModel.findById(projectId).session(
       session
@@ -73,6 +79,17 @@ export const createIncident = async (req: Request, res: Response) => {
           "projectValidationMessages.response.getProjectById.notFound"
         ),
       });
+    }
+
+    // Validate project belongs to user's company (if not global superadmin)
+    if (!isGlobalSuperAdmin && companyId) {
+      if (!isProjectexist.companyId || isProjectexist.companyId.toString() !== companyId.toString()) {
+        await session.abortTransaction();
+        return res.status(403).json({
+          success: false,
+          error: "Access denied: Project does not belong to your company",
+        });
+      }
     }
 
     // Process images (optional)
@@ -122,6 +139,9 @@ export const createIncident = async (req: Request, res: Response) => {
 
     const savedIncident = await newIncident.save({ session });
 
+    // Get companyId from project
+    const projectCompanyId = isProjectexist.companyId;
+
     // Conversation creation
     const friendlyName = `conversation-${savedIncident._id}`;
     const conversation = await conversationService.createConversation(
@@ -130,7 +150,8 @@ export const createIncident = async (req: Request, res: Response) => {
       ConversationIdentity.INCIDENT,
       ConversationType.GROUP,
       savedIncident._id as mongoose.Types.ObjectId,
-      session
+      session,
+      projectCompanyId
     );
 
     if (!conversation) {
@@ -829,8 +850,43 @@ export const updateIncidentById = async (req: Request, res: Response) => {
 };
 
 export const getAllIncidents = async (req: Request, res: Response) => {
+  const customReq = req as ICustomRequest;
+  const currentUser = customReq.user;
+
   try {
-    const incidents = await IncidentModel.find();
+    // Get user's companyId for filtering
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    // Only global superadmin sees all data
+    const isGlobalSuperAdmin = currentUser.role === GlobalAdminRoles.SuperAdmin && !companyId;
+
+    let filter: any = {};
+
+    if (!isGlobalSuperAdmin && companyId) {
+      // Get all projects belonging to the user's company
+      const companyProjects = await ProjectModel.find({
+        companyId: new mongoose.Types.ObjectId(companyId),
+      }).select("_id");
+
+      const companyProjectIds = companyProjects.map((p: any) => p._id);
+
+      if (companyProjectIds.length === 0) {
+        // No projects = no incidents for this company
+        return res.status(200).json({
+          success: true,
+          message: req.i18n.t(
+            "incidentValidationMessages.response.getAllIncidents.success"
+          ),
+          data: [],
+        });
+      }
+
+      filter.project = { $in: companyProjectIds };
+    }
+
+    const incidents = await IncidentModel.find(filter);
+
     return res.status(200).json({
       success: true,
       message: req.i18n.t(
@@ -853,6 +909,30 @@ export const getIncidentsByProject = async (req: Request, res: Response) => {
   const customReq = req as ICustomRequest;
   const currentUser = customReq.user;
   try {
+    // Get user's companyId for company validation
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+    const isGlobalSuperAdmin = currentUser.role === GlobalAdminRoles.SuperAdmin && !companyId;
+
+    // If not global superadmin, verify project belongs to user's company
+    if (!isGlobalSuperAdmin && companyId) {
+      const project = await ProjectModel.findById(id);
+      if (!project) {
+        return res.status(404).json({
+          success: false,
+          message: "Project not found",
+        });
+      }
+
+      // Check if project belongs to user's company
+      if (project.companyId && project.companyId.toString() !== companyId.toString()) {
+        return res.status(403).json({
+          success: false,
+          message: "Access denied: Project does not belong to your company",
+        });
+      }
+    }
+
     const employee = await EmployeeModel.findOne({
       user: currentUser.id,
     });
@@ -1173,41 +1253,50 @@ export const getIncidentStatistics = async (req: Request, res: Response) => {
     const { project, filterType, startDate, endDate } = req.query;
     const matchStage: any = {};
 
+    // Get user's companyId for company-level filtering
+    const user = await UserModel.findById(currentUser.id);
+    const companyId = user?.companyId;
+
+    // Only global superadmin sees all data, others are restricted to their company
+    const isGlobalSuperAdmin = currentUser.role === GlobalAdminRoles.SuperAdmin && !companyId;
+
     if (project) {
       matchStage.project = new mongoose.Types.ObjectId(project as string);
     } else if (currentUser) {
-      if (currentUser.role === GlobalAdminRoles.SuperAdmin) {
-        // Super Admin sees all incidents - no filter needed
-      } else if (currentUser.role === GlobalAdminRoles.ClientAdmin) {
-        // Client Admin sees incidents from their projects
-        const employee = await EmployeeModel.findOne({
-          user: new mongoose.Types.ObjectId(currentUser.id),
-        });
-
-        const roles = await ProjectRoleModel.find({
-          employee: employee?._id,
-        }).select("project");
-
-        const projectIds = roles.map((role: any) => role.project);
-
-        const createdByProjects = await ProjectModel.find({
-          createdBy: new mongoose.Types.ObjectId(currentUser.id),
+      // If NOT global superadmin, restrict to user's company
+      if (!isGlobalSuperAdmin && companyId) {
+        // Get all projects belonging to the user's company
+        const companyProjects = await ProjectModel.find({
+          companyId: new mongoose.Types.ObjectId(companyId),
         }).select("_id");
 
-        const allProjectIds = [
-          ...projectIds,
-          ...createdByProjects.map((p: any) => p._id),
-        ];
+        const companyProjectIds = companyProjects.map((p: any) => p._id);
 
-        // If user has no projects, return empty
-        if (allProjectIds.length === 0) {
-          matchStage._id = null; // Will return no results
-        } else {
+        if (companyProjectIds.length === 0) {
+          matchStage._id = null; // No projects = no incidents
+        } else if (currentUser.role === GlobalAdminRoles.ClientAdmin || currentUser.role === "super-admin") {
+          // ClientAdmin/SuperAdmin: show all company projects + their created incidents
+          const createdByProjects = await ProjectModel.find({
+            createdBy: new mongoose.Types.ObjectId(currentUser.id),
+          }).select("_id");
+
+          const createdByProjectIds = createdByProjects.map((p: any) => p._id);
+
+          // Combine company projects + user created projects
+          const allProjectIds = [...companyProjectIds, ...createdByProjectIds];
           matchStage.project = { $in: allProjectIds };
+        } else {
+          // Regular users: show only their created incidents from company projects
+          matchStage.$or = [
+            { project: { $in: companyProjectIds }, createdBy: new mongoose.Types.ObjectId(currentUser.id) },
+          ];
         }
+      } else if (currentUser.role === GlobalAdminRoles.SuperAdmin && !companyId) {
+        // Global superadmin without company - sees all (legacy support)
+        // Super Admin sees all incidents - no filter needed
       } else {
-        // Regular users see only their created incidents
-        matchStage.createdBy = new mongoose.Types.ObjectId(currentUser.id);
+        // No companyId and not global superadmin - return no results
+        matchStage._id = null;
       }
     }
 
