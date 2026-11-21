@@ -77,13 +77,13 @@ export const incidentValidationRules = [
       )
     ),
   body("finance")
-    .notEmpty()
+    .optional()
+    .isNumeric()
     .withMessage((_, { req }) =>
       req.i18n.t(
         "incidentValidationMessages.incidentValidationRules.finance.empty"
       )
-    )
-  ,
+    ),
   body("utilityAffected")
     .notEmpty()
     .withMessage((_, { req }) =>
@@ -178,7 +178,8 @@ export const updateIncidentValidationRules = [
       )
     ),
   body("finance")
-    .notEmpty()
+    .optional()
+    .isNumeric()
     .withMessage((_, { req }) =>
       req.i18n.t(
         "incidentValidationMessages.incidentValidationRules.finance.empty"

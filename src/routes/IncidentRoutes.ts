@@ -1,45 +1,132 @@
 import { Router } from "express";
-import { approveIncidentById, createIncident, deleteIncidentById, generateIncidentReport, getIncidentById, getIncidentReportsGroupByProjects, getIncidentsByProject, getIncidentStatistics, markedAsNearMiss, stopIncidentTimer, updateIncidentById, updateIncidentStatus } from "../controllers/IncidentControllers";
+import {
+  approveIncidentById,
+  createIncident,
+  deleteIncidentById,
+  generateIncidentReport,
+  getIncidentById,
+  getIncidentReportsGroupByProjects,
+  getIncidentsByProject,
+  getIncidentStatistics,
+  markedAsNearMiss,
+  stopIncidentTimer,
+  updateIncidentById,
+  updateIncidentStatus,
+} from "../controllers/IncidentControllers";
 import { checkValidationResult } from "../middlewares/checkValidationsMiddleware";
-import { getIncidentsByProjectIdValidationRules, incidentsByIdValidationRules, incidentValidationRules, updateIncidentValidationRules, updateStatusValidation } from "../validations/incidentValidators";
+import {
+  getIncidentsByProjectIdValidationRules,
+  incidentsByIdValidationRules,
+  incidentValidationRules,
+  updateIncidentValidationRules,
+  updateStatusValidation,
+} from "../validations/incidentValidators";
 import { authenticate } from "../middlewares/authMiddleware";
 import { authorizeRoles } from "../middlewares/roleMiddleware";
 import { GlobalAdminRoles } from "../config/global-enum";
 import { normalizeImageData } from "../middlewares/imageNormalizer";
+import { writeLimiter, heavyLimiter } from "../middlewares/rateLimiter.middleware";
 
 const router = Router();
 
-router
-  .route("/")
-  .post(
-    authenticate,
-    authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin),
-    // incidentValidationRules,
-    // checkValidationResult,
-    normalizeImageData,
-    createIncident
-  );
+// All incident routes require authentication
+router.use(authenticate);
 
+// ─── Create incident ──────────────────────────────────────────────────────────
+router.post(
+  "/",
+  authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin),
+  writeLimiter,
+  incidentValidationRules,   // re-enabled — was incorrectly commented out
+  checkValidationResult,
+  normalizeImageData,
+  createIncident
+);
 
-router.get("/incident-by-project/:id", authenticate, authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin), getIncidentsByProjectIdValidationRules, checkValidationResult, getIncidentsByProject)
+// ─── Read ─────────────────────────────────────────────────────────────────────
+router.get(
+  "/incident-by-project/:id",
+  authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin),
+  getIncidentsByProjectIdValidationRules,
+  checkValidationResult,
+  getIncidentsByProject
+);
 
-router.route("/incident-by-id/:id")
-  .get(authenticate, authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin), incidentsByIdValidationRules, checkValidationResult, getIncidentById)
-  .put(authenticate, authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin), normalizeImageData, updateIncidentById)
-  .delete(authenticate, authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin), incidentsByIdValidationRules, checkValidationResult, deleteIncidentById);
+router.get(
+  "/incident-by-id/:id",
+  authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin),
+  incidentsByIdValidationRules,
+  checkValidationResult,
+  getIncidentById
+);
 
-router.put("/update-status/:id", authenticate, authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin), updateStatusValidation, checkValidationResult, updateIncidentStatus);
+router.get(
+  "/statistics",
+  authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin),
+  getIncidentStatistics
+);
 
-router.put("/stop-timer/:id", authenticate, authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin), incidentsByIdValidationRules, checkValidationResult, stopIncidentTimer)
+router.get(
+  "/reports/:projectId",
+  authorizeRoles(GlobalAdminRoles.ClientAdmin, GlobalAdminRoles.SuperAdmin),
+  getIncidentReportsGroupByProjects
+);
 
-router.get("/statistics", authenticate, authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin), getIncidentStatistics);
+// ─── Update ───────────────────────────────────────────────────────────────────
+router.put(
+  "/incident-by-id/:id",
+  authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin),
+  writeLimiter,
+  updateIncidentValidationRules,
+  checkValidationResult,
+  normalizeImageData,
+  updateIncidentById
+);
 
-router.patch('/approve/:id', authenticate, authorizeRoles(GlobalAdminRoles.ClientAdmin, GlobalAdminRoles.SuperAdmin), approveIncidentById);
+router.put(
+  "/update-status/:id",
+  authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin),
+  updateStatusValidation,
+  checkValidationResult,
+  updateIncidentStatus
+);
 
-router.patch('/near-miss/:id', authenticate, authorizeRoles(GlobalAdminRoles.ClientAdmin, GlobalAdminRoles.SuperAdmin), markedAsNearMiss);
+router.put(
+  "/stop-timer/:id",
+  authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin),
+  incidentsByIdValidationRules,
+  checkValidationResult,
+  stopIncidentTimer
+);
 
-router.post('/report/:id', authenticate, authorizeRoles(GlobalAdminRoles.ClientAdmin, GlobalAdminRoles.SuperAdmin), generateIncidentReport);
+// ─── Delete ───────────────────────────────────────────────────────────────────
+router.delete(
+  "/incident-by-id/:id",
+  authorizeRoles(GlobalAdminRoles.SuperAdmin, GlobalAdminRoles.ClientAdmin),
+  incidentsByIdValidationRules,
+  checkValidationResult,
+  deleteIncidentById
+);
 
-router.get('/reports/:projectId', authenticate, authorizeRoles(GlobalAdminRoles.ClientAdmin, GlobalAdminRoles.SuperAdmin), getIncidentReportsGroupByProjects);
+// ─── Patch actions ────────────────────────────────────────────────────────────
+router.patch(
+  "/approve/:id",
+  authorizeRoles(GlobalAdminRoles.ClientAdmin, GlobalAdminRoles.SuperAdmin),
+  approveIncidentById
+);
+
+router.patch(
+  "/near-miss/:id",
+  authorizeRoles(GlobalAdminRoles.ClientAdmin, GlobalAdminRoles.SuperAdmin),
+  markedAsNearMiss
+);
+
+// ─── Reports ──────────────────────────────────────────────────────────────────
+router.post(
+  "/report/:id",
+  authorizeRoles(GlobalAdminRoles.ClientAdmin, GlobalAdminRoles.SuperAdmin),
+  heavyLimiter,
+  generateIncidentReport
+);
 
 export default router;

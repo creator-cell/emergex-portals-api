@@ -1,28 +1,50 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from "express";
+import { createLogger, format, transports } from "winston";
 
-const logger = (req: Request, _: Response, next: NextFunction): void => {
-    let color = "";
+const winstonLogger = createLogger({
+  level: process.env.NODE_ENV === "production" ? "info" : "debug",
+  format: format.combine(
+    format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+    process.env.NODE_ENV === "production"
+      ? format.json()
+      : format.printf(({ timestamp, level, message }) =>
+          `${timestamp} [${level.toUpperCase()}] ${message}`
+        )
+  ),
+  transports: [
+    new transports.Console(),
+    new transports.File({ filename: "logs/combined.log", maxsize: 10_000_000, maxFiles: 5 }),
+  ],
+});
 
-    switch (req.method) {
-        case "GET":
-            color = "\x1b[32m"; // Green
-            break;
-        case "POST":
-            color = "\x1b[34m"; // Blue
-            break;
-        case "PATCH":
-            color = "\x1b[33m"; // Yellow
-            break;
-        case "DELETE":
-            color = "\x1b[31m"; // Red
-            break;
-        default:
-            color = "\x1b[36m"; // Cyan
-            break;
-    }
-
-    console.log(`${color}${req.method}\x1b[0m ${req.originalUrl} ${new Date()}`);
-    next();
+const METHOD_COLORS: Record<string, string> = {
+  GET: "\x1b[32m",
+  POST: "\x1b[34m",
+  PUT: "\x1b[33m",
+  PATCH: "\x1b[33m",
+  DELETE: "\x1b[31m",
 };
 
-export { logger };
+export const logger = (req: Request, res: Response, next: NextFunction): void => {
+  const start = Date.now();
+  const { method, originalUrl } = req;
+  const color = METHOD_COLORS[method] ?? "\x1b[36m";
+
+  res.on("finish", () => {
+    const elapsed = Date.now() - start;
+    const status = res.statusCode;
+    const statusColor = status >= 500 ? "\x1b[31m" : status >= 400 ? "\x1b[33m" : "\x1b[32m";
+
+    if (process.env.NODE_ENV !== "production") {
+      console.log(
+        `${color}${method}\x1b[0m ${originalUrl} ${statusColor}${status}\x1b[0m ${elapsed}ms`
+      );
+    } else {
+      winstonLogger.info(`${method} ${originalUrl} ${status} ${elapsed}ms`);
+    }
+  });
+
+  next();
+};
+
+export { winstonLogger };
